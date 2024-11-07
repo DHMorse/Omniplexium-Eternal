@@ -6,50 +6,37 @@ Two (three?) forms of currency:
 
 EXTREME rewards for inviting people (automatic? manual?)
 '''
-
-
-
-
 import discord
 from discord.ext import commands
-import psycopg2
 from PIL import Image, ImageDraw, ImageFont
 import os
 import requests
+import mysql.connector  # Use mysql-connector-python for MariaDB/MySQL
 
-from secret_const import TOKEN
+from serect_const import TOKEN
 
-bot = commands.Bot(command_prefix='', intents=discord.Intents.all()) #change the prefix to what ever i.e. "$" and some people call this var client instead of bot
+bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
 # Image cache and leaderboard image paths
-CACHE_DIR_PFP = 'C:\\VS_Code\\MY_discord_bot\\cache_dir\\pfps'
+CACHE_DIR_PFP = '~/Documents/MY_discord_bot/cache_dir/pfps'
 LEADERBOARD_PIC = 'leaderboard.png'
-DEFUALT_PROFILE_PIC = 'C:\\VS_Code\\MY_discord_bot\\pngs\\defualt.png'  # Path to your default profile picture
+DEFUALT_PROFILE_PIC = '~/Documents/MY_discord_bot/pngs/defualt.png'  # Path to your default profile picture
 
-# Configure your PostgreSQL database connection
+# Configure your MariaDB database connection
 DATABASE_CONFIG = {
-    'dbname': 'discorddb',
-    'user': 'postgres',
+    'user': 'eli',         # Change as needed
     'password': 'EliSucksAs',
-    'host': '45.79.194.241'
+    'host': '45.79.203.11',
+    'database': 'discorddb'
 }
 
-# Connect to PostgreSQL database
-conn = psycopg2.connect(**DATABASE_CONFIG)
+# Connect to MariaDB database
+conn = mysql.connector.connect(**DATABASE_CONFIG)
 cursor = conn.cursor()
 
 @bot.event
 async def on_ready():
     print(f'Bot is ready. Logged in as {bot.user}')
-    '''for guild in bot.guilds:
-        existing_roles = [role.name for role in guild.roles]
-        for i in range(1, 11):
-            role_name = f"Level {i}"
-            if role_name not in existing_roles:
-                await guild.create_role(name=role_name)
-                print(f"Created role: {role_name}")
-            else:
-                print(f"Role {role_name} already exists.")'''
 
 # Increment points on each message
 @bot.event
