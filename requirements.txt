@@ -1,0 +1,4 @@
+discord
+pillow
+requests
+mysql-connector-python
