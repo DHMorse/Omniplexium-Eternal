@@ -1,7 +1,9 @@
-ROOT_DIR = '~/Documents/Omniplexium-Eternal/'
+import os
 
-CACHE_DIR_PFP = ROOT_DIR + 'cache_dir/pfps'
+ROOT_DIR = os.path.expanduser('~/Documents/Omniplexium-Eternal/')
 
-LEADERBOARD_PIC = ROOT_DIR + 'leaderboard.png'
+CACHE_DIR_PFP = os.path.join(ROOT_DIR, 'cache_dir', 'pfps')
 
-DEFUALT_PROFILE_PIC = ROOT_DIR + CACHE_DIR_PFP + '/defualt.png'
+LEADERBOARD_PIC = os.path.join(ROOT_DIR, 'leaderboard.png')
+
+DEFUALT_PROFILE_PIC = os.path.join(CACHE_DIR_PFP, 'defualt.png')
