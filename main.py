@@ -104,7 +104,7 @@ async def leaderboard(ctx):
     count = 0
     y_offset = 10
     for user_id, username, points in leaderboard_data:
-        # Skip the user with ID 1175890644191957013
+        # Skip the user with ID 1175890644191957013 this is eli bots id, and this bot is not eli bot lmao
         if user_id == 1175890644191957013:
             continue
 
@@ -112,7 +112,7 @@ async def leaderboard(ctx):
         count += 1
 
         # Check if profile picture is in cache
-        profile_picture_path = os.path.join(CACHE_DIR_PFP, f"{user_id}.png")
+        profile_picture_path = os.path.join(os.path.expanduser(CACHE_DIR_PFP), f"{user_id}.png")
         if os.path.exists(profile_picture_path):
             profile_picture = Image.open(profile_picture_path)
         else:
