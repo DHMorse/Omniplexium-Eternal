@@ -5,7 +5,15 @@ Two (three?) forms of currency:
 (- REAL MONEY MONEY money: buy with USD lol)
 
 EXTREME rewards for inviting people (automatic? manual?)
+
+we make some sort of minigame per every 10 levels or what ever we decide our floors to be
+
+each level has a cooler mini game then the last, and the rewards are better, but the difficulty could be higher
+
+and the amount of points needed for each level is exponential, so even tho you have better games it will still take longer to level up
+
 '''
+
 import discord
 from discord.ext import commands
 from PIL import Image, ImageDraw, ImageFont
@@ -15,12 +23,9 @@ import mysql.connector  # Use mysql-connector-python for MariaDB/MySQL
 
 from secret_const import TOKEN, DATABASE_CONFIG
 
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC
 
-# Image cache and leaderboard image paths
-CACHE_DIR_PFP = '~/Documents/MY_discord_bot/cache_dir/pfps'
-LEADERBOARD_PIC = 'leaderboard.png'
-DEFUALT_PROFILE_PIC = '~/Documents/MY_discord_bot/pngs/defualt.png'  # Path to your default profile picture
+bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
 # Connect to MariaDB database
 conn = mysql.connector.connect(**DATABASE_CONFIG)
@@ -87,7 +92,10 @@ async def leaderboard(ctx):
     
     # Load font for text
     font_size = 30
-    font = ImageFont.truetype("arial.ttf", font_size)
+    
+    # the font could be swapped for helvetica or something else, 
+    # arial isn't installed on everything by default
+    font = ImageFont.truetype("arial.ttf", font_size) 
     
     # Initialize drawing context
     draw = ImageDraw.Draw(image)
