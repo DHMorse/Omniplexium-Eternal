@@ -111,8 +111,14 @@ async def leaderboard(ctx):
         user = ctx.bot.get_user(user_id)
         count += 1
 
+        # Ensure the directory exists
+        profile_picture_dir = os.path.join(os.path.expanduser(CACHE_DIR_PFP))  # Assuming CACHE_DIR_PFP is the path to your cache dir
+        if not os.path.exists(profile_picture_dir):
+            os.makedirs(profile_picture_dir)
+
         # Check if profile picture is in cache
         profile_picture_path = os.path.join(os.path.expanduser(CACHE_DIR_PFP), f"{user_id}.png")
+
         if os.path.exists(profile_picture_path):
             profile_picture = Image.open(profile_picture_path)
         else:
