@@ -25,9 +25,7 @@ async def guess_the_number(interaction: discord.Interaction, guess: int):
             level_up = await update_xp_and_check_level_up(ctx=interaction, xp=5, add=False)
             await interaction.response.send_message(f"Your guess of {guess} is wrong, Sorry! The number was {number}. `-5 XP`")
 
-        print(level_up)
-
-        if level_up == True:
+        if level_up:
             channel = interaction.client.get_channel(LOG_CHANNEL_ID)
             
             cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (interaction.user.id,))
