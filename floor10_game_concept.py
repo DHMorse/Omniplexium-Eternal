@@ -4,7 +4,7 @@ import random
 
 from const import LOG_CHANNEL_ID, pool, update_xp_and_check_level_up, xpToLevel
 
-async def guess_the_number(interaction: discord.Interaction, guess: int):
+async def guess_the_number(interaction: discord.Interaction, guess: app_commands.Range[int, 1, 10]):
     conn = pool.get_connection()
     cursor = conn.cursor()
 
