@@ -161,7 +161,7 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
 
     # Load font for text
     font_size = 30
-    font = ImageFont.truetype("helvetica.ttf", font_size)
+    font = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", font_size)
 
     # Initialize drawing context
     draw = ImageDraw.Draw(image)
