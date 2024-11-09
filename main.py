@@ -151,6 +151,11 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
         else:
             rank_color = (255, 255, 255)  # White
 
+
+        # what the fuck is value?
+        
+        value = xpToLevel(value) if type == "level" else value
+
         # Draw rank, username, and value (level or money)
         display_value = f"Level {value}" if type == "level" else f"${value:,}"
         draw.text((100, y_offset + 10), f"•  #{count} • {username}", fill=rank_color, font=font)
