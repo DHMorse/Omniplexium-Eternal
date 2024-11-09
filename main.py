@@ -56,7 +56,7 @@ async def on_ready():
     await bot.tree.sync()
     print(f'Bot is ready. Logged in as {bot.user}')
 
-async def update_xp_and_check_level_up(database, ctx, xp: int, add: bool = True) -> None:
+async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> None:
 
     # kind of unnecessary but reducdancy is always nice
     if type(xp) == float: 
@@ -74,10 +74,12 @@ async def update_xp_and_check_level_up(database, ctx, xp: int, add: bool = True)
     cursor = conn.cursor()
 
     try:
+        cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (ctx.author.id,))
+        database = cursor.fetchone()
         
         current_xp_level = xpToLevel(database[0])
         
-        if add:
+        if add == True:
             new_xp = database[0] + xp
         else:
             new_xp = database[0] - xp
@@ -113,7 +115,7 @@ async def on_message(message):
         result = cursor.fetchone()
 
         if result:
-            await update_xp_and_check_level_up(database=result, ctx=message, xp=1, add=True)
+            await update_xp_and_check_level_up(ctx=message, xp=1, add=True)
         else:
             # Insert new user record if they don't exist
             cursor.execute(
