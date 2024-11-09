@@ -24,9 +24,22 @@ from mysql.connector import pooling
 
 from secret_const import TOKEN, DATABASE_CONFIG
 
-from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, xpToLevel
+from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, xpToLevel
 
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+from floor10_game_concept import guess_the_number_command
+
+class MyBot(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix='!', intents=discord.Intents.all())
+
+    async def setup_hook(self):
+        # Add the imported command to the bot’s command tree
+        self.tree.add_command(guess_the_number_command)
+        await self.tree.sync()  # Sync commands with Discord
+
+#bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+
+bot = MyBot()
 
 pool = pooling.MySQLConnectionPool(
     pool_name="mypool",
@@ -42,6 +55,45 @@ pool = pooling.MySQLConnectionPool(
 async def on_ready():
     await bot.tree.sync()
     print(f'Bot is ready. Logged in as {bot.user}')
+
+async def update_xp_and_check_level_up(database, ctx, xp: int, add: bool = True) -> None:
+
+    # kind of unnecessary but reducdancy is always nice
+    if type(xp) == float: 
+        xp = int(xp)
+    elif type(xp) == str:
+        try:
+            xp = int(xp)
+        except:
+            raise ValueError("argument \"xp\" must be an int, float, or a string that can be converted to an integer. \"xp\" *SHOULD* always be an int tho.")
+
+    if type(add) != bool:
+        raise ValueError("argument \"add\" must be a boolean.")
+
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        
+        current_xp_level = xpToLevel(database[0])
+        
+        if add:
+            new_xp = database[0] + xp
+        else:
+            new_xp = database[0] - xp
+
+        if current_xp_level < xpToLevel(new_xp):
+            channel = bot.get_channel(LOG_CHANNEL_ID)
+            await channel.send(f"Congratulations, {ctx.author.mention}! You have leveled up to level {xpToLevel(new_xp)}!")
+        
+        cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (new_xp, ctx.author.id))
+        
+        conn.commit()
+
+    finally:
+        cursor.close()
+        conn.close()
+    return
 
 # Increment xp on each message
 @bot.event
@@ -61,18 +113,13 @@ async def on_message(message):
         result = cursor.fetchone()
 
         if result:
-            # Update xp if the user already exists
-            new_xp = result[0] + 1
-            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (new_xp, user_id))
+            await update_xp_and_check_level_up(database=result, ctx=message, xp=1, add=True)
         else:
             # Insert new user record if they don't exist
             cursor.execute(
                 "INSERT INTO users (user_id, username, xp, money) VALUES (%s, %s, %s, %s, %s)",
                 (user_id, username, 1, 0, 0.00)
             )
-
-        # Commit the transaction
-        conn.commit()
 
     finally:
         cursor.close()
@@ -99,6 +146,28 @@ async def stats(ctx, member: discord.Member = None):
             await ctx.send(f"{member.name}'s Stats:\nxp: {xp}\nLevel: {level}\nMoney: ${money}")
         else:
             await ctx.send(f"{member.name} has no records in the database.")
+    finally:
+        cursor.close()
+        conn.close()
+
+@bot.command()
+async def reset(ctx, field: str = ""):
+    if ctx.author.guild_permissions.administrator != True:
+        await ctx.send("You do not have the required permissions to use this command.")
+        return
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+    try:
+        if field == "xp":
+            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (0, ctx.author.id))
+            conn.commit()
+            await ctx.send(f"Reset {ctx.author.name}'s xp to 0.")
+        elif field == "money":
+            cursor.execute("UPDATE users SET money = %s WHERE user_id = %s", (0, ctx.author.id))
+            conn.commit()
+            await ctx.send(f"Reset {ctx.author.name}'s money to $0.")
+        else:
+            await ctx.send("Please specify a valid field to reset.")
     finally:
         cursor.close()
         conn.close()
@@ -204,5 +273,7 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
 
     # Send the embed with the leaderboard image
     await interaction.response.send_message(embed=embed, file=discord.File(LEADERBOARD_PIC))
+
+
 
 bot.run(TOKEN)

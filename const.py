@@ -1,6 +1,8 @@
 import os
 import numpy as np
 
+LOG_CHANNEL_ID = 1304829859549155328
+
 ROOT_DIR = os.path.expanduser('~/Documents/Omniplexium-Eternal/')
 
 CACHE_DIR_PFP = os.path.join(ROOT_DIR, 'cache_dir', 'pfps')
@@ -23,8 +25,9 @@ def xpToLevel(xp: any) -> int:
     xp = int(xp)
 
     # Calculate the level using logarithmic transformation
-    if xp < XP_LEVEL_10:
-        return 1
+    if xp <= XP_LEVEL_10:
+        # every muiltply of 10 xp is a level
+        return int(xp // 10)
     elif xp >= XP_LEVEL_100:
         return TOTAL_LEVELS
 
