@@ -75,7 +75,8 @@ async def stats(ctx, member: discord.Member = None):
     result = cursor.fetchone()
 
     if result:
-        xp, level, money = result
+        xp, money = result
+        level = xpToLevel(xp)
         await ctx.send(f"{member.name}'s Stats:\nxp: {xp}\nLevel: {level}\nMoney: ${money}")
     else:
         await ctx.send(f"{member.name} has no records in the database.")
