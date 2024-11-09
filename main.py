@@ -15,6 +15,7 @@ and the amount of points needed for each level is exponential, so even tho you h
 '''
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 from PIL import Image, ImageDraw, ImageFont
 import os
@@ -33,6 +34,7 @@ cursor = conn.cursor()
 
 @bot.event
 async def on_ready():
+    await bot.tree.sync()
     print(f'Bot is ready. Logged in as {bot.user}')
 
 # Increment points on each message
@@ -78,46 +80,48 @@ async def stats(ctx, member: discord.Member = None):
     else:
         await ctx.send(f"{member.name} has no records in the database.")
 
-@bot.command()
-async def leaderboard(ctx):
-    # Query the top 10 users by points
-    cursor.execute("SELECT user_id, username, points FROM users ORDER BY points DESC LIMIT 10")
-    leaderboard_data = cursor.fetchall()
+@bot.tree.command(name="leaderboard", description="Display the leaderboard based on level or money.")
+@app_commands.describe(type="Choose between 'level' or 'money' for the leaderboard type.")
+async def leaderboard(interaction: discord.Interaction, type: str = "level"):
+
+    # Determine the query based on the selected type
+    if type == "money":
+        cursor.execute("SELECT user_id, username, money FROM users ORDER BY money DESC, points DESC LIMIT 10")
+        leaderboard_data = cursor.fetchall()
+    else:  # Default to "level"
+        cursor.execute("SELECT user_id, username, level FROM users ORDER BY level DESC, points DESC LIMIT 10")
+        leaderboard_data = cursor.fetchall()
 
     # Create an image for the leaderboard
     image_width = 600
     image_height = 770
     background_color = (54, 57, 62)  # Dark grey background
     image = Image.new("RGB", (image_width, image_height), background_color)
-    
+
     # Load font for text
     font_size = 30
-    
-    # the font could be swapped for helvetica or something else, 
-    # arial isn't installed on everything by default
-    font = ImageFont.truetype("arial.ttf", font_size) 
-    
+    font = ImageFont.truetype("arial.ttf", font_size)
+
     # Initialize drawing context
     draw = ImageDraw.Draw(image)
 
     # Set up leaderboard rendering variables
     count = 0
     y_offset = 10
-    for user_id, username, points in leaderboard_data:
-        # Skip the user with ID 1175890644191957013 this is eli bots id, and this bot is not eli bot lmao
+    for user_id, username, value in leaderboard_data:
         if user_id == 1175890644191957013:
             continue
 
-        user = ctx.bot.get_user(user_id)
+        user = bot.get_user(user_id)
         count += 1
 
         # Ensure the directory exists
-        profile_picture_dir = os.path.join(os.path.expanduser(CACHE_DIR_PFP))  # Assuming CACHE_DIR_PFP is the path to your cache dir
+        profile_picture_dir = os.path.join(os.path.expanduser(CACHE_DIR_PFP))
         if not os.path.exists(profile_picture_dir):
             os.makedirs(profile_picture_dir)
 
         # Check if profile picture is in cache
-        profile_picture_path = os.path.join(os.path.expanduser(CACHE_DIR_PFP), f"{user_id}.png")
+        profile_picture_path = os.path.join(profile_picture_dir, f"{user_id}.png")
 
         if os.path.exists(profile_picture_path):
             profile_picture = Image.open(profile_picture_path)
@@ -147,9 +151,10 @@ async def leaderboard(ctx):
         else:
             rank_color = (255, 255, 255)  # White
 
-        # Draw rank, username, and points
+        # Draw rank, username, and value (level or money)
+        display_value = f"Level {value}" if type == "level" else f"${value:,}"
         draw.text((100, y_offset + 10), f"•  #{count} • {username}", fill=rank_color, font=font)
-        draw.text((390, y_offset + 10), f"{points:,} pts", fill=(255, 255, 255), font=font)  # Points in white
+        draw.text((390, y_offset + 10), display_value, fill=(255, 255, 255), font=font)  # Value in white
 
         # Increment y_offset for next user
         y_offset += 75
@@ -160,10 +165,10 @@ async def leaderboard(ctx):
     image.save(LEADERBOARD_PIC)
 
     # Create an embed for the leaderboard
-    embed = discord.Embed(title="Points Leaderboard", color=0x282b30)
+    embed = discord.Embed(title=f"{type.capitalize()} Leaderboard", color=0x282b30)
     embed.set_image(url="attachment://leaderboard.png")
 
     # Send the embed with the leaderboard image
-    await ctx.send(embed=embed, file=discord.File(LEADERBOARD_PIC))
+    await interaction.response.send_message(embed=embed, file=discord.File(LEADERBOARD_PIC))
 
 bot.run(TOKEN)
