@@ -7,6 +7,8 @@ from secret_const import DATABASE_CONFIG
 
 LOG_CHANNEL_ID = 1304829859549155328
 
+ADMIN_LOG_CHANNEL_ID = 1304245019300986941
+
 ROOT_DIR = os.path.expanduser('~/Documents/Omniplexium-Eternal/')
 
 CACHE_DIR_PFP = os.path.join(ROOT_DIR, 'cache_dir', 'pfps')

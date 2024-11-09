@@ -23,7 +23,7 @@ import requests
 
 from secret_const import TOKEN, DATABASE_CONFIG
 
-from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, pool, xpToLevel, update_xp_and_check_level_up
+from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, pool, xpToLevel, update_xp_and_check_level_up
 
 from floor10_game_concept import guess_the_number_command
 
@@ -67,6 +67,19 @@ async def on_message(message):
                 # Send the level-up message with the correct level
                 channel = bot.get_channel(LOG_CHANNEL_ID)
                 await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
+                
+                role = discord.utils.get(message.guild.roles, name=f"Level {new_level}")
+                
+                if role is None:
+                    channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                    await channel.send(f"Role 'Level {new_level}' does not exist.")
+                    return
+                if role in message.author.roles:
+                    channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                    await channel.send(f"{message.author.name} already has the 'Level {new_level}' role, but we tried to give it to them again.")
+                    return
+                else:
+                    await message.author.add_roles(role)
         else:
             # Insert new user record if they don't exist
             cursor.execute(
