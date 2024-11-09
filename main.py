@@ -20,13 +20,13 @@ from discord.ext import commands
 from PIL import Image, ImageDraw, ImageFont
 import os
 import requests
-from mysql.connector import pooling
 
 from secret_const import TOKEN, DATABASE_CONFIG
 
-from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, xpToLevel
+from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, pool, xpToLevel, update_xp_and_check_level_up
 
 from floor10_game_concept import guess_the_number_command
+
 
 class MyBot(commands.Bot):
     def __init__(self):
@@ -37,15 +37,9 @@ class MyBot(commands.Bot):
         self.tree.add_command(guess_the_number_command)
         await self.tree.sync()  # Sync commands with Discord
 
-#bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
-
 bot = MyBot()
 
-pool = pooling.MySQLConnectionPool(
-    pool_name="mypool",
-    pool_size=10,
-    **DATABASE_CONFIG
-)
+#bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
 # Connect to MariaDB database
 #conn = mysql.connector.connect(**DATABASE_CONFIG)
@@ -56,46 +50,6 @@ async def on_ready():
     await bot.tree.sync()
     print(f'Bot is ready. Logged in as {bot.user}')
 
-async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> None:
-
-    # kind of unnecessary but reducdancy is always nice
-    if type(xp) == float: 
-        xp = int(xp)
-    elif type(xp) == str:
-        try:
-            xp = int(xp)
-        except:
-            raise ValueError("argument \"xp\" must be an int, float, or a string that can be converted to an integer. \"xp\" *SHOULD* always be an int tho.")
-
-    if type(add) != bool:
-        raise ValueError("argument \"add\" must be a boolean.")
-
-    conn = pool.get_connection()
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (ctx.author.id,))
-        database = cursor.fetchone()
-        
-        current_xp_level = xpToLevel(database[0])
-        
-        if add == True:
-            new_xp = database[0] + xp
-        else:
-            new_xp = database[0] - xp
-
-        if current_xp_level < xpToLevel(new_xp):
-            channel = bot.get_channel(LOG_CHANNEL_ID)
-            await channel.send(f"Congratulations, {ctx.author.mention}! You have leveled up to level {xpToLevel(new_xp)}!")
-        
-        cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (new_xp, ctx.author.id))
-        
-        conn.commit()
-
-    finally:
-        cursor.close()
-        conn.close()
-    return
 
 # Increment xp on each message
 @bot.event
@@ -115,7 +69,14 @@ async def on_message(message):
         result = cursor.fetchone()
 
         if result:
-            await update_xp_and_check_level_up(ctx=message, xp=1, add=True)
+            level_up = await update_xp_and_check_level_up(ctx=message, xp=1, add=True)
+            if level_up == True:
+                cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (user_id,))
+                result = cursor.fetchone()
+                
+                channel = bot.get_channel(LOG_CHANNEL_ID)
+                print(result[0])
+                await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {xpToLevel(result[0])}!")
         else:
             # Insert new user record if they don't exist
             cursor.execute(
