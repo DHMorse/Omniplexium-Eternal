@@ -83,12 +83,12 @@ async def stats(ctx, member: discord.Member = None):
 @bot.tree.command(name="leaderboard", description="Display the leaderboard based on level or money.")
 @app_commands.describe(type="Choose between 'level' or 'money' for the leaderboard type.")
 async def leaderboard(interaction: discord.Interaction, type: str = "level"):
-
     # Determine the query based on the selected type
     if type == "money":
         cursor.execute("SELECT user_id, username, money FROM users ORDER BY money DESC, points DESC LIMIT 10")
         leaderboard_data = cursor.fetchall()
     else:  # Default to "level"
+        type = 'level' # handles edge case where the user types something other than 'money' or 'level'
         cursor.execute("SELECT user_id, username, level FROM users ORDER BY level DESC, points DESC LIMIT 10")
         leaderboard_data = cursor.fetchall()
 
