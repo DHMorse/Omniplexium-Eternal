@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 import random
 
-from const import LOG_CHANNEL_ID, pool, update_xp_and_check_level_up, xpToLevel
+from const import LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, pool, update_xp_and_check_level_up, xpToLevel
 
 async def guess_the_number(interaction: discord.Interaction, guess: app_commands.Range[int, 1, 10]):
     conn = pool.get_connection()
@@ -32,6 +32,19 @@ async def guess_the_number(interaction: discord.Interaction, guess: app_commands
             result = cursor.fetchone()
 
             await channel.send(f"Congratulations, {interaction.user.mention}! You have leveled up to level {xpToLevel(result[0])}!")
+
+            role = discord.utils.get(interaction.guild.roles, name=f"Level {level_up[1]}")
+                
+            if role is None:
+                channel = interaction.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+                await channel.send(f"Role 'Level {level_up[1]}' does not exist.")
+                return
+            if role in interaction.user.roles:
+                channel = interaction.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+                await channel.send(f"{interaction.user.name} already has the 'Level {level_up[1]}' role, but we tried to give it to them again.")
+                return
+            else:
+                await interaction.user.add_roles(role)
     finally:
             cursor.close()
             conn.close()
