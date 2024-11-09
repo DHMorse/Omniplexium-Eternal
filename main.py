@@ -20,7 +20,7 @@ from discord.ext import commands
 from PIL import Image, ImageDraw, ImageFont
 import os
 import requests
-import mysql.connector  # Use mysql-connector-python for MariaDB/MySQL
+from mysql.connector import pooling
 
 from secret_const import TOKEN, DATABASE_CONFIG
 
@@ -28,9 +28,15 @@ from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, xpToLevel
 
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
+pool = pooling.MySQLConnectionPool(
+    pool_name="mypool",
+    pool_size=10,
+    **DATABASE_CONFIG
+)
+
 # Connect to MariaDB database
-conn = mysql.connector.connect(**DATABASE_CONFIG)
-cursor = conn.cursor()
+#conn = mysql.connector.connect(**DATABASE_CONFIG)
+#cursor = conn.cursor()
 
 @bot.event
 async def on_ready():
@@ -46,23 +52,31 @@ async def on_message(message):
     user_id = message.author.id
     username = message.author.name
 
-    # Check if user exists in the database
-    cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (user_id,))
-    result = cursor.fetchone()
+    conn = pool.get_connection()
+    cursor = conn.cursor()
 
-    if result:
-        # Update xp if the user already exists
-        new_xp = result[0] + 1
-        cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (new_xp, user_id))
-    else:
-        # Insert new user record if they don't exist
-        cursor.execute(
-            "INSERT INTO users (user_id, username, xp, money) VALUES (%s, %s, %s, %s, %s)",
-            (user_id, username, 1, 0, 0.00)
-        )
+    try:
+        # Check if user exists in the database
+        cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
 
-    # Commit the transaction
-    conn.commit()
+        if result:
+            # Update xp if the user already exists
+            new_xp = result[0] + 1
+            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (new_xp, user_id))
+        else:
+            # Insert new user record if they don't exist
+            cursor.execute(
+                "INSERT INTO users (user_id, username, xp, money) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, username, 1, 0, 0.00)
+            )
+
+        # Commit the transaction
+        conn.commit()
+
+    finally:
+        cursor.close()
+        conn.close()
 
     # Continue processing other commands if any
     await bot.process_commands(message)
@@ -71,27 +85,41 @@ async def on_message(message):
 @bot.command()
 async def stats(ctx, member: discord.Member = None):
     member = member or ctx.author
-    cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (member.id,))
-    result = cursor.fetchone()
+    
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (member.id,))
+        result = cursor.fetchone()
 
-    if result:
-        xp, money = result
-        level = xpToLevel(xp)
-        await ctx.send(f"{member.name}'s Stats:\nxp: {xp}\nLevel: {level}\nMoney: ${money}")
-    else:
-        await ctx.send(f"{member.name} has no records in the database.")
+        if result:
+            xp, money = result
+            level = xpToLevel(xp)
+            await ctx.send(f"{member.name}'s Stats:\nxp: {xp}\nLevel: {level}\nMoney: ${money}")
+        else:
+            await ctx.send(f"{member.name} has no records in the database.")
+    finally:
+        cursor.close()
+        conn.close()
 
 @bot.tree.command(name="leaderboard", description="Display the leaderboard based on level or money.")
 @app_commands.describe(type="Choose between 'level' or 'money' for the leaderboard type.")
 async def leaderboard(interaction: discord.Interaction, type: str = "level"):
-    # Determine the query based on the selected type
-    if type == "money":
-        cursor.execute("SELECT user_id, username, money FROM users ORDER BY money DESC, xp DESC LIMIT 10")
-        leaderboard_data = cursor.fetchall()
-    else:  # Default to "level"
-        type = 'level' # handles edge case where the user types something other than 'money' or 'level'
-        cursor.execute("SELECT user_id, username, xp FROM users ORDER BY xp DESC, xp DESC LIMIT 10")
-        leaderboard_data = cursor.fetchall()
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+    try:
+        # Determine the query based on the selected type
+        if type == "money":
+            cursor.execute("SELECT user_id, username, money FROM users ORDER BY money DESC, xp DESC LIMIT 10")
+            leaderboard_data = cursor.fetchall()
+        else:  # Default to "level"
+            type = 'level' # handles edge case where the user types something other than 'money' or 'level'
+            cursor.execute("SELECT user_id, username, xp FROM users ORDER BY xp DESC, xp DESC LIMIT 10")
+            leaderboard_data = cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
 
     # Create an image for the leaderboard
     image_width = 600
