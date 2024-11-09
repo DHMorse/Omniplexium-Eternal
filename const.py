@@ -45,50 +45,40 @@ def xpToLevel(xp: any) -> int:
     level = 10 + np.log(xp / XP_LEVEL_10) / np.log(base)
     return int(level)
 
-async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> bool:
-
-    # kind of unnecessary but reducdancy is always nice
-    if type(xp) == float: 
+async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> tuple:
+    if isinstance(xp, float): 
         xp = int(xp)
-    elif type(xp) == str:
+    elif isinstance(xp, str):
         try:
             xp = int(xp)
         except:
-            raise ValueError("argument \"xp\" must be an int, float, or a string that can be converted to an integer. \"xp\" *SHOULD* always be an int tho.")
+            raise ValueError("argument 'xp' must be an int, float, or a string that can be converted to an integer.")
 
-    if type(add) != bool:
-        raise ValueError("argument \"add\" must be a boolean.")
+    if not isinstance(add, bool):
+        raise ValueError("argument 'add' must be a boolean.")
 
     conn = pool.get_connection()
     cursor = conn.cursor()
 
     try:
-        try:
-            cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (ctx.author.id,))
-            database = cursor.fetchone()
-        except:
-            cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (ctx.user.id,))
-            database = cursor.fetchone()
+        # Fetch current XP for the user
+        cursor.execute("SELECT xp FROM users WHERE user_id = %s", (ctx.author.id,))
+        database = cursor.fetchone()
 
-        current_xp_level = xpToLevel(database[0])
-        
-        if add == True:
-            new_xp = database[0] + xp
-        else:
-            new_xp = database[0] - xp
+        current_xp = database[0]
+        current_level = xpToLevel(current_xp)
 
-        try:
-            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (new_xp, ctx.author.id))
-        except:
-            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (new_xp, ctx.user.id))
-        
+        # Update XP based on add flag
+        new_xp = current_xp + xp if add else current_xp - xp
+        cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (new_xp, ctx.author.id))
         conn.commit()
+
+        # Calculate new level after XP update
+        new_level = xpToLevel(new_xp)
 
     finally:
         cursor.close()
         conn.close()
 
-    if current_xp_level < xpToLevel(new_xp):
-        return True
-    else:
-        return False
+    # Check if level increased
+    return (current_level < new_level, new_level)

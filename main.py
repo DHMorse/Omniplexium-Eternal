@@ -39,19 +39,11 @@ class MyBot(commands.Bot):
 
 bot = MyBot()
 
-#bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
-
-# Connect to MariaDB database
-#conn = mysql.connector.connect(**DATABASE_CONFIG)
-#cursor = conn.cursor()
-
 @bot.event
 async def on_ready():
     await bot.tree.sync()
     print(f'Bot is ready. Logged in as {bot.user}')
 
-
-# Increment xp on each message
 @bot.event
 async def on_message(message):
     if message.author.bot:
@@ -69,20 +61,19 @@ async def on_message(message):
         result = cursor.fetchone()
 
         if result:
-            level_up = await update_xp_and_check_level_up(ctx=message, xp=1, add=True)
-            if level_up == True:
-                cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (user_id,))
-                result = cursor.fetchone()
-                
+            # Directly call level-up update function and get level-up flag
+            level_up, new_level = await update_xp_and_check_level_up(ctx=message, xp=1, add=True)
+            if level_up:
+                # Send the level-up message with the correct level
                 channel = bot.get_channel(LOG_CHANNEL_ID)
-                print(result[0])
-                await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {xpToLevel(result[0])}!")
+                await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
         else:
             # Insert new user record if they don't exist
             cursor.execute(
                 "INSERT INTO users (user_id, username, xp, money) VALUES (%s, %s, %s, %s, %s)",
                 (user_id, username, 1, 0, 0.00)
             )
+            conn.commit()
 
     finally:
         cursor.close()
@@ -90,6 +81,7 @@ async def on_message(message):
 
     # Continue processing other commands if any
     await bot.process_commands(message)
+
 
 # Command to show user stats (optional)
 @bot.command()
