@@ -76,7 +76,7 @@ async def stats(ctx, member: discord.Member = None):
 
     if result:
         xp, level, money = result
-        await ctx.send(f"{member.name}'s Stats:\xp: {xp}\nLevel: {level}\nMoney: ${money}")
+        await ctx.send(f"{member.name}'s Stats:\nxp: {xp}\nLevel: {level}\nMoney: ${money}")
     else:
         await ctx.send(f"{member.name} has no records in the database.")
 
@@ -153,7 +153,7 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
 
 
         # what the fuck is value?
-        
+
         value = xpToLevel(value) if type == "level" else value
 
         # Draw rank, username, and value (level or money)
