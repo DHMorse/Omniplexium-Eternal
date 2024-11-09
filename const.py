@@ -9,5 +9,5 @@ LEADERBOARD_PIC = os.path.join(ROOT_DIR, 'leaderboard.png')
 
 DEFUALT_PROFILE_PIC = os.path.join(CACHE_DIR_PFP, 'defualt.png')
 
-def xpToLevel(experience: int, base: int =10) -> int:
+def xpToLevel(experience: int, base: int = 10) -> int:
     return int(math.log(experience + 1, base)) + 1
