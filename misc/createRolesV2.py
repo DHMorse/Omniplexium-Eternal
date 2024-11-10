@@ -3,18 +3,18 @@ from discord.ext import commands
 
 from secret_const import TOKEN
 
-# Colors for each level range
+# Colors for each level range with Violet at Level 100 descending to Orange at Level 1
 COLOR_RANGES = [
-    (0, 10, 0xFFFF00, 0xFFA500),  # Yellow to Orange
-    (11, 20, 0xFFA500, 0xFF4500), # Orange to Red-Orange
-    (21, 30, 0xFF4500, 0x9ACD32), # Red-Orange to Yellow-Green
-    (31, 40, 0x9ACD32, 0x008000), # Yellow-Green to Green
-    (41, 50, 0x008000, 0x0000FF), # Green to Blue
-    (51, 60, 0x0000FF, 0x20B2AA), # Blue to Blue-Green
-    (61, 70, 0x20B2AA, 0x8A2BE2), # Blue-Green to Blue-Violet
-    (71, 80, 0x8A2BE2, 0xC71585), # Blue-Violet to Red-Violet
-    (81, 90, 0xC71585, 0x9400D3), # Red-Violet to Violet
-    (91, 100, 0x9400D3, 0x9400D3) # Violet to Violet (end color remains constant)
+    (91, 100, 0x9400D3, 0x9400D3),  # Violet to Violet (end color remains constant)
+    (81, 90, 0x9400D3, 0xFFFF00),   # Violet to Yellow
+    (71, 80, 0xFFFF00, 0xC71585),   # Yellow to Red-Violet
+    (61, 70, 0xC71585, 0x8A2BE2),   # Red-Violet to Blue-Violet
+    (51, 60, 0x8A2BE2, 0x20B2AA),   # Blue-Violet to Blue-Green
+    (41, 50, 0x20B2AA, 0x0000FF),   # Blue-Green to Blue
+    (31, 40, 0x0000FF, 0x008000),   # Blue to Green
+    (21, 30, 0x008000, 0x9ACD32),   # Green to Yellow-Green
+    (11, 20, 0x9ACD32, 0xFF4500),   # Yellow-Green to Red-Orange
+    (0, 10, 0xFF4500, 0xFFA500)     # Red-Orange to Orange
 ]
 
 bot = commands.Bot(command_prefix='$', intents=discord.Intents.all())
@@ -27,7 +27,7 @@ async def on_ready():
 @commands.has_permissions(manage_roles=True)
 async def create_roles(ctx):
     guild = ctx.guild
-    for i in range(1, 101):
+    for i in range(100, 0, -1):  # Start from Level 100 and go down to Level 1
         role_name = f"Level {i}"
         existing_role = discord.utils.get(guild.roles, name=role_name)
         if not existing_role:

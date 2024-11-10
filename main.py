@@ -70,7 +70,10 @@ async def on_message(message):
             if level_up:
                 # Send the level-up message with the correct level
                 channel = bot.get_channel(LOG_CHANNEL_ID)
-                await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
+                if new_level != 1 or new_level != 10 or new_level < 10:
+                    await channel.send(f"Congratulations, {message.author}! You have leveled up to level {new_level}!")
+                else:
+                    await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
                 
                 role = discord.utils.get(message.guild.roles, name=f"Level {new_level}")
                 
