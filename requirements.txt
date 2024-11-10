@@ -3,3 +3,4 @@ pillow
 requests
 mysql-connector-python
 openai
+numpy
