@@ -73,7 +73,7 @@ async def on_message(message):
 
     try:
         # Check if user exists in the database
-        cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT xp, money FROM stats WHERE user_id = %s", (user_id,))
         result = cursor.fetchone()
 
         if result:
@@ -103,7 +103,7 @@ async def on_message(message):
         else:
             # Insert new user record if they don't exist
             cursor.execute(
-                "INSERT INTO users (user_id, username, xp, money) VALUES (%s, %s, %s, %s, %s)",
+                "INSERT INTO stats (user_id, username, xp, money) VALUES (%s, %s, %s, %s, %s)",
                 (user_id, username, 1, 0, 0.00)
             )
             conn.commit()
@@ -123,11 +123,11 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
     try:
         # Determine the query based on the selected type
         if type == "money":
-            cursor.execute("SELECT user_id, username, money FROM users ORDER BY money DESC, xp DESC LIMIT 10")
+            cursor.execute("SELECT user_id, username, money FROM stats ORDER BY money DESC, xp DESC LIMIT 10")
             leaderboard_data = cursor.fetchall()
         else:  # Default to "level"
             type = 'level' # handles edge case where the user types something other than 'money' or 'level'
-            cursor.execute("SELECT user_id, username, xp FROM users ORDER BY xp DESC, xp DESC LIMIT 10")
+            cursor.execute("SELECT user_id, username, xp FROM stats ORDER BY xp DESC, xp DESC LIMIT 10")
             leaderboard_data = cursor.fetchall()
     finally:
         cursor.close()

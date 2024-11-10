@@ -72,9 +72,9 @@ async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> tuple:
         # this try except block is a hack, if we get ctx from a slash command i.e. interaction
         # then it's going to fail but interaction.user is the same as ctx.author
         try:
-            cursor.execute("SELECT xp FROM users WHERE user_id = %s", (ctx.author.id,))
+            cursor.execute("SELECT xp FROM stats WHERE user_id = %s", (ctx.author.id,))
         except:
-            cursor.execute("SELECT xp FROM users WHERE user_id = %s", (ctx.user.id,))
+            cursor.execute("SELECT xp FROM stats WHERE user_id = %s", (ctx.user.id,))
         database = cursor.fetchone()
 
         current_xp = database[0]
@@ -83,9 +83,9 @@ async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> tuple:
         # Update XP based on add flag
         new_xp = current_xp + xp if add else current_xp - xp
         try:
-            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (new_xp, ctx.author.id))
+            cursor.execute("UPDATE stats SET xp = %s WHERE user_id = %s", (new_xp, ctx.author.id))
         except:
-            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (new_xp, ctx.user.id))
+            cursor.execute("UPDATE stats SET xp = %s WHERE user_id = %s", (new_xp, ctx.user.id))
         conn.commit()
 
         # Calculate new level after XP update

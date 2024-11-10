@@ -28,11 +28,11 @@ async def set(ctx, stat: str = '', value: str = '', member: discord.Member = Non
 
     try:
         if stat == "xp":
-            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (value, member.id))
+            cursor.execute("UPDATE stats SET xp = %s WHERE user_id = %s", (value, member.id))
             conn.commit()
             await ctx.send(f"Set {member.name}'s xp to {value}.")
         elif stat == "money":
-            cursor.execute("UPDATE users SET money = %s WHERE user_id = %s", (value, member.id))
+            cursor.execute("UPDATE stats SET money = %s WHERE user_id = %s", (value, member.id))
             conn.commit()
             await ctx.send(f"Set {member.name}'s money to ${value}.")
         else:
