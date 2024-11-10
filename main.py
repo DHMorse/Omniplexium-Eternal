@@ -223,7 +223,7 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     # Defer the response to allow more time for processing
     await interaction.response.defer()
 
-    output = await genAiCard(prompt, type=type)
+    output = await genAiCard(prompt)
     cardFilePath = await makeCardFromJson(output[0], output[1])
 
     file = discord.File(cardFilePath, filename="card.png")
