@@ -14,18 +14,18 @@ async def guess_the_number(interaction: discord.Interaction, guess: app_commands
         
 
         if guess == number:
-            level_up = await update_xp_and_check_level_up(ctx=interaction, xp=25, add=True)
+            level_up, new_level = await update_xp_and_check_level_up(ctx=interaction, xp=25, add=True)
             await interaction.response.send_message(f"Your guess of {guess} is right, Congratulations!`+25 XP`")
 
         elif abs(guess - number) <= 2:
-            level_up = await update_xp_and_check_level_up(ctx=interaction, xp=10, add=True)
+            level_up, new_level = await update_xp_and_check_level_up(ctx=interaction, xp=10, add=True)
             await interaction.response.send_message(f"Your guess of {guess} is close! The number was {number}. `+10 XP`")
 
         else:
-            level_up = await update_xp_and_check_level_up(ctx=interaction, xp=5, add=False)
+            level_up, new_level = await update_xp_and_check_level_up(ctx=interaction, xp=5, add=False)
             await interaction.response.send_message(f"Your guess of {guess} is wrong, Sorry! The number was {number}. `-5 XP`")
 
-        if level_up[0] == True:
+        if level_up == True:
             channel = interaction.client.get_channel(LOG_CHANNEL_ID)
             
             cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (interaction.user.id,))
@@ -33,15 +33,15 @@ async def guess_the_number(interaction: discord.Interaction, guess: app_commands
 
             await channel.send(f"Congratulations, {interaction.user.mention}! You have leveled up to level {xpToLevel(result[0])}!")
 
-            role = discord.utils.get(interaction.guild.roles, name=f"Level {level_up[1]}")
+            role = discord.utils.get(interaction.guild.roles, name=f"Level {new_level}")
                 
             if role is None:
                 channel = interaction.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-                await channel.send(f"Role 'Level {level_up[1]}' does not exist.")
+                await channel.send(f"Role 'Level {new_level}' does not exist.")
                 return
             if role in interaction.user.roles:
                 channel = interaction.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-                await channel.send(f"{interaction.user.name} already has the 'Level {level_up[1]}' role, but we tried to give it to them again.")
+                await channel.send(f"{interaction.user.name} already has the 'Level {new_level}' role, but we tried to give it to them again.")
                 return
             else:
                 await interaction.user.add_roles(role)
