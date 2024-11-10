@@ -233,12 +233,23 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     conn = pool.get_connection()
     cursor = conn.cursor()
     try:
-        items = [
-            {
-                "id": "00001",
-                "name": output[0]['name']
-            }
-        ]
+        # Retrieve the current items from the database
+        cursor.execute("SELECT items FROM stats WHERE user_id = %s", (interaction.user.id,))
+        result = cursor.fetchone()
+
+        # Parse the current items into a list, or use an empty list if there are no items
+        if result and result[0]:
+            items = json.loads(result[0])
+        else:
+            items = []
+
+        # Append the new item to the list
+        items.append({
+            "id": "00001",
+            "name": output[0]['name']
+        })
+
+        # Update the items field by appending the new item
         cursor.execute(
             "UPDATE stats SET items = %s WHERE user_id = %s",
             (json.dumps(items), interaction.user.id)
@@ -247,7 +258,6 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     finally:
         cursor.close()
         conn.close()
-
     file = discord.File(cardFilePath, filename="card.png")
 
     # Edit the initial deferred response to include the embed with the image file
