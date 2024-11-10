@@ -108,13 +108,13 @@ async def set(ctx, member: discord.Member = None, item: str = "", value: int = 0
     conn = pool.get_connection()
     cursor = conn.cursor()
     
-    try:
-        if ctx.author.guild_permissions.administrator != True:
-            await ctx.send("You do not have the required permissions to use this command.")
-            cursor.close()
-            conn.close()
-            return
-    except:
+    if ctx.author.guild_permissions.administrator != True:
+        await ctx.send("You do not have the required permissions to use this command.")
+        cursor.close()
+        conn.close()
+        return
+
+    if member == 'xp' or member == 'money':
         member = ctx.author
 
     if member is None:
