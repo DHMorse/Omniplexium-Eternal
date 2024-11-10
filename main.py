@@ -78,6 +78,7 @@ async def on_message(message):
                 my_other_super_special_var_which_is_definitely_a_int = int(9)
                 print(my_super_speical_var_which_is_definitely_a_int <= my_other_super_special_var_which_is_definitely_a_int)
                 print(10 <= 9)
+                print(10 < 9)
 
                 if new_level == 1 or new_level <= 9:
                     await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
