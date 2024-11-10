@@ -259,14 +259,15 @@ async def genCard(interaction: discord.Interaction, card_type: str = "prompt"):
     
     path = await generate(card_type)  # Assuming this function generates an image file and returns the file path
 
-    embed = discord.Embed(title=f"{card_type.capitalize()} Card", color=0x282b30)
     
     # Attach image file directly in the message
-    file = discord.File(path, filename="card.png")
+    #file = discord.File(path, filename="card.png")
+    
+    embed = discord.Embed(title=f"{card_type.capitalize()} Card", color=0x282b30)
     embed.set_image(url="attachment://card.png")  # Referencing the file by attachment name
 
     # Send the embed with the file
-    await interaction.response.send_message(embed=embed, file=file)
+    await interaction.response.send_message(embed=embed, file=discord.File(path))
 
 
 bot.run(TOKEN)
