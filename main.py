@@ -21,11 +21,14 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import requests
 
-from secret_const import TOKEN, DATABASE_CONFIG
+from secret_const import TOKEN
 
 from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID
 from const import pool 
 from const import xpToLevel, update_xp_and_check_level_up
+
+from admin_commands.set import set
+from admin_commands.stats import stats
 
 from floor10_game_concept import guess_the_number_command
 
@@ -47,6 +50,13 @@ bot = MyBot()
 async def on_ready():
     await bot.tree.sync()
     print(f'Bot is ready. Logged in as {bot.user}')
+
+### ADMIN COMMANDS ###
+
+bot.add_command(set)
+bot.add_command(stats)
+
+### ADMIN COMMANDS ###
 
 @bot.event
 async def on_message(message):
@@ -102,88 +112,6 @@ async def on_message(message):
 
     # Continue processing other commands if any
     await bot.process_commands(message)
-
-@bot.command()
-async def set(ctx, member = None, item: str = '', value: str = ''):
-    conn = pool.get_connection()
-    cursor = conn.cursor()
-    
-    if ctx.author.guild_permissions.administrator != True:
-        await ctx.send("You do not have the required permissions to use this command.")
-        cursor.close()
-        conn.close()
-        return
-
-    if member == 'xp' or member == 'money':
-        value = int(item)
-        item = member
-        member = ctx.author
-
-    if member is None:
-        member = ctx.author
-
-    try:
-        if item == "xp":
-            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (value, member.id))
-            conn.commit()
-            await ctx.send(f"Set {member.name}'s xp to {value}.")
-        elif item == "money":
-            cursor.execute("UPDATE users SET money = %s WHERE user_id = %s", (value, member.id))
-            conn.commit()
-            await ctx.send(f"Set {member.name}'s money to ${value}.")
-        else:
-            await ctx.send("Please specify a valid item to set it's value.")
-    except Exception as e:
-        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-        await channel.send(f"Error: {e}")
-
-    finally:
-        cursor.close()
-        conn.close()
-
-# Command to show user stats (optional)
-@bot.command()
-async def stats(ctx, member: discord.Member = None):
-    member = member or ctx.author
-    
-    conn = pool.get_connection()
-    cursor = conn.cursor()
-    
-    try:
-        cursor.execute("SELECT xp, money FROM users WHERE user_id = %s", (member.id,))
-        result = cursor.fetchone()
-
-        if result:
-            xp, money = result
-            level = xpToLevel(xp)
-            await ctx.send(f"{member.name}'s Stats:\nxp: {xp}\nLevel: {level}\nMoney: ${money}")
-        else:
-            await ctx.send(f"{member.name} has no records in the database.")
-    finally:
-        cursor.close()
-        conn.close()
-
-@bot.command()
-async def reset(ctx, field: str = ""):
-    if ctx.author.guild_permissions.administrator != True:
-        await ctx.send("You do not have the required permissions to use this command.")
-        return
-    conn = pool.get_connection()
-    cursor = conn.cursor()
-    try:
-        if field == "xp":
-            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (0, ctx.author.id))
-            conn.commit()
-            await ctx.send(f"Reset {ctx.author.name}'s xp to 0.")
-        elif field == "money":
-            cursor.execute("UPDATE users SET money = %s WHERE user_id = %s", (0, ctx.author.id))
-            conn.commit()
-            await ctx.send(f"Reset {ctx.author.name}'s money to $0.")
-        else:
-            await ctx.send("Please specify a valid field to reset.")
-    finally:
-        cursor.close()
-        conn.close()
 
 @bot.tree.command(name="leaderboard", description="Display the leaderboard based on level or money.")
 @app_commands.describe(type="Choose between 'level' or 'money' for the leaderboard type.")
