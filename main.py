@@ -116,6 +116,7 @@ async def set(ctx, member = None, item: str = "", value: str = ''):
 
     if member == 'xp' or member == 'money':
         member = ctx.author
+        item = member
         value = item
 
     if member is None:
