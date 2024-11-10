@@ -2,6 +2,7 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 import io
 import textwrap
+import os
 
 from const import CARD_DATA_IMAGES_PATH
 
@@ -97,6 +98,9 @@ async def makeCardFromJson(data: dict, url: str) -> str:
         # Save the card image
         card_name = f"{data['name']}.png"
         
+        if not os.path.exists(CARD_DATA_IMAGES_PATH):
+            os.makedirs(CARD_DATA_IMAGES_PATH)
+
         path = f'{CARD_DATA_IMAGES_PATH}/{card_name}'
         
         card.save(path)

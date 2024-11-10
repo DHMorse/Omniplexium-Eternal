@@ -114,6 +114,9 @@ async def genAiCard(description: str, health: int=50, damage: int=20, type: str=
     output_filename = f"{data['name']}.json"
     output_path = os.path.join(CARD_DATA_JSON_PATH, output_filename)
 
+    if not os.path.exists(CARD_DATA_JSON_PATH):
+        os.makedirs(CARD_DATA_JSON_PATH)
+
     with open(output_path, 'w') as json_file:
         json.dump(data, json_file, indent=4)
 
