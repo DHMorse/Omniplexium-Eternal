@@ -27,6 +27,8 @@ from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANN
 
 from floor10_game_concept import guess_the_number_command
 
+from card import generate
+
 
 class MyBot(commands.Bot):
     def __init__(self):
@@ -249,6 +251,19 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
 
     # Send the embed with the leaderboard image
     await interaction.response.send_message(embed=embed, file=discord.File(LEADERBOARD_PIC))
+
+
+@bot.tree.command(name="generateCard", description="Generate a custom playing card. (demo)")
+@app_commands.describe(type="Choose the prompt for the card.")
+async def leaderboard(interaction: discord.Interaction, prompt: str = "prompt"):
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+    path = generate(prompt)
+    embed = discord.Embed(title=f"{type.capitalize()} Card", color=0x282b30)
+    embed.set_image(url=path)
+
+    # Send the embed with the leaderboard image
+    await interaction.response.send_message(embed=embed, file=discord.File(path))
 
 
 

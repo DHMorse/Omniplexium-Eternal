@@ -95,7 +95,10 @@ def makeCard(data, url):
 
         # Save the card image
         card_name = f'{data['name']}.png'
-        card.save(f'/home/botuser/bot/cardData/images/{card_name}')
+        path = f'/home/botuser/bot/cardData/images/{card_name}'
+        card.save(path)
         print(f"High-resolution playing card image created as '{card_name}'")
+        return path
     else:
         print("Unable to create card image due to image loading failure.")
+        return None
