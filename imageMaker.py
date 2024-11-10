@@ -44,9 +44,9 @@ async def makeCard(data, url):
 
         # Load fonts with doubled sizes
         try:
-            title_font = ImageFont.truetype("arialbd.ttf", 36*2)  # Double font size
-            stat_font = ImageFont.truetype("arialbd.ttf", 28*2)
-            text_font = ImageFont.truetype("arialbd.ttf", 22*2)  # Double font size
+            title_font = ImageFont.truetype("arialbd.ttf", 36)  # Double font size
+            stat_font = ImageFont.truetype("arialbd.ttf", 28)
+            text_font = ImageFont.truetype("arialbd.ttf", 22)  # Double font size
         except IOError:
             title_font = ImageFont.load_default()
             stat_font = ImageFont.load_default()
