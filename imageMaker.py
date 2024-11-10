@@ -94,7 +94,7 @@ def makeCard(data, url):
             y_offset += 60  # Double spacing
 
         # Save the card image
-        card_name = f'{data['name']}.png'
+        card_name = f"{data['name']}.png"
         path = f'/home/botuser/bot/cardData/images/{card_name}'
         card.save(path)
         print(f"High-resolution playing card image created as '{card_name}'")
