@@ -5,7 +5,7 @@ import json
 client = OpenAI(api_key=openai_key)
 
 
-def playingCard(description, health=50, damage=20, type='standard') -> list:
+async def playingCard(description, health=50, damage=20, type='standard') -> list:
     true = True
     false = False
     if type == 'standard':

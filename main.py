@@ -256,7 +256,8 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
 @bot.tree.command(name="generatecard", description="Generate a custom playing card. (demo)")
 @app_commands.describe(card_type="Choose the type for the card.")
 async def genCard(interaction: discord.Interaction, card_type: str = "prompt"):
-    path = generate(card_type)  # Assuming this function generates an image file and returns the file path
+    
+    path = await generate(card_type)  # Assuming this function generates an image file and returns the file path
 
     embed = discord.Embed(title=f"{card_type.capitalize()} Card", color=0x282b30)
     

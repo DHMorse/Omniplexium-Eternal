@@ -4,7 +4,7 @@ import io
 import textwrap
 
 
-def makeCard(data, url):
+async def makeCard(data, url):
     # Example input data
     '''
     card_data = {
