@@ -254,15 +254,18 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
 
 
 @bot.tree.command(name="generatecard", description="Generate a custom playing card. (demo)")
-@app_commands.describe(type="Choose the prompt for the card.")
-async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
-    path = generate(prompt)
-    embed = discord.Embed(title=f"{type.capitalize()} Card", color=0x282b30)
-    embed.set_image(url=path)
+@app_commands.describe(card_type="Choose the type for the card.")
+async def genCard(interaction: discord.Interaction, card_type: str = "prompt"):
+    path = generate(card_type)  # Assuming this function generates an image file and returns the file path
 
-    # Send the embed with the leaderboard image
-    await interaction.response.send_message(embed=embed, file=discord.File(path))
+    embed = discord.Embed(title=f"{card_type.capitalize()} Card", color=0x282b30)
+    
+    # Attach image file directly in the message
+    file = discord.File(path, filename="card.png")
+    embed.set_image(url="attachment://card.png")  # Referencing the file by attachment name
 
+    # Send the embed with the file
+    await interaction.response.send_message(embed=embed, file=file)
 
 
 bot.run(TOKEN)
