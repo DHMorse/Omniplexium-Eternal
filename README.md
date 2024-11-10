@@ -1,52 +1,47 @@
-# Omniplexium-Eternal
+# Omniplexium-Eternal: Admin Commands Guide
 
-# Admin commands
+Welcome to the admin commands guide for Omniplexium-Eternal! Below you'll find detailed instructions on using commands to manage user stats, including resetting, setting values, and viewing stats. Required arguments are marked with an asterisk (*).
 
-An astrix shows that it is required
+---
 
-# - reset -
-Resets a user's stat
+### Commands Overview
 
-- Use -
-!reset {stat}* {discord.Member}
+- **`!reset`** - Reset a user’s stat
+- **`!set`** - Set a specific stat to a given value
+- **`!stats`** - Display a user’s stats
 
-- {stat} -
-xp
-money
+---
 
-- {discord.Member} -
-discord user name i.e.
-404_5971 or ih8tk
-If no member is given then it will defualt to yourself.
+### Command Details
 
-# - set -
-set's a user's stat to a value
+#### 1. **Reset Command**
+Reset a specific stat for a user.
 
-- Use -
-!set {stat}* {value}* {discord.Member}
+- **Syntax**: `!reset {stat}* {discord.Member}`
+- **Arguments**:
+  - **{stat}** *(required)*: The stat to reset. Options:
+    - `xp`
+    - `money`
+  - **{discord.Member}** *(optional)*: The Discord username (e.g., `404_5971` or `ih8tk`). Defaults to your own stats if no member is specified.
 
-- {stat} -
-xp
-money
+#### 2. **Set Command**
+Set a specific stat to a given integer value for a user.
 
-- {value} -
-any intger value i.e.
-1 
-3
-45
+- **Syntax**: `!set {stat}* {value}* {discord.Member}`
+- **Arguments**:
+  - **{stat}** *(required)*: The stat to set. Options:
+    - `xp`
+    - `money`
+  - **{value}** *(required)*: Any integer value, such as `1`, `3`, or `45`.
+  - **{discord.Member}** *(optional)*: The Discord username (e.g., `404_5971` or `ih8tk`). Defaults to your own stats if no member is specified.
 
-- {discord.Member} -
-discord user name i.e.
-404_5971 or ih8tk
-If no member is given then it will defualt to yourself.
+#### 3. **Stats Command**
+Displays a user’s stats.
 
-# - stats -
-Shows a user's stats
+- **Syntax**: `!stats {discord.Member}`
+- **Arguments**:
+  - **{discord.Member}** *(optional)*: The Discord username (e.g., `404_5971` or `ih8tk`). Defaults to displaying your own stats if no member is specified.
 
-- use -
-!stats {discord.Member}
+---
 
-- {discord.Member} -
-discord user name i.e.
-404_5971 or ih8tk
-If no member is given then it will defualt to yourself.
+Feel free to use these commands to manage stats efficiently and ensure a balanced experience for everyone!
