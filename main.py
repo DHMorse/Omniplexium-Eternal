@@ -70,7 +70,7 @@ async def on_message(message):
             if level_up:
                 # Send the level-up message with the correct level
                 channel = bot.get_channel(LOG_CHANNEL_ID)
-                if new_level != 1 or new_level != 10 or new_level < 10:
+                if new_level != 1 or new_level < 10:
                     await channel.send(f"Congratulations, {message.author}! You have leveled up to level {new_level}!")
                 else:
                     await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
@@ -103,13 +103,33 @@ async def on_message(message):
     await bot.process_commands(message)
 
 @bot.command()
-async def gen_card(ctx, prompt: str):
-    if ctx.author.bot:
-        return
+async def set(ctx, member: discord.Member = None, item: str = "", value: int = 0):
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+    
     if ctx.author.guild_permissions.administrator != True:
         await ctx.send("You do not have the required permissions to use this command.")
+        cursor.close()
+        conn.close()
         return
     
+    member = member or ctx.author
+
+    try:
+        if item == "xp":
+            cursor.execute("UPDATE users SET xp = %s WHERE user_id = %s", (value, member.id))
+            conn.commit()
+            await ctx.send(f"Set {member.name}'s xp to {value}.")
+        elif item == "money":
+            cursor.execute("UPDATE users SET money = %s WHERE user_id = %s", (value, member.id))
+            conn.commit()
+            await ctx.send(f"Set {member.name}'s money to ${value}.")
+        else:
+            await ctx.send("Please specify a valid item to set it's value.")
+
+    finally:
+        cursor.close()
+        conn.close()
 
 # Command to show user stats (optional)
 @bot.command()
