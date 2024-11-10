@@ -71,7 +71,7 @@ async def on_message(message):
                 # Send the level-up message with the correct level
                 channel = bot.get_channel(LOG_CHANNEL_ID)
 
-                if new_level == 1 or new_level < 10:
+                if new_level == 1 or new_level <= 9:
                     await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
                 else:
                     await channel.send(f"Congratulations, {message.author}! You have leveled up to level {new_level}!")
