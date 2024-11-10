@@ -104,7 +104,7 @@ async def on_message(message):
     await bot.process_commands(message)
 
 @bot.command()
-async def set(ctx, member: discord.Member = None, item: str = "", value: int = 0):
+async def set(ctx, member = None, item: str = "", value: int = 0):
     conn = pool.get_connection()
     cursor = conn.cursor()
     
