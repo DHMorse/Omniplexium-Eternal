@@ -27,7 +27,7 @@ from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANN
 
 from floor10_game_concept import guess_the_number_command
 
-from card import generate
+from card import generate_card
 
 
 class MyBot(commands.Bot):
@@ -257,17 +257,20 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
 @app_commands.describe(card_type="Choose the type for the card.")
 async def genCard(interaction: discord.Interaction, card_type: str = "prompt"):
     
-    path = await generate(card_type)  # Assuming this function generates an image file and returns the file path
+    # Defer the response to allow more time for processing
+    await interaction.response.defer()
 
-    
-    # Attach image file directly in the message
-    #file = discord.File(path, filename="card.png")
-    
+    # Generate the card image asynchronously
+    path = await generate_card(card_type)  # Assuming this function generates an image file and returns the file path
+
+    # Create the embed and attach the generated image file
     embed = discord.Embed(title=f"{card_type.capitalize()} Card", color=0x282b30)
-    embed.set_image(url="attachment://card.png")  # Referencing the file by attachment name
+    embed.set_image(url="attachment://card.png")
+    file = discord.File(path, filename="card.png")
 
-    # Send the embed with the file
-    await interaction.response.send_message(embed=embed, file=discord.File(path))
+    # Edit the initial deferred response to include the embed with the image file
+    await interaction.followup.send(embed=embed, file=file)
+
 
 
 bot.run(TOKEN)
