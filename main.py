@@ -95,6 +95,14 @@ async def on_message(message):
     # Continue processing other commands if any
     await bot.process_commands(message)
 
+@bot.command()
+async def gen_card(ctx, prompt: str):
+    if ctx.author.bot:
+        return
+    if ctx.author.guild_permissions.administrator != True:
+        await ctx.send("You do not have the required permissions to use this command.")
+        return
+    
 
 # Command to show user stats (optional)
 @bot.command()
