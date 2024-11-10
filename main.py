@@ -29,6 +29,7 @@ from const import xpToLevel, update_xp_and_check_level_up
 
 from adminCommands.set import set
 from adminCommands.stats import stats
+from adminCommands.reset import reset
 
 from floor10_game_concept import guess_the_number_command
 
@@ -55,6 +56,7 @@ async def on_ready():
 
 bot.add_command(set)
 bot.add_command(stats)
+bot.add_command(reset)
 
 ### ADMIN COMMANDS ###
 
