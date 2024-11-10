@@ -70,7 +70,7 @@ async def on_message(message):
             if level_up:
                 # Send the level-up message with the correct level
                 channel = bot.get_channel(LOG_CHANNEL_ID)
-                
+
                 if new_level == 1 or new_level < 10:
                     await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
                 else:
@@ -108,12 +108,15 @@ async def set(ctx, member: discord.Member = None, item: str = "", value: int = 0
     conn = pool.get_connection()
     cursor = conn.cursor()
     
-    if ctx.author.guild_permissions.administrator != True:
-        await ctx.send("You do not have the required permissions to use this command.")
-        cursor.close()
-        conn.close()
-        return
-    
+    try:
+        if ctx.author.guild_permissions.administrator != True:
+            await ctx.send("You do not have the required permissions to use this command.")
+            cursor.close()
+            conn.close()
+            return
+    except:
+        member = ctx.author
+
     if member is None:
         member = ctx.author
 
