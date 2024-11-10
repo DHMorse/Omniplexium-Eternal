@@ -264,12 +264,13 @@ async def genCard(interaction: discord.Interaction, card_type: str = "prompt"):
     path = await generate_card(card_type)  # Assuming this function generates an image file and returns the file path
 
     # Create the embed and attach the generated image file
-    embed = discord.Embed(title=f"{card_type.capitalize()} Card", color=0x282b30)
-    embed.set_image(url="attachment://card.png")
+    #embed = discord.Embed(title=f"{card_type.capitalize()} Card", color=0x282b30)
+    #embed.set_image(url="attachment://card.png")
+    
     file = discord.File(path, filename="card.png")
 
     # Edit the initial deferred response to include the embed with the image file
-    await interaction.followup.send(embed=embed, file=file)
+    await interaction.followup.send(file=file)
 
 
 
