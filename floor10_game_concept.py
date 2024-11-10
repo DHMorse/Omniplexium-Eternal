@@ -8,6 +8,20 @@ async def guess_the_number(interaction: discord.Interaction, guess: app_commands
     conn = pool.get_connection()
     cursor = conn.cursor()
 
+    role = discord.utils.get(interaction.guild.roles, name='Level 10')
+
+    if role is None:
+        channel = interaction.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+        await channel.send("Role 'Level 10' does not exist.")
+        cursor.close()
+        conn.close()
+        return
+    if role not in interaction.user.roles:
+        interaction.response.send_message(f"You must be at least level 10 to play this game.")
+        cursor.close()
+        conn.close()
+        return
+
     try:
         # Check if user exists in the database
         number = random.randint(1, 10)
