@@ -104,7 +104,7 @@ async def on_message(message):
     await bot.process_commands(message)
 
 @bot.command()
-async def set(ctx, member = None, item: str = "", value: str = ''):
+async def set(ctx, member = None, item: str = '', value: str = ''):
     conn = pool.get_connection()
     cursor = conn.cursor()
     
@@ -115,9 +115,9 @@ async def set(ctx, member = None, item: str = "", value: str = ''):
         return
 
     if member == 'xp' or member == 'money':
-        member = ctx.author
+        value = int(item)
         item = member
-        value = item
+        member = ctx.author
 
     if member is None:
         member = ctx.author
