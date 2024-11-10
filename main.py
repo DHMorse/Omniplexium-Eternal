@@ -70,10 +70,11 @@ async def on_message(message):
             if level_up:
                 # Send the level-up message with the correct level
                 channel = bot.get_channel(LOG_CHANNEL_ID)
-                if new_level != 1 or new_level < 10:
-                    await channel.send(f"Congratulations, {message.author}! You have leveled up to level {new_level}!")
-                else:
+                
+                if new_level == 1 or new_level < 10:
                     await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
+                else:
+                    await channel.send(f"Congratulations, {message.author}! You have leveled up to level {new_level}!")
                 
                 role = discord.utils.get(message.guild.roles, name=f"Level {new_level}")
                 
@@ -113,7 +114,8 @@ async def set(ctx, member: discord.Member = None, item: str = "", value: int = 0
         conn.close()
         return
     
-    member = member or ctx.author
+    if member is None:
+        member = ctx.author
 
     try:
         if item == "xp":
@@ -126,6 +128,9 @@ async def set(ctx, member: discord.Member = None, item: str = "", value: int = 0
             await ctx.send(f"Set {member.name}'s money to ${value}.")
         else:
             await ctx.send("Please specify a valid item to set it's value.")
+    except Exception as e:
+        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+        await channel.send(f"Error: {e}")
 
     finally:
         cursor.close()
