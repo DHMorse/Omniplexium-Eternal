@@ -5,13 +5,15 @@ import json
 client = OpenAI(api_key=openai_key)
 
 
-async def playingCard(description, health=50, damage=20, type='standard') -> list:
+async def genAiCard(description: str, health: int=50, damage: int=20, type: str='standard') -> list:
     true = True
     false = False
+
     if type == 'standard':
         prompt= f'Generate a playing card. It should have a health of {health}, and various attacks with damages ranging around {damage}.\n\nHere is the prompt for the card: \"{description}\"\n'
     elif type == 'mega':
         prompt= f'Generate a playing card. It should have a health of {health}, a particularly good attack with a damage of {damage*2}, and various attacks with damages ranging around {damage}.\n\nHere is the prompt for the card: \"{description}\"\n'
+    
     response = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[

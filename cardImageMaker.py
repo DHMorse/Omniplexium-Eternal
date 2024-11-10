@@ -4,7 +4,7 @@ import io
 import textwrap
 
 
-async def makeCard(data, url):
+async def makeCardFromJson(data: dict, url: str) -> str:
     # Example input data
     '''
     card_data = {

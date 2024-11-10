@@ -23,12 +23,14 @@ import requests
 
 from secret_const import TOKEN, DATABASE_CONFIG
 
-from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, pool, xpToLevel, update_xp_and_check_level_up
+from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID
+from const import pool 
+from const import xpToLevel, update_xp_and_check_level_up
 
 from floor10_game_concept import guess_the_number_command
 
-from card import generate_card
-
+from generateCardAI import genAiCard
+from cardImageMaker import makeCardFromJson
 
 class MyBot(commands.Bot):
     def __init__(self):
@@ -254,20 +256,16 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
 
 
 @bot.tree.command(name="generatecard", description="Generate a custom playing card. (demo)")
-@app_commands.describe(card_type="Choose the type for the card.")
-async def genCard(interaction: discord.Interaction, card_type: str = "prompt"):
+@app_commands.describe(prompt="Choose the type for the card.")
+async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     
     # Defer the response to allow more time for processing
     await interaction.response.defer()
 
-    # Generate the card image asynchronously
-    path = await generate_card(card_type)  # Assuming this function generates an image file and returns the file path
+    output = await genAiCard(prompt, type=type)
+    cardFilePath = await makeCardFromJson(output[0], output[1])
 
-    # Create the embed and attach the generated image file
-    #embed = discord.Embed(title=f"{card_type.capitalize()} Card", color=0x282b30)
-    #embed.set_image(url="attachment://card.png")
-    
-    file = discord.File(path, filename="card.png")
+    file = discord.File(cardFilePath, filename="card.png")
 
     # Edit the initial deferred response to include the embed with the image file
     await interaction.followup.send(file=file)
