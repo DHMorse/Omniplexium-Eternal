@@ -16,8 +16,9 @@ async def guess_the_number(interaction: discord.Interaction, guess: app_commands
         cursor.close()
         conn.close()
         return
+
     if role not in interaction.user.roles:
-        interaction.response.send_message(f"You must be at least level 10 to play this game.")
+        await interaction.response.send_message(f"You must be at least level 10 to play this game.")
         cursor.close()
         conn.close()
         return
