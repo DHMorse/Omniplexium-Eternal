@@ -1,5 +1,6 @@
 from discord.ext import commands
 import discord
+import json
 
 from const import pool
 from const import xpToLevel
@@ -22,7 +23,18 @@ async def stats(ctx, member: discord.Member = None):
         if result:
             xp, money, items_list = result
             level = xpToLevel(xp)
-            await ctx.send(f"{member.name}'s Stats:\nxp: {xp}\nLevel: {level}\nMoney: ${money}\nItems: {items_list}")
+            # Convert items list to JSON format
+            try:
+                items_json = json.loads(items_list)  # Assuming items_list is a JSON string
+            except json.JSONDecodeError:
+                items_json = {"error": "Invalid JSON format in database"}
+
+            # Send the stats with items as a JSON code block
+            await ctx.send(f"{member.name}'s Stats:\n"
+                           f"xp: {xp}\n"
+                           f"Level: {level}\n"
+                           f"Money: ${money}\n"
+                           f"Items: ```json\n{json.dumps(items_json, indent=4)}\n```")
         else:
             await ctx.send(f"{member.name} has no records in the database.")
     
