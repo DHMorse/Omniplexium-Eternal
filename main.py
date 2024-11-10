@@ -20,6 +20,7 @@ from discord.ext import commands
 from PIL import Image, ImageDraw, ImageFont
 import os
 import requests
+import json
 
 from secret_const import TOKEN
 
@@ -227,6 +228,25 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
 
     output = await genAiCard(prompt)
     cardFilePath = await makeCardFromJson(output[0], output[1])
+
+    # Update the user's items in the database
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+    try:
+        items = [
+            {
+                "id": "00001",
+                "name": output['name']
+            }
+        ]
+        cursor.execute(
+            "UPDATE stats SET items = %s WHERE user_id = %s",
+            (json.dumps(items), interaction.user.id)
+        )
+        conn.commit()
+    finally:
+        cursor.close()
+        conn.close()
 
     file = discord.File(cardFilePath, filename="card.png")
 
