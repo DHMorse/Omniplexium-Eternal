@@ -253,7 +253,7 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
     await interaction.response.send_message(embed=embed, file=discord.File(LEADERBOARD_PIC))
 
 
-@bot.tree.command(name="generateCard", description="Generate a custom playing card. (demo)")
+@bot.tree.command(name="generatecard", description="Generate a custom playing card. (demo)")
 @app_commands.describe(type="Choose the prompt for the card.")
 async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     conn = pool.get_connection()
