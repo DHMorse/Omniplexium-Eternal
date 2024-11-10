@@ -227,7 +227,7 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     await interaction.response.defer()
 
     output = await genAiCard(prompt)
-    cardFilePath = await makeCardFromJson(output[0], output[1])
+    cardFilePath = await makeCardFromJson(output[0], output[1]) # output[1] is doing nothing we over write the varible in the file
 
     # Update the user's items in the database
     conn = pool.get_connection()
@@ -236,7 +236,7 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
         items = [
             {
                 "id": "00001",
-                "name": output['name']
+                "name": output[0]['name']
             }
         ]
         cursor.execute(
