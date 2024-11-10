@@ -73,7 +73,7 @@ async def on_message(message):
 
                 print(type(new_level))
                 print(new_level)
-                print(new_level <= 9)
+                print(int(new_level) <= int(9))
 
                 if new_level == 1 or new_level <= 9:
                     await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
