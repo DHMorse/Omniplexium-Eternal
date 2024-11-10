@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 import textwrap
 
+from const import CARD_DATA_IMAGES_PATH
 
 async def makeCardFromJson(data: dict, url: str) -> str:
     # Example input data
@@ -95,8 +96,11 @@ async def makeCardFromJson(data: dict, url: str) -> str:
 
         # Save the card image
         card_name = f"{data['name']}.png"
-        path = f'/home/botuser/bot/cardData/images/{card_name}'
+        
+        path = f'{CARD_DATA_IMAGES_PATH}/{card_name}'
+        
         card.save(path)
+
         print(f"High-resolution playing card image created as '{card_name}'")
         return path
     else:

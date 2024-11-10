@@ -9,14 +9,19 @@ LOG_CHANNEL_ID = 1304829859549155328
 
 ADMIN_LOG_CHANNEL_ID = 1304245019300986941
 
-ROOT_DIR = os.path.expanduser('~/Documents/Omniplexium-Eternal/')
+ROOT_DIR = os.path.expanduser('~/')
 
-CACHE_DIR_PFP = os.path.join(ROOT_DIR, 'cache_dir', 'pfps')
+CACHE_DIR_PFP = os.path.join(ROOT_DIR, 'cacheDir', 'pfps')
 
 LEADERBOARD_PIC = os.path.join(ROOT_DIR, 'leaderboard.png')
 
 DEFUALT_PROFILE_PIC = os.path.join(CACHE_DIR_PFP, 'defualt.png')
 
+CARD_DATA_PATH = os.path.join(ROOT_DIR, 'cardData')
+
+CARD_DATA_IMAGES_PATH = os.path.join(CARD_DATA_PATH, 'images')
+
+CARD_DATA_JSON_PATH = os.path.join(CARD_DATA_PATH, 'json')
 
 pool = pooling.MySQLConnectionPool(
     pool_name="mypool",

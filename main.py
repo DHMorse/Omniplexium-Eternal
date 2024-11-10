@@ -27,8 +27,8 @@ from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANN
 from const import pool 
 from const import xpToLevel, update_xp_and_check_level_up
 
-from admin_commands.set import set
-from admin_commands.stats import stats
+from adminCommands.set import set
+from adminCommands.stats import stats
 
 from floor10_game_concept import guess_the_number_command
 
