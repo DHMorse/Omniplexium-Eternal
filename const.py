@@ -11,6 +11,8 @@ ADMIN_LOG_CHANNEL_ID = 1304245019300986941
 
 ROOT_DIR = os.path.expanduser('~/Omniplexium-Eternal')
 
+CURRENT_ITEM_ID_PATH = os.path.join(ROOT_DIR, 'currentItemID.txt')
+
 CACHE_DIR_PFP = os.path.join(ROOT_DIR, 'cacheDir', 'pfps')
 
 LEADERBOARD_PIC = os.path.join(ROOT_DIR, 'leaderboard.png')
@@ -97,3 +99,14 @@ async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> tuple:
 
     # Check if level increased
     return (current_level < new_level, new_level)
+
+
+def getCurrentItemID() -> int:
+    with open(CURRENT_ITEM_ID_PATH, 'r') as f:
+        return int(f.read())
+    
+def incrementCurrentItemID() -> None:
+    with open(CURRENT_ITEM_ID_PATH, 'r') as f:
+        current = int(f.read())
+    with open(CURRENT_ITEM_ID_PATH, 'w') as f:
+        f.write(str(current + 1))

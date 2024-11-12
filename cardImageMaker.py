@@ -5,6 +5,8 @@ import textwrap
 import os
 
 from const import CARD_DATA_IMAGES_PATH
+from const import pool
+from const import getCurrentItemID
 
 async def makeCardFromJson(data: dict, url: str) -> str:
     # Example input data
@@ -95,8 +97,10 @@ async def makeCardFromJson(data: dict, url: str) -> str:
             draw.text((40, y_offset), stats_text, font=text_font, fill="grey")
             y_offset += 60  # Double spacing
 
+        currentCardID = getCurrentItemID()
+
         # Save the card image
-        card_name = f"{data['name']}.png"
+        card_name = f"{currentCardID}.png"
         
         if not os.path.exists(CARD_DATA_IMAGES_PATH):
             os.makedirs(CARD_DATA_IMAGES_PATH)

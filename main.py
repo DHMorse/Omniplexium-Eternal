@@ -20,13 +20,13 @@ from discord.ext import commands
 from PIL import Image, ImageDraw, ImageFont
 import os
 import requests
-import json
+import ast
 
 from secret_const import TOKEN
 
 from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID
 from const import pool 
-from const import xpToLevel, update_xp_and_check_level_up
+from const import xpToLevel, update_xp_and_check_level_up, getCurrentItemID, incrementCurrentItemID
 
 from adminCommands.set import set
 from adminCommands.stats import stats
@@ -232,32 +232,40 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     # Update the user's items in the database
     conn = pool.get_connection()
     cursor = conn.cursor()
+
     try:
         # Retrieve the current items from the database
-        cursor.execute("SELECT items FROM stats WHERE user_id = %s", (interaction.user.id,))
+        cursor.execute("SELECT itemIDs FROM stats WHERE user_id = %s", (interaction.user.id,))
         result = cursor.fetchone()
 
         # Parse the current items into a list, or use an empty list if there are no items
-        if result and result[0]:
-            items = json.loads(result[0])
+        if result:
+            items = ast.literal_eval(result)
         else:
             items = []
 
+        currentItemID = getCurrentItemID()
+
         # Append the new item to the list
-        items.append({
-            "id": "00001",
-            "name": output[0]['name']
-        })
+        items.append(currentItemID)
 
         # Update the items field by appending the new item
         cursor.execute(
-            "UPDATE stats SET items = %s WHERE user_id = %s",
-            (json.dumps(items), interaction.user.id)
-        )
+            "UPDATE stats SET itemIDs = %s WHERE user_id = %s", str(items), interaction.user.id)
         conn.commit()
+
+        # insert itemID and card name into the cards table
+
+        cursor.execute("INSERT INTO cards (itemID, cardName) VALUES (%s, %s)", (currentItemID, output[0]))
+        conn.commit()
+
+        # Increment the current item ID for the next item
+        incrementCurrentItemID()
+
     finally:
         cursor.close()
         conn.close()
+
     file = discord.File(cardFilePath, filename="card.png")
 
     # Edit the initial deferred response to include the embed with the image file
