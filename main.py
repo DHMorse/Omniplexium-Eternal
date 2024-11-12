@@ -240,8 +240,8 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
 
         print(result)
         # Parse the current items into a list, or use an empty list if there are no items
-        if result and result[0]:
-            items = ast.literal_eval(result)
+        if result and result[0] != None:
+            items = ast.literal_eval(result[0])
         else:
             items = []
 
