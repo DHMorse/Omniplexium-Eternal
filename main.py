@@ -251,8 +251,7 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
         items.append(currentItemID)
 
         # Update the items field by appending the new item
-        cursor.execute(
-            "UPDATE stats SET itemIDs = %s WHERE user_id = %s", str(items), interaction.user.id)
+        cursor.execute("UPDATE stats SET itemIDs = %s WHERE user_id = %s", (str(items), interaction.user.id))
         conn.commit()
 
         # insert itemID and card name into the cards table
