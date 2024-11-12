@@ -238,8 +238,9 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
         cursor.execute("SELECT itemIDs FROM stats WHERE user_id = %s", (interaction.user.id,))
         result = cursor.fetchone()
 
+        print(result)
         # Parse the current items into a list, or use an empty list if there are no items
-        if result:
+        if result and result[0]:
             items = ast.literal_eval(result)
         else:
             items = []
