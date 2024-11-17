@@ -239,24 +239,25 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
         result = cursor.fetchone()
 
         print(result)
-        # Parse the current items into a list, or use an empty list if there are no items
+        
+        '''# Parse the current items into a list, or use an empty list if there are no items
         if result and result[0] != None:
             items = ast.literal_eval(result[0])
         else:
-            items = []
+            items = []'''
 
         currentItemID = getCurrentItemID()
 
         # Append the new item to the list
-        items.append(currentItemID)
+        #items.append(currentItemID)
 
         # Update the items field by appending the new item
-        cursor.execute("UPDATE stats SET itemIDs = %s WHERE user_id = %s", (str(items), interaction.user.id))
-        conn.commit()
+        #cursor.execute("UPDATE stats SET itemIDs = %s WHERE user_id = %s", (str(items), interaction.user.id))
+        #conn.commit()
 
         # insert itemID and card name into the cards table
 
-        cursor.execute("INSERT INTO cards (itemID, cardName) VALUES (%s, %s)", (currentItemID, output[0]['name']))
+        cursor.execute("INSERT INTO cards (itemID, cardName, userId) VALUES (%s, %s)", (currentItemID, output[0]['name'], interaction.user.id))
         conn.commit()
 
         # Increment the current item ID for the next item
