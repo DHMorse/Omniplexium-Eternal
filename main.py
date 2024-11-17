@@ -257,7 +257,7 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
 
         # insert itemID and card name into the cards table
 
-        cursor.execute("INSERT INTO cards (itemID, cardName, userId) VALUES (%s, %s, %s)", (currentItemID, output[0]['name'], interaction.user.id))
+        cursor.execute("INSERT INTO cards (itemID, itemName, userId) VALUES (%s, %s, %s)", (currentItemID, output[0]['name'], interaction.user.id))
         conn.commit()
 
         # Increment the current item ID for the next item
