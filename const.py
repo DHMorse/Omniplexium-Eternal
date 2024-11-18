@@ -103,7 +103,10 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
 
     if levelUp or levelDown:
         # Send the level-up message with the correct level
-        channel = bot.get_channel(LOG_CHANNEL_ID)
+        try:
+            channel = bot.get_channel(LOG_CHANNEL_ID)
+        except:
+            channel = bot.client.get_channel(LOG_CHANNEL_ID)
 
         if newLevel == 1 or newLevel > 9 and levelUp:
             await channel.send(f"Congratulations, {discordAuthor.mention}! You have leveled up to level {newLevel}!")
