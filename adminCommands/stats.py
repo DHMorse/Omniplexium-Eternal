@@ -23,14 +23,13 @@ async def stats(ctx, member: discord.Member = None):
         if result:
             xp, money = result
             level = xpToLevel(xp)
-            # Convert items list to JSON format
 
-            cardsDict = {}
 
             cursor.execute("SELECT * FROM cards WHERE userId = %s", (member.id,))
             cards = cursor.fetchall()
 
-            cards_dict = {card[0]: card for card in cards}  # card[0] is the itemID
+            # Create a dictionary where key is itemID and value is the item details
+            cards_dict = {card[0]: card[1:] for card in cards}  # card[0] is itemID, card[1:] is the rest of the data
 
             # Send the stats with items as a JSON code block
             await ctx.send(f"{member.name}'s Stats:\n"
