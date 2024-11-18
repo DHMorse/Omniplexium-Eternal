@@ -21,20 +21,23 @@ async def stats(ctx, member: discord.Member = None):
         result = cursor.fetchone()
 
         if result:
-            xp, money, items_list = result
+            xp, money = result
             level = xpToLevel(xp)
             # Convert items list to JSON format
-            try:
-                items_json = json.loads(items_list)  # Assuming items_list is a JSON string
-            except json.JSONDecodeError:
-                items_json = {"error": "Invalid JSON format in database"}
+
+            cardsDict = {}
+
+            cursor.execute("SELECT * FROM cards WHERE userId = %s", (member.id,))
+            cards = cursor.fetchall()
+
+            cards_dict = {card['itemID']: card for card in cards}
 
             # Send the stats with items as a JSON code block
             await ctx.send(f"{member.name}'s Stats:\n"
                            f"xp: {xp}\n"
                            f"Level: {level}\n"
                            f"Money: ${money}\n"
-                           f"Items: ```json\n{json.dumps(items_json, indent=4)}\n```")
+                           f"Items: ```json\n{json.dumps(cardsDict, indent=4)}\n```")
         else:
             await ctx.send(f"{member.name} has no records in the database.")
     
