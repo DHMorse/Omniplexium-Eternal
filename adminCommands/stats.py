@@ -30,7 +30,7 @@ async def stats(ctx, member: discord.Member = None):
             cursor.execute("SELECT * FROM cards WHERE userId = %s", (member.id,))
             cards = cursor.fetchall()
 
-            cards_dict = {card['itemID']: card for card in cards}
+            cards_dict = {card[0]: card for card in cards}  # card[0] is the itemID
 
             # Send the stats with items as a JSON code block
             await ctx.send(f"{member.name}'s Stats:\n"
