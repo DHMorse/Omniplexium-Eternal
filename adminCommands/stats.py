@@ -37,7 +37,7 @@ async def stats(ctx, member: discord.Member = None):
                            f"xp: {xp}\n"
                            f"Level: {level}\n"
                            f"Money: ${money}\n"
-                           f"Items: ```json\n{json.dumps(cardsDict, indent=4)}\n```")
+                           f"Items: ```json\n{json.dumps(cards_dict, indent=4)}\n```")
         else:
             await ctx.send(f"{member.name} has no records in the database.")
     
