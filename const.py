@@ -92,34 +92,40 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
         conn.commit()
 
         # Calculate new level after XP update
-        new_level = xpToLevel(new_xp)
+        newLevel = xpToLevel(new_xp)
 
     finally:
         cursor.close()
         conn.close()
 
-    level_up = current_level < new_level 
-    new_level 
-    if level_up:
+    levelUp = current_level < newLevel
+    levelDown = current_level > newLevel
+
+    if levelUp or levelDown:
         # Send the level-up message with the correct level
         channel = bot.get_channel(LOG_CHANNEL_ID)
 
-        if new_level == 1 or new_level > 9:
-            await channel.send(f"Congratulations, {discordAuthor.mention}! You have leveled up to level {new_level}!")
-        else:
-            await channel.send(f"Congratulations, {discordAuthor}! You have leveled up to level {new_level}!")
+        if newLevel == 1 or newLevel > 9 and levelUp:
+            await channel.send(f"Congratulations, {discordAuthor.mention}! You have leveled up to level {newLevel}!")
+        elif levelUp:
+            await channel.send(f"Congratulations, {discordAuthor}! You have leveled up to level {newLevel}!")
+        elif levelDown:
+            await channel.send(f"{discordAuthor.mention} has been level downed to {newLevel}.")
         
-        role = discord.utils.get(ctx.guild.roles, name=f"Level {new_level}")
+
+        role = discord.utils.get(ctx.guild.roles, name=f"Level {newLevel}")
         
         if role is None:
             channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-            await channel.send(f"Role 'Level {new_level}' does not exist.")
+            await channel.send(f"Role 'Level {newLevel}' does not exist.")
             return
         if role in discordAuthor.roles:
             channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-            await channel.send(f"{discordAuthor.name} already has the 'Level {new_level}' role, but we tried to give it to them again.")
+            await channel.send(f"{discordAuthor.name} already has the 'Level {newLevel}' role, but we tried to give it to them again.")
             return
-        else:
+        elif levelUp:
             await discordAuthor.add_roles(role)
+        elif levelDown:
+            await discordAuthor.remove_roles(role)
 
     return None
