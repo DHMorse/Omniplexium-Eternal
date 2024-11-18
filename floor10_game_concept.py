@@ -43,7 +43,7 @@ async def guess_the_number(interaction: discord.Interaction, guess: app_commands
         if level_up == True:
             channel = interaction.client.get_channel(LOG_CHANNEL_ID)
             
-            cursor.execute("SELECT xp, money FROM stats WHERE user_id = %s", (interaction.user.id,))
+            cursor.execute("SELECT xp, money FROM stats WHERE userId = %s", (interaction.user.id,))
             result = cursor.fetchone()
 
             await channel.send(f"Congratulations, {interaction.user.mention}! You have leveled up to level {xpToLevel(result[0])}!")

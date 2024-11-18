@@ -19,11 +19,11 @@ async def reset(ctx, stat: str = "", member: discord.Member = None):
 
     try:
         if stat == "xp":
-            cursor.execute("UPDATE stats SET xp = %s WHERE user_id = %s", (0, member))
+            cursor.execute("UPDATE stats SET xp = %s WHERE userId = %s", (0, member))
             conn.commit()
             await ctx.send(f"Reset {ctx.author.name}'s xp to 0.")
         elif stat == "money":
-            cursor.execute("UPDATE stats SET money = %s WHERE user_id = %s", (0, member))
+            cursor.execute("UPDATE stats SET money = %s WHERE userId = %s", (0, member))
             conn.commit()
             await ctx.send(f"Reset {ctx.author.name}'s money to $0.")
         else:
