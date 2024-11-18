@@ -20,11 +20,11 @@ from discord.ext import commands
 from PIL import Image, ImageDraw, ImageFont
 import os
 import requests
-import ast
+import json
 
 from secret_const import TOKEN
 
-from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID
+from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH
 from const import pool 
 from const import xpToLevel, update_xp_and_check_level_up, getCurrentItemID, incrementCurrentItemID
 
@@ -226,42 +226,44 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     # Defer the response to allow more time for processing
     await interaction.response.defer()
 
-    output = await genAiCard(prompt)
-    cardFilePath = await makeCardFromJson(output[0], output[1]) # output[1] is doing nothing we over write the varible in the file
+    output = await genAiCard(prompt) # returns a list, the first item is the json data, the second is the image url
+    card = await makeCardFromJson(output[0], output[1]) # output[1] is doing nothing we over write the varible in the file
 
     # Update the user's items in the database
     conn = pool.get_connection()
     cursor = conn.cursor()
 
     try:
-        # Retrieve the current items from the database
-        #cursor.execute("SELECT itemIDs FROM stats WHERE user_id = %s", (interaction.user.id,))
-        #result = cursor.fetchone()
 
-        #print(result)
-        
-        '''# Parse the current items into a list, or use an empty list if there are no items
-        if result and result[0] != None:
-            items = ast.literal_eval(result[0])
-        else:
-            items = []'''
+        # Fetch the current highest itemID
+        cursor.execute("SELECT MAX(itemId) FROM cards")
+        result = cursor.fetchone()
+        currentItemId = result[0] + 1 if result[0] is not None else 0
 
-        currentItemID = getCurrentItemID()
-
-        # Append the new item to the list
-        #items.append(currentItemID)
-
-        # Update the items field by appending the new item
-        #cursor.execute("UPDATE stats SET itemIDs = %s WHERE user_id = %s", (str(items), interaction.user.id))
-        #conn.commit()
-
-        # insert itemID and card name into the cards table
-
-        cursor.execute("INSERT INTO cards (itemID, itemName, userId) VALUES (%s, %s, %s)", (currentItemID, output[0]['name'], interaction.user.id))
+        cursor.execute("INSERT INTO cards (itemName, userId) VALUES (%s, %s)", (output[0]['name'], interaction.user.id))
         conn.commit()
 
-        # Increment the current item ID for the next item
-        incrementCurrentItemID()
+
+        # Save the card data as a JSON file
+        output_filename = f"{currentItemId}.json"
+        output_path = os.path.join(CARD_DATA_JSON_PATH, output_filename)
+
+        if not os.path.exists(CARD_DATA_JSON_PATH):
+            os.makedirs(CARD_DATA_JSON_PATH)
+
+        with open(output_path, 'w') as json_file:
+            json.dump(output[0], json_file, indent=4)
+
+
+        # Save the card image
+        card_name = f"{currentItemId}.png"
+        
+        if not os.path.exists(CARD_DATA_IMAGES_PATH):
+            os.makedirs(CARD_DATA_IMAGES_PATH)
+
+        cardFilePath = f'{CARD_DATA_IMAGES_PATH}/{card_name}'
+        
+        card.save(cardFilePath)
 
     finally:
         cursor.close()

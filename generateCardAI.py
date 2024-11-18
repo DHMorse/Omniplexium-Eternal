@@ -5,9 +5,6 @@ import os
 
 client = OpenAI(api_key=openai_key)
 
-from const import CARD_DATA_JSON_PATH
-from const import getCurrentItemID
-
 async def genAiCard(description: str, health: int=50, damage: int=20, type: str='standard') -> list:
     true = True
     false = False
@@ -111,17 +108,6 @@ async def genAiCard(description: str, health: int=50, damage: int=20, type: str=
     )
     generated_text = response.choices[0].message.content
     data = json.loads(generated_text)
-
-    currentItemID = getCurrentItemID()
-
-    output_filename = f"{currentItemID}.json"
-    output_path = os.path.join(CARD_DATA_JSON_PATH, output_filename)
-
-    if not os.path.exists(CARD_DATA_JSON_PATH):
-        os.makedirs(CARD_DATA_JSON_PATH)
-
-    with open(output_path, 'w') as json_file:
-        json.dump(data, json_file, indent=4)
 
     imageResponse = client.images.generate(
         model="dall-e-3",

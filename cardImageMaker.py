@@ -8,7 +8,7 @@ from const import CARD_DATA_IMAGES_PATH
 from const import pool
 from const import getCurrentItemID
 
-async def makeCardFromJson(data: dict, url: str) -> str:
+async def makeCardFromJson(data: dict, url: str) -> Image:
     # Example input data
     '''
     card_data = {
@@ -97,20 +97,7 @@ async def makeCardFromJson(data: dict, url: str) -> str:
             draw.text((40, y_offset), stats_text, font=text_font, fill="grey")
             y_offset += 60  # Double spacing
 
-        currentCardID = getCurrentItemID()
-
-        # Save the card image
-        card_name = f"{currentCardID}.png"
-        
-        if not os.path.exists(CARD_DATA_IMAGES_PATH):
-            os.makedirs(CARD_DATA_IMAGES_PATH)
-
-        path = f'{CARD_DATA_IMAGES_PATH}/{card_name}'
-        
-        card.save(path)
-
-        print(f"High-resolution playing card image created as '{card_name}'")
-        return path
+        return card
     else:
         print("Unable to create card image due to image loading failure.")
         return None
