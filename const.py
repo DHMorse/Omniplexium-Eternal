@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import discord
 from discord.ext import commands
 from mysql.connector import pooling
 
@@ -54,7 +55,7 @@ def xpToLevel(xp: any) -> int:
     level = 10 + np.log(xp / XP_LEVEL_10) / np.log(base)
     return int(level)
 
-async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> tuple:
+async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
     if isinstance(xp, float): 
         xp = int(xp)
     elif isinstance(xp, str):
@@ -66,17 +67,19 @@ async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> tuple:
     if not isinstance(add, bool):
         raise ValueError("argument 'add' must be a boolean.")
 
+    # checks which version of the discord API is being used 
+    # and this is a bit of hack to use the same function for both
+    try:
+        ctx.author.id
+        discordAuthor = ctx.author
+    except:
+        discordAuthor = ctx.user
+
     conn = pool.get_connection()
     cursor = conn.cursor()
 
     try:
-        # Fetch current XP for the user
-        # this try except block is a hack, if we get ctx from a slash command i.e. interaction
-        # then it's going to fail but interaction.user is the same as ctx.author
-        try:
-            cursor.execute("SELECT xp FROM stats WHERE userId = %s", (ctx.author.id,))
-        except:
-            cursor.execute("SELECT xp FROM stats WHERE userId = %s", (ctx.user.id,))
+        cursor.execute("SELECT xp FROM stats WHERE userId = %s", (discordAuthor.id,))
         database = cursor.fetchone()
 
         current_xp = database[0]
@@ -84,10 +87,8 @@ async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> tuple:
 
         # Update XP based on add flag
         new_xp = current_xp + xp if add else current_xp - xp
-        try:
-            cursor.execute("UPDATE stats SET xp = %s WHERE userId = %s", (new_xp, ctx.author.id))
-        except:
-            cursor.execute("UPDATE stats SET xp = %s WHERE userId = %s", (new_xp, ctx.user.id))
+
+        cursor.execute("UPDATE stats SET xp = %s WHERE userId = %s", (new_xp, discordAuthor.id))
         conn.commit()
 
         # Calculate new level after XP update
@@ -97,16 +98,28 @@ async def update_xp_and_check_level_up(ctx, xp: int, add: bool = True) -> tuple:
         cursor.close()
         conn.close()
 
-    # Check if level increased
-    return (current_level < new_level, new_level)
+    level_up = current_level < new_level 
+    new_level 
+    if level_up:
+        # Send the level-up message with the correct level
+        channel = bot.get_channel(LOG_CHANNEL_ID)
 
+        if new_level == 1 or new_level > 9:
+            await channel.send(f"Congratulations, {discordAuthor.mention}! You have leveled up to level {new_level}!")
+        else:
+            await channel.send(f"Congratulations, {discordAuthor}! You have leveled up to level {new_level}!")
+        
+        role = discord.utils.get(ctx.guild.roles, name=f"Level {new_level}")
+        
+        if role is None:
+            channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+            await channel.send(f"Role 'Level {new_level}' does not exist.")
+            return
+        if role in discordAuthor.roles:
+            channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+            await channel.send(f"{discordAuthor.name} already has the 'Level {new_level}' role, but we tried to give it to them again.")
+            return
+        else:
+            await discordAuthor.add_roles(role)
 
-def getCurrentItemID() -> int:
-    with open(CURRENT_ITEM_ID_PATH, 'r') as f:
-        return int(f.read())
-    
-def incrementCurrentItemID() -> None:
-    with open(CURRENT_ITEM_ID_PATH, 'r') as f:
-        current = int(f.read())
-    with open(CURRENT_ITEM_ID_PATH, 'w') as f:
-        f.write(str(current + 1))
+    return None

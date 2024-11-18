@@ -1,7 +1,6 @@
 from openai import OpenAI
 from secret_const import openai_key
 import json
-import os
 
 client = OpenAI(api_key=openai_key)
 

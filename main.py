@@ -26,7 +26,7 @@ from secret_const import TOKEN
 
 from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH
 from const import pool 
-from const import xpToLevel, update_xp_and_check_level_up, getCurrentItemID, incrementCurrentItemID
+from const import xpToLevel, updateXpAndCheckLevelUp
 
 from adminCommands.set import set
 from adminCommands.stats import stats
@@ -79,28 +79,7 @@ async def on_message(message):
 
         if result:
             # Directly call level-up update function and get level-up flag
-            level_up, new_level = await update_xp_and_check_level_up(ctx=message, xp=1, add=True)
-            if level_up:
-                # Send the level-up message with the correct level
-                channel = bot.get_channel(LOG_CHANNEL_ID)
-
-                if new_level == 1 or new_level > 9:
-                    await channel.send(f"Congratulations, {message.author.mention}! You have leveled up to level {new_level}!")
-                else:
-                    await channel.send(f"Congratulations, {message.author}! You have leveled up to level {new_level}!")
-                
-                role = discord.utils.get(message.guild.roles, name=f"Level {new_level}")
-                
-                if role is None:
-                    channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                    await channel.send(f"Role 'Level {new_level}' does not exist.")
-                    return
-                if role in message.author.roles:
-                    channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                    await channel.send(f"{message.author.name} already has the 'Level {new_level}' role, but we tried to give it to them again.")
-                    return
-                else:
-                    await message.author.add_roles(role)
+            await updateXpAndCheckLevelUp(ctx=message, bot=bot, xp=1, add=True)
         else:
             # Insert new user record if they don't exist
             cursor.execute(

@@ -2,11 +2,6 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 import io
 import textwrap
-import os
-
-from const import CARD_DATA_IMAGES_PATH
-from const import pool
-from const import getCurrentItemID
 
 async def makeCardFromJson(data: dict, url: str) -> Image:
     # Example input data
