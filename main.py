@@ -119,8 +119,8 @@ async def on_member_join(member: discord.Member):
         # account is older than a year old
 
     # test case for my alt
-    if member.id == 1000422804585451640:
-        accountAgeStatus = 'brand new'
+    #if member.id == 1000422804585451640:
+    #    accountAgeStatus = 'brand new'
 
     # Embed setup
     match accountAgeStatus:
@@ -136,6 +136,31 @@ async def on_member_join(member: discord.Member):
             description=f"**Member:** \n{member.name}\n"
                         f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
             color=discordColor,
+            timestamp=now  # Automatically add the timestamp to the footer
+        )
+    embed.set_thumbnail(url=member.display_avatar.url)
+
+    channel = bot.get_channel(LOG_CHANNEL_ID)
+
+    # Send the embed to the server's system channel (or any specific channel)
+    if channel:
+        await channel.send(embed=embed)
+
+@bot.event
+async def on_member_remove(member: discord.Member):
+    # Calculate account age
+    now = datetime.now(timezone.utc)
+    account_creation_date = member.created_at
+    account_age = now - account_creation_date
+    years = account_age.days // 365
+    months = (account_age.days % 365) // 30
+    days = (account_age.days % 365) % 30
+
+    embed = discord.Embed(
+            title="Member Joined",
+            description=f"**Member:** \n{member.name}\n"
+                        f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
+            color=discord.Color.dark_magenta(),
             timestamp=now  # Automatically add the timestamp to the footer
         )
     embed.set_thumbnail(url=member.display_avatar.url)
