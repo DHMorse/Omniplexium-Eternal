@@ -84,7 +84,7 @@ async def on_message(message):
         else:
             # Insert new user record if they don't exist
             cursor.execute(
-                "INSERT INTO stats (userId, username, xp, money, items) VALUES (%s, %s, %s, %s, %s)",
+                "INSERT INTO stats (userId, username, xp, money) VALUES (%s, %s, %s, %s)",
                 (user_id, username, 1, 0, '[]')
             )
             conn.commit()
@@ -98,6 +98,21 @@ async def on_message(message):
 
 @bot.event
 async def on_member_join(member: discord.Member):
+
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        # see if the user is in the data base
+        cursor.execute("SELECT xp, money FROM stats WHERE userId = %s", (member.id,))
+        xp, money = cursor.fetchone()
+        if xp:
+            for i in range(xpToLevel(xp)):
+                await member.add_roles(discord.utils.get(member.guild.roles, name=f"Level {i + 1}"))
+    finally:
+        cursor.close()
+        conn.close()
+
     # Calculate account age
     now = datetime.now(timezone.utc)
     account_creation_date = member.created_at
@@ -157,7 +172,7 @@ async def on_member_remove(member: discord.Member):
     days = (account_age.days % 365) % 30
 
     embed = discord.Embed(
-            title="Member Joined",
+            title="Member Left",
             description=f"**Member:** \n{member.name}\n"
                         f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
             color=discord.Color.dark_magenta(),
