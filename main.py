@@ -240,8 +240,11 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
             profile_picture = Image.open(profile_picture_path)
         else:
             # Download profile picture if available; otherwise, use default
-            print(user)
-            print(user.avatar)
+            try:
+                print(user)
+                print(user.avatar)
+            except:
+                pass
             if user and user.avatar:
                 profile_picture_response = requests.get(user.avatar.url, stream=True)
                 profile_picture_response.raise_for_status()
