@@ -124,8 +124,8 @@ async def on_member_join(member: discord.Member):
 
     accountAgeStatus = 'normal'
     
-    if years > 1:
-        if months > 1:
+    if years < 1:
+        if months < 1:
             # account is brand new
             accountAgeStatus = 'brand new'
         else:
