@@ -85,7 +85,7 @@ async def on_message(message):
             # Insert new user record if they don't exist
             cursor.execute(
                 "INSERT INTO stats (userId, username, xp, money) VALUES (%s, %s, %s, %s)",
-                (user_id, username, 1, 0, '[]')
+                (user_id, username, 1, 0)
             )
             conn.commit()
 
