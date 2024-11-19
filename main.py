@@ -120,7 +120,7 @@ async def on_member_join(member: discord.Member):
 
     # test case for my alt
     if member.id == 1000422804585451640:
-        accountAgeStatus = 'new'
+        accountAgeStatus = 'brand new'
 
     # Embed setup
     match accountAgeStatus:
