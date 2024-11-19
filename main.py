@@ -106,18 +106,48 @@ async def on_member_join(member: discord.Member):
     months = (account_age.days % 365) // 30
     days = (account_age.days % 365) % 30
 
-    # Format date and time
-    #join_time = now.strftime("Today at %H:%M UTC")
+    if years > 1:
+        if months > 1:
+            # account is brand new
+            accountAgeStatus = 'brand new'
+        else:
+            # account is older than a month
+            # and is new, but proably not dangerous
+            accountAgeStatus = 'new'
+    else:
+        accountAgeStatus = 'normal'
+        # account is older than a year old
+
+    # test case for my alt
+    if member.user.id == 1000422804585451640:
+        accountAgeStatus = 'brand new'
 
     # Embed setup
-    embed = discord.Embed(
-        title="Member Joined",
-        description=f"**Member:** \n{member.name}\n"
-                    f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
-        color=discord.Color.green(),
-        timestamp=now  # Automatically add the timestamp to the footer
-    )
-    #embed.set_footer(text=join_time)
+    match accountAgeStatus:
+        case 'normal':
+            embed = discord.Embed(
+                title="Member Joined",
+                description=f"**Member:** \n{member.name}\n"
+                            f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
+                color=discord.Color.green(),
+                timestamp=now  # Automatically add the timestamp to the footer
+            )
+        case 'new':
+            embed = discord.Embed(
+                title="Member Joined",
+                description=f"**Member:** \n{member.name}\n"
+                            f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
+                color=discord.Color.yellow(),
+                timestamp=now  # Automatically add the timestamp to the footer
+            )
+        case 'brand new':
+            embed = discord.Embed(
+                title="Member Joined",
+                description=f"**Member:** \n{member.name}\n"
+                            f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
+                color=discord.Color.orange(),
+                timestamp=now  # Automatically add the timestamp to the footer
+            )
     embed.set_thumbnail(url=member.display_avatar.url)
 
     channel = bot.get_channel(LOG_CHANNEL_ID)
