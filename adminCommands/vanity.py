@@ -4,8 +4,6 @@ from discord.ext import commands
 
 from const import ROOT_DIR
 
-ROOT_DIR = ''
-
 @commands.command()
 async def vanity(ctx):
     """Get the total number of lines in the project files."""
