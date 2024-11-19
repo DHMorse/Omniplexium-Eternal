@@ -105,8 +105,9 @@ async def on_member_join(member: discord.Member):
     try:
         # see if the user is in the data base
         cursor.execute("SELECT xp, money FROM stats WHERE userId = %s", (member.id,))
-        xp, money = cursor.fetchone()
-        if xp:
+        result = cursor.fetchone()
+        if result:
+            xp = result[0]
             for i in range(xpToLevel(xp)):
                 await member.add_roles(discord.utils.get(member.guild.roles, name=f"Level {i + 1}"))
     finally:
