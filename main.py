@@ -106,6 +106,8 @@ async def on_member_join(member: discord.Member):
     months = (account_age.days % 365) // 30
     days = (account_age.days % 365) % 30
 
+    accountAgeStatus = 'normal'
+    
     if years > 1:
         if months > 1:
             # account is brand new
@@ -114,8 +116,6 @@ async def on_member_join(member: discord.Member):
             # account is older than a month
             # and is new, but proably not dangerous
             accountAgeStatus = 'new'
-    else:
-        accountAgeStatus = 'normal'
         # account is older than a year old
 
     # test case for my alt
