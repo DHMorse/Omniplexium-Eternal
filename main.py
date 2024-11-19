@@ -107,14 +107,14 @@ async def on_member_join(member: discord.Member):
     days = (account_age.days % 365) % 30
 
     # Format date and time
-    join_time = now.strftime("Today at %H:%M UTC")
-    #local_time = now
-    #join_time = f"{utc_time} ({local_time})"
+    local_time = now.astimezone().strftime("%I:%M %p")  # Convert to local time in 12-hour format
+    utc_time = now.strftime("%H:%M UTC")               # Keep UTC in 24-hour format
+    join_time = f"Today at {local_time} ({utc_time})"  # Combine both formats
 
     # Embed setup
     embed = discord.Embed(
         title="Member Joined",
-        description=f"**Member:** \n{member.mention}\n"
+        description=f"**Member:** \n{member.user}\n"
                     f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
         color=discord.Color.green(),
         timestamp=now  # Automatically add the timestamp to the footer
@@ -124,9 +124,10 @@ async def on_member_join(member: discord.Member):
 
     channel = bot.get_channel(LOG_CHANNEL_ID)
 
-    # Send the embed to the server's system channel (or any specific channel)
+    # Send the embed to the specified channel
     if channel:
         await channel.send(embed=embed)
+
 
 @bot.tree.command(name="leaderboard", description="Display the leaderboard based on level or money.")
 @app_commands.describe(type="Choose between 'level' or 'money' for the leaderboard type.")
