@@ -148,7 +148,7 @@ async def on_member_join(member: discord.Member):
 
     embed = discord.Embed(
             title="Member Joined",
-            description=f"**Member:** \n{member.name}\n"
+            description=f"**Member:** \n{member.name}\n\n"
                         f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
             color=discordColor,
             timestamp=now  # Automatically add the timestamp to the footer
@@ -173,7 +173,7 @@ async def on_member_remove(member: discord.Member):
 
     embed = discord.Embed(
             title="Member Left",
-            description=f"**Member:** \n{member.name}\n"
+            description=f"**Member:** \n{member.name}\n\n"
                         f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
             color=discord.Color.dark_magenta(),
             timestamp=now  # Automatically add the timestamp to the footer

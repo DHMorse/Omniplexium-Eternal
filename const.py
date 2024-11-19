@@ -120,7 +120,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
             now = datetime.now(timezone.utc)
             embed = discord.Embed(
                 title="Member Leveled Up",
-                description=f"**Member:** \n{userField}\n"
+                description=f"**Member:** \n{userField}\n\n"
                             f"**Account Level:** \n{newLevel}\n",
                 color=discord.Color.green(),
                 timestamp=now  # Automatically add the timestamp to the footer
@@ -134,7 +134,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
             now = datetime.now(timezone.utc)
             embed = discord.Embed(
                 title="Member Leveled Down",
-                description=f"**Member:** \n{userField}\n"
+                description=f"**Member:** \n{userField}\n\n"
                             f"**Account Level:** \n{newLevel}\n",
                 color=discord.Color.dark_magenta(),
                 timestamp=now  # Automatically add the timestamp to the footer
