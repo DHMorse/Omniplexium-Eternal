@@ -119,7 +119,7 @@ async def on_member_join(member: discord.Member):
         # account is older than a year old
 
     # test case for my alt
-    if member.user.id == 1000422804585451640:
+    if member.id == 1000422804585451640:
         accountAgeStatus = 'brand new'
 
     # Embed setup
