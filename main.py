@@ -21,6 +21,7 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import requests
 import json
+from datetime import datetime, timezone
 
 from secret_const import TOKEN
 
@@ -94,6 +95,36 @@ async def on_message(message):
 
     # Continue processing other commands if any
     await bot.process_commands(message)
+
+@bot.event
+async def on_member_join(member: discord.Member):
+    # Calculate account age
+    now = datetime.now(timezone.utc)
+    account_creation_date = member.created_at
+    account_age = now - account_creation_date
+    years = account_age.days // 365
+    months = (account_age.days % 365) // 30
+    days = (account_age.days % 365) % 30
+
+    # Format date and time
+    join_time = now.strftime("Today at %I:%M %p")
+
+    # Embed setup
+    embed = discord.Embed(
+        title="Member Joined",
+        description=f"**Member:** {member.mention}\n"
+                    f"**Account Age:** {years} Years, {months} Months, {days} Days\n",
+        color=discord.Color.green(),
+        timestamp=now  # Automatically add the timestamp to the footer
+    )
+    embed.set_footer(text=join_time)
+    embed.set_thumbnail(url=member.display_avatar.url)
+
+    channel = bot.get_channel(LOG_CHANNEL_ID)
+
+    # Send the embed to the server's system channel (or any specific channel)
+    if channel:
+        await channel.send(embed=embed)
 
 @bot.tree.command(name="leaderboard", description="Display the leaderboard based on level or money.")
 @app_commands.describe(type="Choose between 'level' or 'money' for the leaderboard type.")
