@@ -107,9 +107,9 @@ async def on_member_join(member: discord.Member):
     days = (account_age.days % 365) % 30
 
     # Format date and time
-    utc_time = now.strftime("Today at %H:%M UTC")
-    local_time = now
-    join_time = f"{utc_time} ({local_time})"
+    join_time = now.strftime("Today at %H:%M UTC")
+    #local_time = now
+    #join_time = f"{utc_time} ({local_time})"
 
     # Embed setup
     embed = discord.Embed(
@@ -117,7 +117,7 @@ async def on_member_join(member: discord.Member):
         description=f"**Member:** \n{member.mention}\n"
                     f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
         color=discord.Color.green()
-        #timestamp=now  # Automatically add the timestamp to the footer
+        timestamp=now  # Automatically add the timestamp to the footer
     )
     embed.set_footer(text=join_time)
     embed.set_thumbnail(url=member.display_avatar.url)
