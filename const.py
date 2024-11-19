@@ -3,6 +3,7 @@ import numpy as np
 import discord
 from discord.ext import commands
 from mysql.connector import pooling
+from datetime import datetime, timezone
 
 from secret_const import DATABASE_CONFIG
 
@@ -109,12 +110,39 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
             channel = bot.client.get_channel(LOG_CHANNEL_ID)
 
         if newLevel == 1 or newLevel > 9 and levelUp:
-            await channel.send(f"Congratulations, {discordAuthor.mention}! You have leveled up to level {newLevel}!")
+            userField = discordAuthor.mention
         elif levelUp:
-            await channel.send(f"Congratulations, {discordAuthor}! You have leveled up to level {newLevel}!")
+            userField = discordAuthor
         elif levelDown:
-            await channel.send(f"{discordAuthor.mention} has been level downed to {newLevel}.")
+            userField = discordAuthor.mention
         
+        if levelUp:
+            now = datetime.now(timezone.utc)
+            embed = discord.Embed(
+                title="Member Leveled Up",
+                description=f"**Member:** \n{userField}\n"
+                            f"**Account Level:** \n{newLevel}\n",
+                color=discord.Color.green(),
+                timestamp=now  # Automatically add the timestamp to the footer
+            )
+
+            embed.set_thumbnail(url=discordAuthor.display_avatar.url)
+
+            await channel.send(embed=embed)
+        
+        if levelDown:
+            now = datetime.now(timezone.utc)
+            embed = discord.Embed(
+                title="Member Leveled Down",
+                description=f"**Member:** \n{userField}\n"
+                            f"**Account Level:** \n{newLevel}\n",
+                color=discord.Color.dark_magenta(),
+                timestamp=now  # Automatically add the timestamp to the footer
+            )
+
+            embed.set_thumbnail(url=discordAuthor.display_avatar.url)
+
+            await channel.send(embed=embed)
 
         role = discord.utils.get(ctx.guild.roles, name=f"Level {newLevel}")
         
