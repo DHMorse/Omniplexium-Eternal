@@ -4,14 +4,14 @@ from discord.ext import commands
 
 from const import ROOT_DIR
 
+ROOT_DIR = ''
+
 @commands.command()
 async def vanity(ctx):
     """Get the total number of lines in the project files."""
-    total_lines = count_python_lines(ROOT_DIR)
+    total_files, total_commands, total_lines = count_lines_of_code_in_python_files(ROOT_DIR)
     total_lines = "{:,}".format(total_lines)
-    total_files = get_total_files(ROOT_DIR)
     total_files = "{:,}".format(total_files)
-    total_commands = get_total_commands(ROOT_DIR)
     total_commands = "{:,}".format(total_commands)
     embed = discord.Embed(
     title="📊 Bot Statistics",
@@ -45,45 +45,26 @@ async def vanity(ctx):
 
     await ctx.send(embed=embed)
 
-
-def count_python_lines(directory):
+def count_lines_of_code_in_python_files(root_dir):
+    total_files = 0
+    total_py_files = 0
     total_lines = 0
 
-    # Walk through all files and subdirectories
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if file.endswith('.py'):
-                file_path = os.path.join(root, file)
-                try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        lines = f.readlines()
-                        total_lines += len(lines)
-                except Exception as e:
-                    print(f"Error reading {file_path}: {e}")
+    # Walk through the directory recursively
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        # Skip hidden directories (those starting with a dot) and __pycache__
+        dirnames[:] = [d for d in dirnames if not d.startswith('.') and d != '__pycache__']
+        
+        for filename in filenames:
+            total_files += 1  # Count all files
+            
+            if filename.endswith('.py'):  # Check if the file is a Python file
+                total_py_files += 1
+                file_path = os.path.join(dirpath, filename)
+                
+                # Open the Python file and count its lines
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    lines = file.readlines()
+                    total_lines += len(lines)
 
-    return total_lines
-
-def get_total_files(directory: str) -> int:
-    total_files = 0
-    
-    # Walk through all directories and subdirectories
-    for subdir, _, files in os.walk(directory):
-        # skip over directors that start with .
-        if subdir.startswith('.'):
-            continue
-        # Skip __pycache__ and .git directories
-        if '__pycache__' not in subdir and '.git' not in subdir:
-            total_files += len([file for file in files if not file.endswith('.pyc')])
-
-    return total_files
-
-def get_total_commands(directory):
-    total_commands = 0
-
-    # Walk through all files and subdirectories
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if file.endswith('.py'):
-                total_commands += 1
-
-    return total_commands
+    return total_files, total_py_files, total_lines
