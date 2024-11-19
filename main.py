@@ -116,7 +116,7 @@ async def on_member_join(member: discord.Member):
         title="Member Joined",
         description=f"**Member:** \n{member.mention}\n"
                     f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
-        color=discord.Color.green()
+        color=discord.Color.green(),
         timestamp=now  # Automatically add the timestamp to the footer
     )
     embed.set_footer(text=join_time)
