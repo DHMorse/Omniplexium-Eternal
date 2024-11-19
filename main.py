@@ -120,34 +120,24 @@ async def on_member_join(member: discord.Member):
 
     # test case for my alt
     if member.id == 1000422804585451640:
-        accountAgeStatus = 'brand new'
+        accountAgeStatus = 'new'
 
     # Embed setup
     match accountAgeStatus:
         case 'normal':
-            embed = discord.Embed(
-                title="Member Joined",
-                description=f"**Member:** \n{member.name}\n"
-                            f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
-                color=discord.Color.green(),
-                timestamp=now  # Automatically add the timestamp to the footer
-            )
+            discordColor = discord.Color.green()
         case 'new':
-            embed = discord.Embed(
-                title="Member Joined",
-                description=f"**Member:** \n{member.name}\n"
-                            f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
-                color=discord.Color.yellow(),
-                timestamp=now  # Automatically add the timestamp to the footer
-            )
+            discordColor = discord.Color.yellow()
         case 'brand new':
-            embed = discord.Embed(
-                title="Member Joined",
-                description=f"**Member:** \n{member.name}\n"
-                            f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
-                color=discord.Color.orange(),
-                timestamp=now  # Automatically add the timestamp to the footer
-            )
+            discordColor = discord.Color.dark_orange()
+
+    embed = discord.Embed(
+            title="Member Joined",
+            description=f"**Member:** \n{member.name}\n"
+                        f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
+            color=discordColor,
+            timestamp=now  # Automatically add the timestamp to the footer
+        )
     embed.set_thumbnail(url=member.display_avatar.url)
 
     channel = bot.get_channel(LOG_CHANNEL_ID)
