@@ -227,7 +227,7 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
         if user_id == 1175890644191957013:
             continue
 
-        user = bot.get_user(user_id)
+        user = interaction.user
         count += 1
 
         # Ensure the directory exists
