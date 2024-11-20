@@ -189,6 +189,36 @@ async def on_member_remove(member: discord.Member):
     if channel:
         await channel.send(embed=embed)
 
+@bot.event
+async def on_member_update(before: discord.Member, after: discord.Member):
+
+    # later if we run out of resources we can make it so that we check if the user is on the leaderboard or not
+    # and if not we can just return
+
+    # Check if the avatar has changed
+    if before.avatar != after.avatar:
+        user = await bot.fetch_user(after.id)
+        # Ensure the directory exists
+        profile_picture_dir = os.path.join(os.path.expanduser(CACHE_DIR_PFP))
+        if not os.path.exists(profile_picture_dir):
+            os.makedirs(profile_picture_dir)
+
+        # Check if profile picture is in cache
+        profile_picture_path = os.path.join(profile_picture_dir, f"{after.id}.png")
+
+        if os.path.exists(profile_picture_path):
+            profile_picture = Image.open(profile_picture_path)
+        else:
+            if user and user.avatar:
+                profile_picture_response = requests.get(user.avatar.url, stream=True)
+                profile_picture_response.raise_for_status()
+                profile_picture = Image.open(profile_picture_response.raw)
+            else:
+                profile_picture = Image.open(DEFUALT_PROFILE_PIC)
+
+            # Save profile picture to cache
+            profile_picture.save(profile_picture_path)
+
 @bot.tree.command(name="leaderboard", description="Display the leaderboard based on level or money.")
 @app_commands.describe(type="Choose between 'level' or 'money' for the leaderboard type.")
 async def leaderboard(interaction: discord.Interaction, type: str = "level"):
