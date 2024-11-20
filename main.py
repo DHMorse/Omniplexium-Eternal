@@ -227,7 +227,7 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
         if user_id == 1175890644191957013:
             continue
 
-        user = interaction.user
+        user = await bot.fetch_user(user_id)
         count += 1
 
         # Ensure the directory exists
@@ -241,12 +241,6 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
         if os.path.exists(profile_picture_path):
             profile_picture = Image.open(profile_picture_path)
         else:
-            # Download profile picture if available; otherwise, use default
-            try:
-                print(user)
-                print(user.avatar)
-            except:
-                pass
             if user and user.avatar:
                 profile_picture_response = requests.get(user.avatar.url, stream=True)
                 profile_picture_response.raise_for_status()
