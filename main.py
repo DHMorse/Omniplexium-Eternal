@@ -190,7 +190,7 @@ async def on_member_remove(member: discord.Member):
         await channel.send(embed=embed)
 
 @bot.event
-async def on_member_update(before: discord.Member, after: discord.Member):
+async def on_user_update(before: discord.Member, after: discord.Member):
 
     # later if we run out of resources we can make it so that we check if the user is on the leaderboard or not
     # and if not we can just return
