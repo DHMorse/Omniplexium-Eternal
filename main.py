@@ -205,8 +205,10 @@ async def on_user_update(before: discord.Member, after: discord.Member):
         if not os.path.exists(profile_picture_dir):
             os.makedirs(profile_picture_dir)
 
-        # Check if profile picture is in cache
         profile_picture_path = os.path.join(profile_picture_dir, f"{after.id}.png")
+
+        if os.path.exists(profile_picture_path):
+            os.remove(profile_picture_path)
 
         if user and user.avatar:
             profile_picture_response = requests.get(user.avatar.url, stream=True)
