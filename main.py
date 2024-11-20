@@ -195,11 +195,14 @@ async def on_member_update(before: discord.Member, after: discord.Member):
     # later if we run out of resources we can make it so that we check if the user is on the leaderboard or not
     # and if not we can just return
 
+    print('hi')
+
     # Check if the avatar has changed
-    if before.avatar != after.avatar:
+    if before.avatar.url != after.avatar.url:
         user = await bot.fetch_user(after.id)
         # Ensure the directory exists
         profile_picture_dir = os.path.join(os.path.expanduser(CACHE_DIR_PFP))
+
         if not os.path.exists(profile_picture_dir):
             os.makedirs(profile_picture_dir)
 
