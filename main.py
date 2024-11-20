@@ -207,9 +207,6 @@ async def on_user_update(before: discord.Member, after: discord.Member):
 
         profile_picture_path = os.path.join(profile_picture_dir, f"{after.id}.png")
 
-        if os.path.exists(profile_picture_path):
-            os.remove(profile_picture_path)
-
         if user and user.avatar:
             profile_picture_response = requests.get(user.avatar.url, stream=True)
             profile_picture_response.raise_for_status()
@@ -218,7 +215,7 @@ async def on_user_update(before: discord.Member, after: discord.Member):
             profile_picture = Image.open(DEFUALT_PROFILE_PIC)
 
             # Save profile picture to cache
-            profile_picture.save(profile_picture_path)
+        profile_picture.save(profile_picture_path)
 
 @bot.tree.command(name="leaderboard", description="Display the leaderboard based on level or money.")
 @app_commands.describe(type="Choose between 'level' or 'money' for the leaderboard type.")
