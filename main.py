@@ -196,7 +196,7 @@ async def on_member_update(before: discord.Member, after: discord.Member):
     # and if not we can just return
 
     # Check if the avatar has changed
-    if before.avatar.url != after.avatar.url:
+    if before.avatar != after.avatar:
         print('check did not fail')
         user = await bot.fetch_user(after.id)
         # Ensure the directory exists
