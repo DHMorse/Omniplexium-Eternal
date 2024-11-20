@@ -195,8 +195,6 @@ async def on_member_update(before: discord.Member, after: discord.Member):
     # later if we run out of resources we can make it so that we check if the user is on the leaderboard or not
     # and if not we can just return
 
-    print('hi')
-
     # Check if the avatar has changed
     if before.avatar.url != after.avatar.url:
         user = await bot.fetch_user(after.id)
@@ -209,15 +207,12 @@ async def on_member_update(before: discord.Member, after: discord.Member):
         # Check if profile picture is in cache
         profile_picture_path = os.path.join(profile_picture_dir, f"{after.id}.png")
 
-        if os.path.exists(profile_picture_path):
-            profile_picture = Image.open(profile_picture_path)
+        if user and user.avatar:
+            profile_picture_response = requests.get(user.avatar.url, stream=True)
+            profile_picture_response.raise_for_status()
+            profile_picture = Image.open(profile_picture_response.raw)
         else:
-            if user and user.avatar:
-                profile_picture_response = requests.get(user.avatar.url, stream=True)
-                profile_picture_response.raise_for_status()
-                profile_picture = Image.open(profile_picture_response.raw)
-            else:
-                profile_picture = Image.open(DEFUALT_PROFILE_PIC)
+            profile_picture = Image.open(DEFUALT_PROFILE_PIC)
 
             # Save profile picture to cache
             profile_picture.save(profile_picture_path)
