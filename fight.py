@@ -73,16 +73,20 @@ class CardView(View):
 
 
 class ChallengeView(View):
-    def __init__(self, member: discord.Member):
+    def __init__(self, member: discord.Member, message=None):
         super().__init__(timeout=30)  # Set the timeout for the View
         self.member = member
+        self.message = message  # Store the message object
         self.response = None  # To track the button pressed
 
     async def on_timeout(self):
         # Action when the timeout occurs
-        for item in self.children:
-            item.disabled = True
-        await self.message.edit(content="Challenge timed out. No response received.", view=self)
+        if self.message:  # Check if the message is set
+            for item in self.children:
+                item.disabled = True  # Disable buttons
+            await self.message.edit(content="Challenge timed out. No response received.", view=self)
+        else:
+            print("No message to edit on timeout.")  # Debug message
 
     @discord.ui.button(label="Accept", style=discord.ButtonStyle.green)
     async def accept_button(self, interaction: discord.Interaction, button: Button):
