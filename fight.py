@@ -9,7 +9,7 @@ class CardView(View):
     def __init__(self, pool):
         super().__init__(timeout=None)
         self.pool = pool
-        self.locked_in_users = {}  # Track locked-in users and their selected cards
+        self.selected_cards = {}  # To track selected cards for each user
 
     @discord.ui.button(label="View Your Cards", style=ButtonStyle.primary)
     async def view_cards(self, interaction: Interaction, button: Button):
@@ -23,70 +23,70 @@ class CardView(View):
 
             if not cards:
                 await interaction.response.send_message("You have no cards.", ephemeral=True)
-            else:
-                card_names = "\n".join(f'{i + 1}. {card["itemName"]}' for i, card in enumerate(cards))
-                await interaction.response.send_message(
-                    f"Your cards:\n{card_names}\n\nReply with the numbers of 3 cards separated by commas (e.g., `1,2,3`) to choose them for the battle.",
-                    ephemeral=True
-                )
+                return
+
+            # Format card list
+            card_names = "\n".join(f'{i + 1}. {card["itemName"]}' for i, card in enumerate(cards))
+            await interaction.response.send_message(
+                f"Your cards:\n{card_names}\n\nSend a message in this thread with the numbers of 3 cards to choose them for battle (e.g., `1 3 5`).",
+                ephemeral=True
+            )
+
+            # Save the card list for validation later
+            self.selected_cards[user_id] = {
+                "available_cards": cards,
+                "locked_in": False
+            }
 
         finally:
             cursor.close()
             conn.close()
 
-    async def handle_card_selection(self, message: discord.Message):
+    async def handle_message(self, message: discord.Message):
         user_id = message.author.id
 
-        # Validate message format
+        # Check if the user is allowed to select cards
+        if user_id not in self.selected_cards or self.selected_cards[user_id]["locked_in"]:
+            return
+
+        # Validate the input
         try:
-            selected_indices = [int(x.strip()) for x in message.content.split(",")]
-            if len(selected_indices) != 3 or len(set(selected_indices)) != 3:
-                raise ValueError("Invalid format or duplicate numbers")
+            selected_indices = list(map(int, message.content.split()))
+            if len(selected_indices) != 3:
+                raise ValueError("You must select exactly 3 cards.")
 
-            # Check if selected indices are within the range of the user's cards
-            conn = self.pool.get_connection()
-            cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE userId = %s", (user_id,))
-            card_count = cursor.fetchone()["card_count"]
+            card_count = len(self.selected_cards[user_id]["available_cards"])
+            if any(index < 1 or index > card_count for index in selected_indices):
+                raise ValueError("One or more selected numbers are out of range.")
 
-            if not all(1 <= idx <= card_count for idx in selected_indices):
-                raise ValueError("Numbers out of range")
+            # Get the selected cards
+            selected_cards = [
+                self.selected_cards[user_id]["available_cards"][index - 1]["itemName"]
+                for index in selected_indices
+            ]
 
-            # Lock in the user's cards
-            self.locked_in_users[user_id] = selected_indices
+            # Mark the cards as locked in
+            self.selected_cards[user_id]["locked_in"] = True
             await message.channel.send(
-                content=f"{message.author.mention} has locked in their cards!",
-                ephemeral=False
+                f"{message.author.mention} has locked in their cards: {', '.join(selected_cards)}"
             )
-
-            # Check if both players have locked in
-            if len(self.locked_in_users) == 2:
-                await message.channel.send("Both players have locked in their cards. Let the battle begin!", ephemeral=False)
-                # Proceed to battle logic here...
 
         except ValueError as e:
-            await message.channel.send(
-                f"{message.author.mention} Invalid selection. Please reply with 3 unique card numbers separated by commas (e.g., `1,2,3`).",
-                ephemeral=True
-            )
-
-
+            # Inform the user of the invalid format ephemerally
+            await message.author.send(f"Invalid selection: {e}")
 
 class ChallengeView(View):
-    def __init__(self, member: discord.Member, message=None):
+    def __init__(self, member: discord.Member):
         super().__init__(timeout=30)  # Set the timeout for the View
         self.member = member
-        self.message = message  # Store the message object
         self.response = None  # To track the button pressed
 
     async def on_timeout(self):
         # Action when the timeout occurs
-        if self.message:  # Check if the message is set
-            for item in self.children:
-                item.disabled = True  # Disable buttons
-            await self.message.edit(content="Challenge timed out. No response received.", view=self)
-        else:
-            print("No message to edit on timeout.")  # Debug message
+        for item in self.children:
+            item.disabled = True
+        await self.message.edit(content="Challenge timed out. No response received.", view=self)
+        print('fight was here first timeout')
 
     @discord.ui.button(label="Accept", style=discord.ButtonStyle.green)
     async def accept_button(self, interaction: discord.Interaction, button: Button):
@@ -96,6 +96,7 @@ class ChallengeView(View):
         self.response = "Accepted"
         self.stop()  # Stop listening for interactions
         await interaction.response.send_message(f"{self.member.mention} accepted the challenge!", ephemeral=False)
+        print('fight was here first accepted')
 
     @discord.ui.button(label="Decline", style=discord.ButtonStyle.red)
     async def decline_button(self, interaction: discord.Interaction, button: Button):
@@ -105,3 +106,4 @@ class ChallengeView(View):
         self.response = "Declined"
         self.stop()  # Stop listening for interactions
         await interaction.response.send_message(f"{self.member.mention} declined the challenge.", ephemeral=False)
+        print('fight was here first declined')

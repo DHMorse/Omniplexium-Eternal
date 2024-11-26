@@ -402,12 +402,10 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
 
         # If both have enough cards, proceed with the challenge
         view = ChallengeView(member)
-        message = await interaction.response.send_message(
+        await interaction.response.send_message(
             content=f"{member.mention}, you have been challenged! Choose an option below.",
             view=view
         )
-        view.message = await message.original_response()  # Store the original message
-
         await view.wait()
 
         if not view.response:
@@ -423,7 +421,7 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
                 name=f"{interaction.user.name} vs {member.name}",
                 type=discord.ChannelType.public_thread
             )
-            card_view = CardView(pool)
+            card_view = CardView(member.id, pool)
             await thread.send(
                 content="Click this button to view your cards.",
                 view=card_view
@@ -432,6 +430,14 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
     finally:
         cursor.close()
         conn.close()
+
+@bot.event
+async def on_message(message: discord.Message):
+    if isinstance(message.channel, discord.Thread):  # Check if it's in a thread
+        for view in bot.persistent_views:
+            if isinstance(view, CardView):
+                await view.handle_message(message)
+                break
 
 
 bot.run(TOKEN)
