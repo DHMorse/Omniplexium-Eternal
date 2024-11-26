@@ -355,17 +355,27 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
             return
 
         # If both players have enough cards, send the challenge with buttons
-        message = await interaction.response.send_message(
+        await interaction.response.send_message(
             f"{member.mention}, {interaction.user.mention} has challenged you to a duel! Do you accept?",
             ephemeral=False
         )
 
-        view = ChallengeView(challenger=interaction.user, challenged=member, timeout_message=message)
-        await message.edit(view=view)
+        # Use followup to get the message object for editing
+        challenge_message = await interaction.followup.send(
+            f"{member.mention}, you have been challenged to a duel by {interaction.user.mention}!",
+            view=ChallengeView(challenger=interaction.user, challenged=member, timeout_message=None),
+            ephemeral=False,
+        )
+
+        # Attach the challenge message to the view for timeout handling
+        challenge_view = ChallengeView(challenger=interaction.user, challenged=member, timeout_message=challenge_message)
+        challenge_view.timeout_message = challenge_message
+        await challenge_message.edit(view=challenge_view)
 
     finally:
         cursor.close()
         conn.close()
+
 
 
 
