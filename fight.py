@@ -43,7 +43,6 @@ class ChallengeView(View):
         for item in self.children:
             item.disabled = True
         await self.message.edit(content="Challenge timed out. No response received.", view=self)
-        print('fight was here first timeout')
 
     @discord.ui.button(label="Accept", style=discord.ButtonStyle.green)
     async def accept_button(self, interaction: discord.Interaction, button: Button):
@@ -53,7 +52,6 @@ class ChallengeView(View):
         self.response = "Accepted"
         self.stop()  # Stop listening for interactions
         await interaction.response.send_message(f"{self.member.mention} accepted the challenge!", ephemeral=False)
-        print('fight was here first accepted')
 
     @discord.ui.button(label="Decline", style=discord.ButtonStyle.red)
     async def decline_button(self, interaction: discord.Interaction, button: Button):
@@ -63,4 +61,3 @@ class ChallengeView(View):
         self.response = "Declined"
         self.stop()  # Stop listening for interactions
         await interaction.response.send_message(f"{self.member.mention} declined the challenge.", ephemeral=False)
-        print('fight was here first declined')
