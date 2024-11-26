@@ -20,7 +20,7 @@ async def viewCard(ctx, card: str = "") -> None:
             return
 
         # Query the cards table based on cardName
-        cursor.execute("SELECT * FROM cards WHERE cardName = %s", (card,))
+        cursor.execute("SELECT * FROM cards WHERE itemName = %s", (card,))
         card_data = cursor.fetchone()
         
         if card_data is None:
