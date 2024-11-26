@@ -17,13 +17,13 @@ class CardView(View):
         cursor = conn.cursor(dictionary=True)
 
         try:
-            cursor.execute("SELECT name FROM cards WHERE userId = %s", (self.member_id,))
+            cursor.execute("SELECT itemName FROM cards WHERE userId = %s", (self.member_id,))
             cards = cursor.fetchall()
 
             if not cards:
                 await interaction.response.send_message("You have no cards.", ephemeral=True)
             else:
-                card_names = "\n".join(card["name"] for card in cards)
+                card_names = "\n".join(card["itemName"] for card in cards)
                 await interaction.response.send_message(f"Your cards:\n{card_names}", ephemeral=True)
 
         finally:
