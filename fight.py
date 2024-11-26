@@ -23,7 +23,8 @@ class CardView(View):
             if not cards:
                 await interaction.response.send_message("You have no cards.", ephemeral=True)
             else:
-                card_names = "\n".join(card["itemName"] for card in cards)
+                for i in range(len(cards)):
+                    card_names += f'{i + 1}. {cards[i]['itemName']} \n'
                 await interaction.response.send_message(f"Your cards:\n{card_names}", ephemeral=True)
 
         finally:
