@@ -6,31 +6,31 @@ from discord import Interaction, Thread, ButtonStyle, app_commands
 from const import ADMIN_LOG_CHANNEL_ID, pool, updateXpAndCheckLevelUp
 
 class CardView(View):
-    def __init__(self, member_id, pool):
+    def __init__(self, pool):
         super().__init__(timeout=None)
-        self.member_id = member_id
         self.pool = pool
 
     @discord.ui.button(label="View Your Cards", style=ButtonStyle.primary)
     async def view_cards(self, interaction: Interaction, button: Button):
+        # Use the interaction user ID to fetch the correct cards
+        user_id = interaction.user.id
         conn = self.pool.get_connection()
         cursor = conn.cursor(dictionary=True)
 
         try:
-            cursor.execute("SELECT itemName FROM cards WHERE userId = %s", (self.member_id,))
+            cursor.execute("SELECT itemName FROM cards WHERE userId = %s", (user_id,))
             cards = cursor.fetchall()
 
             if not cards:
                 await interaction.response.send_message("You have no cards.", ephemeral=True)
             else:
-                card_names = ""
-                for i in range(len(cards)):
-                    card_names += f'{i + 1}. {cards[i]["itemName"]} \n'
+                card_names = "\n".join(f'{i + 1}. {card["itemName"]}' for i, card in enumerate(cards))
                 await interaction.response.send_message(f"Your cards:\n{card_names}", ephemeral=True)
 
         finally:
             cursor.close()
             conn.close()
+
 
 class ChallengeView(View):
     def __init__(self, member: discord.Member):
