@@ -377,7 +377,7 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     # Edit the initial deferred response to include the embed with the image file
     await interaction.followup.send(file=file)
 
-@app_commands.command(name="challenge", description="Send a challenge to a user with accept or decline options.")
+@bot.tree.command(name="challenge", description="Send a challenge to a user with accept or decline options.")
 @app_commands.describe(member="The member to challenge")
 async def challenge(interaction: discord.Interaction, member: discord.Member):
     conn = pool.get_connection()
