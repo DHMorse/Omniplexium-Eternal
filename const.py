@@ -80,7 +80,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
     cursor = conn.cursor()
 
     try:
-        cursor.execute("SELECT xp FROM stats WHERE userId = %s", (discordAuthor.id,))
+        cursor.execute("SELECT xp FROM users WHERE userId = %s", (discordAuthor.id,))
         database = cursor.fetchone()
 
         current_xp = database[0]
@@ -89,7 +89,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
         # Update XP based on add flag
         new_xp = current_xp + xp if add else current_xp - xp
 
-        cursor.execute("UPDATE stats SET xp = %s WHERE userId = %s", (new_xp, discordAuthor.id))
+        cursor.execute("UPDATE users SET xp = %s WHERE userId = %s", (new_xp, discordAuthor.id))
         conn.commit()
 
         # Calculate new level after XP update

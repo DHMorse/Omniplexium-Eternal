@@ -17,7 +17,7 @@ async def stats(ctx, member: discord.Member = None):
     member = member or ctx.author
     
     try:
-        cursor.execute("SELECT xp, money FROM stats WHERE userId = %s", (member.id,))
+        cursor.execute("SELECT xp, money FROM users WHERE userId = %s", (member.id,))
         result = cursor.fetchone()
 
         if result:
