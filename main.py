@@ -401,12 +401,13 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
             return
 
         # If both have enough cards, proceed with the challenge
-        view = ChallengeView(member)
-        message = await interaction.response.send_message(
-            content=f"{member.mention}, you have been challenged! Choose an option below.",
-            view=view
+        await interaction.response.send_message(
+            content=f"{member.mention}, you have been challenged! Choose an option below."
         )
-        view.message = await message.fetch_original()  # Store the message object in the view
+        
+        view = ChallengeView(member)
+        message = await interaction.followup.send(content="Respond to the challenge:", view=view)
+        view.message = message  # Store the message object in the view
 
         await view.wait()
 
