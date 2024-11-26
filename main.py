@@ -378,18 +378,44 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
 @bot.tree.command(name="challenge", description="Send a challenge to a user with accept or decline options.")
 @app_commands.describe(member="The member to challenge")
 async def challenge(interaction: discord.Interaction, member: discord.Member):
-    view = ChallengeView(member)
-    view.message = await interaction.response.send_message(
-        content=f"{member.mention}, you have been challenged! Choose an option below.",
-        view=view
-    )
-    await view.wait()  # Wait for a response or timeout
+    conn = pool.get_connection()
+    cursor = conn.cursor(dictionary=True)  # Use dictionary cursor for easier field access
 
-    print('main was here first')
-    print(view.response)
+    try:
+        # Check if the interaction user has enough cards
+        cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE userId = %s", (interaction.user.id,))
+        user_cards = cursor.fetchone()["card_count"]
 
-    if not view.response:
-        # If no response is given
-        await interaction.followup.send("The challenge was cancelled due to no response.")
+        if user_cards < 3:
+            await interaction.response.send_message("You need at least 3 cards to create a challenge.", ephemeral=True)
+            return
+
+        # Check if the member has enough cards
+        cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE userId = %s", (member.id,))
+        member_cards = cursor.fetchone()["card_count"]
+
+        if member_cards < 3:
+            await interaction.response.send_message(f"{member.mention} does not have enough cards to be challenged.", ephemeral=True)
+            return
+
+        # If both have enough cards, proceed with the challenge
+        view = ChallengeView(member)
+        view.message = await interaction.response.send_message(
+            content=f"{member.mention}, you have been challenged! Choose an option below.",
+            view=view
+        )
+        await view.wait()
+
+        if not view.response:
+            await interaction.followup.send("The challenge was cancelled due to no response.")
+
+    #except mysql.connector.Error as e:
+    #    await interaction.response.send_message(f"Database error: {e}", ephemeral=True)
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+    #elif view.response == "Accepted":
 
 bot.run(TOKEN)
