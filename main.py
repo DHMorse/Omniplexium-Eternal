@@ -402,10 +402,12 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
 
         # If both have enough cards, proceed with the challenge
         view = ChallengeView(member)
-        await interaction.response.send_message(
+        message = await interaction.response.send_message(
             content=f"{member.mention}, you have been challenged! Choose an option below.",
             view=view
         )
+        view.message = await message.fetch_original()  # Store the message object in the view
+
         await view.wait()
 
         if not view.response:
@@ -430,6 +432,7 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
     finally:
         cursor.close()
         conn.close()
+
 
 @bot.event
 async def on_message(message: discord.Message):
