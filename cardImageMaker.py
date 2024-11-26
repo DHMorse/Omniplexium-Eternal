@@ -62,9 +62,9 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
         image_x = (card_width - character_image.width) // 2
         card.paste(character_image, (image_x, 30))
 
-        # Calculate actual usable width for text (card width minus margins)
-        text_width = card_width - 100  # 50px margin on each side
-        chars_per_line = int(text_width / (text_font.getsize("x")[0]))  # Estimate chars that fit in text_width
+        # Calculate the number of characters that will fit
+        # Using a simpler approach with a fixed character count that works well with the card width
+        chars_per_line = 45  # This should work well with the given card width and font size
 
         y_offset = 520
 
@@ -82,7 +82,7 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
         draw.text((health_x, y_offset), health_text, font=text_font, fill="red")
         y_offset += 70
 
-        # Description - using full width minus margins
+        # Description
         description_text = card_data['description']
         wrapped_description = textwrap.fill(description_text, width=chars_per_line)
         draw.text((50, y_offset), wrapped_description, font=text_font, fill="black")
@@ -94,7 +94,7 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
             draw.text((50, y_offset), attack['name'], font=text_font, fill="black")
             y_offset += 45
 
-            # Attack Description - using full width minus margins
+            # Attack Description
             attack_desc = textwrap.fill(attack['description'], width=chars_per_line)
             draw.text((50, y_offset), attack_desc, font=text_font, fill="black")
             y_offset += 70
