@@ -6,7 +6,7 @@ from const import CARD_DATA_IMAGES_PATH
 from const import pool
 
 @commands.command()
-async def reset(ctx, *, card: str = "") -> None:
+async def viewCard(ctx, *, card: str = "") -> None:
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You do not have the required permissions to use this command.")
         return
