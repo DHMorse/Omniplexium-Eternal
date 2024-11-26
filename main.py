@@ -386,14 +386,21 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
 
                 # Check if this user is allowed to participate
                 if user_id not in [interaction.user.id, member.id]:
-                    await message.delete()
+                    try:
+                        await message.delete()
+                    except discord.errors.NotFound:
+                        # Message was already deleted; ignore
+                        pass
                     return
 
                 # Validate card selection
                 try:
                     selected_cards = list(map(int, message.content.split()))
                 except ValueError:
-                    await message.delete()
+                    try:
+                        await message.delete()
+                    except discord.errors.NotFound:
+                        pass
                     await message.channel.send(
                         f"{message.author.mention}, please send the numbers of your cards in the format `1 2 3`.",
                         delete_after=5,
@@ -402,7 +409,10 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
 
                 # Ensure the selection is valid
                 if len(selected_cards) != 3 or len(set(selected_cards)) != 3:
-                    await message.delete()
+                    try:
+                        await message.delete()
+                    except discord.errors.NotFound:
+                        pass
                     await message.channel.send(
                         f"{message.author.mention}, you must select exactly 3 different cards.",
                         delete_after=5,
@@ -410,7 +420,10 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
                     return
 
                 if not all(1 <= card <= len(valid_cards[user_id]) for card in selected_cards):
-                    await message.delete()
+                    try:
+                        await message.delete()
+                    except discord.errors.NotFound:
+                        pass
                     await message.channel.send(
                         f"{message.author.mention}, one or more selected cards are invalid. Please try again.",
                         delete_after=5,
@@ -432,16 +445,5 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
     finally:
         cursor.close()
         conn.close()
-
-
-
-@bot.event
-async def on_message(message: discord.Message):
-    if isinstance(message.channel, discord.Thread):  # Check if it's in a thread
-        for view in bot.persistent_views:
-            if isinstance(view, CardView):
-                await view.handle_message(message)
-                break
-
 
 bot.run(TOKEN)
