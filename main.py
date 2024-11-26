@@ -329,37 +329,37 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # Check if the user has at least 3 cards
-        cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE user_id = %s", (interaction.user.id,))
+        user_id = interaction.user.id  # The ID of the user who used the command
+        opponent_id = member.id  # The ID of the opponent
+
+        # Query to count the number of cards for the user
+        cursor.execute("SELECT COUNT(*) as card_count FROM cards WHERE userId = %s", (user_id,))
         user_card_count = cursor.fetchone()["card_count"]
 
+        # Check if the user has at least three cards
         if user_card_count < 3:
-            await interaction.response.send_message(
-                f"Sorry {interaction.user.mention}, you need at least 3 cards to send a challenge.",
-                ephemeral=True
-            )
+            await interaction.response.send_message("You need at least 3 cards to send a challenge.", ephemeral=True)
             return
 
-        # Check if the opponent has at least 3 cards
-        cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE user_id = %s", (member.id,))
+        # Query to count the number of cards for the opponent
+        cursor.execute("SELECT COUNT(*) as card_count FROM cards WHERE userId = %s", (opponent_id,))
         opponent_card_count = cursor.fetchone()["card_count"]
 
+        # Check if the opponent has at least three cards
         if opponent_card_count < 3:
-            await interaction.response.send_message(
-                f"Sorry {interaction.user.mention}, {member.mention} does not have at least 3 cards.",
-                ephemeral=True
-            )
+            await interaction.response.send_message(f"{member.mention} needs at least 3 cards to accept a challenge.", ephemeral=True)
             return
 
-        # Proceed with the challenge logic
+        # If both players have enough cards, proceed with the challenge logic
         await interaction.response.send_message(
-            f"{interaction.user.mention} has challenged {member.mention}! Waiting for their response...",
+            f"{member.mention}, {interaction.user.mention} has challenged you to a duel! Do you accept?",
             ephemeral=False
         )
 
     finally:
         cursor.close()
         conn.close()
+
 
 
 bot.run(TOKEN)
