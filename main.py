@@ -422,14 +422,28 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
                 type=discord.ChannelType.public_thread
             )
             card_view = CardView(pool)
+            thread = await interaction.channel.create_thread(
+                name=f"{interaction.user.name} vs {member.name}",
+                type=discord.ChannelType.public_thread
+            )
+
             await thread.send(
                 content="Click this button to view your cards.",
                 view=card_view
             )
 
+            @bot.event
+            async def on_message(message: discord.Message):
+                # Ensure the message is in the thread and related to card selection
+                if isinstance(message.channel, discord.Thread) and message.channel.name.endswith("vs"):
+                    if message.author.bot:
+                        return  # Ignore bot messages
+                    if card_view in message.channel.views:  # Ensure the thread is using the CardView
+                        await card_view.handle_card_selection(message)
 
     finally:
         cursor.close()
         conn.close()
+
 
 bot.run(TOKEN)
