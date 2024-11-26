@@ -1,9 +1,13 @@
 from discord.ext import commands
 import discord
 import os
+from pathlib import Path  # Import pathlib
 
 from const import CARD_DATA_IMAGES_PATH
 from const import pool
+
+# Ensure CARD_DATA_IMAGES_PATH is a Path object
+CARD_DATA_IMAGES_PATH = Path(CARD_DATA_IMAGES_PATH)
 
 @commands.command()
 async def viewCard(ctx, *, card: str = "") -> None:
@@ -32,7 +36,7 @@ async def viewCard(ctx, *, card: str = "") -> None:
         image_path = CARD_DATA_IMAGES_PATH / f"{item_id}.png"
 
         # Check if the image file exists
-        if not os.path.exists(image_path):
+        if not image_path.exists():
             await ctx.send(f"Image for itemId {item_id} not found.")
             return
 
