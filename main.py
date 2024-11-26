@@ -327,128 +327,39 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
 async def challenge(interaction: discord.Interaction, member: discord.Member):
     conn = pool.get_connection()
     cursor = conn.cursor(dictionary=True)
-    valid_cards = {}  # Store valid cards for each user
 
     try:
-        # Check if both players have enough cards
-        cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE userId = %s", (interaction.user.id,))
-        user_cards = cursor.fetchone()["card_count"]
+        # Check if the user has at least 3 cards
+        cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE user_id = %s", (interaction.user.id,))
+        user_card_count = cursor.fetchone()["card_count"]
 
-        if user_cards < 3:
-            await interaction.response.send_message("You need at least 3 cards to create a challenge.", ephemeral=True)
-            return
-
-        cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE userId = %s", (member.id,))
-        member_cards = cursor.fetchone()["card_count"]
-
-        if member_cards < 3:
-            await interaction.response.send_message(f"{member.mention} does not have enough cards to be challenged.", ephemeral=True)
-            return
-
-        # Proceed with the challenge
-        await interaction.response.send_message(f"{member.mention}, you have been challenged! Choose an option below.")
-        view = ChallengeView(member)
-        message = await interaction.followup.send(content="Respond to the challenge:", view=view)
-        view.message = message
-
-        await view.wait()
-
-        if not view.response:
-            await interaction.followup.send("The challenge was cancelled due to no response.")
-            return
-
-        elif view.response == "Declined":
-            await interaction.followup.send(f"{member.mention} has declined the challenge.")
-            return
-
-        elif view.response == "Accepted":
-            thread = await interaction.channel.create_thread(
-                name=f"{interaction.user.name} vs {member.name}",
-                type=discord.ChannelType.public_thread,
+        if user_card_count < 3:
+            await interaction.response.send_message(
+                f"Sorry {interaction.user.mention}, you need at least 3 cards to send a challenge.",
+                ephemeral=True
             )
+            return
 
-            card_view = CardView(pool=pool, member_id=None, valid_cards=valid_cards)
-            await thread.send(
-                content="Click this button to view your cards.",
-                view=card_view,
+        # Check if the opponent has at least 3 cards
+        cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE user_id = %s", (member.id,))
+        opponent_card_count = cursor.fetchone()["card_count"]
+
+        if opponent_card_count < 3:
+            await interaction.response.send_message(
+                f"Sorry {interaction.user.mention}, {member.mention} does not have at least 3 cards.",
+                ephemeral=True
             )
+            return
 
-            # Track locked-in cards
-            locked_in = {interaction.user.id: False, member.id: False}
-
-            @bot.event
-            async def on_message(message):
-                # Only process messages in the thread
-                if message.channel.id != thread.id:
-                    return
-
-                user_id = message.author.id
-
-                # Check if this user is allowed to participate
-                if user_id not in [interaction.user.id, member.id]:
-                    try:
-                        await message.delete()
-                    except discord.errors.NotFound:
-                        # Message was already deleted; ignore
-                        pass
-                    return
-
-                # Validate card selection
-                try:
-                    # Parse message content into a list of integers
-                    selected_cards = list(map(int, message.content.split()))
-                except ValueError:
-                    try:
-                        await message.delete()
-                    except discord.errors.NotFound:
-                        pass
-                    await message.channel.send(
-                        f"{message.author.mention}, please send the numbers of your cards in the format `1 2 3`.",
-                        delete_after=5,
-                    )
-                    return
-
-                # Ensure the selection is valid
-                valid_cards_for_user = valid_cards.get(user_id, [])  # Fetch valid cards or empty list
-                if len(selected_cards) != 3 or len(set(selected_cards)) != 3:
-                    try:
-                        await message.delete()
-                    except discord.errors.NotFound:
-                        pass
-                    await message.channel.send(
-                        f"{message.author.mention}, you must select exactly 3 different cards.",
-                        delete_after=5,
-                    )
-                    return
-
-                if not all(1 <= card <= len(valid_cards_for_user) for card in selected_cards):
-                    try:
-                        await message.delete()
-                    except discord.errors.NotFound:
-                        pass
-                    await message.channel.send(
-                        f"{message.author.mention}, one or more selected cards are invalid. Please try again.",
-                        delete_after=5,
-                    )
-                    return
-
-                # Lock in cards
-                card_view.locked_in_cards[user_id] = selected_cards
-                locked_in[user_id] = True
-                await message.channel.send(
-                    f"{message.author.mention} has locked in their cards: {', '.join(map(str, selected_cards))}."
-                )
-
-                # Check if both players are locked in
-                if all(locked_in.values()):
-                    await thread.send("Both players have locked in their cards! Let the battle begin!")
-                    bot.remove_listener(on_message)
-
-
-
+        # Proceed with the challenge logic
+        await interaction.response.send_message(
+            f"{interaction.user.mention} has challenged {member.mention}! Waiting for their response...",
+            ephemeral=False
+        )
 
     finally:
         cursor.close()
         conn.close()
+
 
 bot.run(TOKEN)
