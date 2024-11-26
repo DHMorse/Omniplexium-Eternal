@@ -4,21 +4,6 @@ import io
 import textwrap
 
 async def makeCardFromJson(data: dict, url: str) -> Image:
-    # Example input data
-    '''
-    card_data = {
-        'name': 'Toilet Warrior',
-        'description': 'An overpowered fighting human toilet with a big grin, ready to unleash a barrage of amusing yet powerful attacks. Clad in a flashy gladiator outfit with toilet paper as a cape, this character takes pride in their unique fighting style, utilizing humor and strength to dominate in the arena.',
-        'health': 100,
-        'attacks': [
-            {'name': 'Flush Smash', 'description': 'Unleashes a powerful downward strike, flushing enemies away with overwhelming force.', 'attack_damage': 40, 'attack_speed': 10, 'attack_cooldown': 2},
-            {'name': 'Squeaky Clean Jab', 'description': 'A quick jab that leaves enemies stunned and slightly cleaner than before.', 'attack_damage': 20, 'attack_speed': 30, 'attack_cooldown': 0},
-            {'name': 'Plunger Toss', 'description': 'Throws a plunger with incredible accuracy, causing a solid hit on target.', 'attack_damage': 20, 'attack_speed': 20, 'attack_cooldown': 1},
-            {'name': 'Urine Trouble', 'description': 'A sneaky attack that makes foes slip, causing them to lose their balance.', 'attack_damage': 20, 'attack_speed': 25, 'attack_cooldown': 1}
-        ],
-        'image_url': 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-mmJwXK6t0M8xnbz6QdLzHbqk/user-kSPgxUbWefOFLtDjBNig841G/img-Y8yyEZV5KPih9JGl5foW8Cnq.png?st=2024-11-10T01%3A16%3A44Z&se=2024-11-10T03%3A16%3A44Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-11-09T23%3A04%3A48Z&ske=2024-11-10T23%3A04%3A48Z&sks=b&skv=2024-08-04&sig=fMEsFL44TUEjrV2/QvWpRUoPfUzSSN9wKZM3GrSs1wI%3D'
-    }'''
-
     card_data = data
     card_data["image_url"] = url
 
@@ -26,71 +11,85 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
     response = requests.get(card_data['image_url'])
     if response.status_code == 200:
         try:
-            # Load image from the response content in-memory
             image_data = io.BytesIO(response.content)
             character_image = Image.open(image_data)
         except Exception as e:
             print(f"Error opening image: {e}")
+            return None
     else:
         print("Failed to download the image. Check the URL.")
-        character_image = None
+        return None
 
     if character_image:
-        # Step 2: Create a Canvas for the Card with Doubled Dimensions
-        card_width, card_height = 800, 1500  # Double original width and height
+        # Create canvas with same dimensions but better spacing
+        card_width, card_height = 800, 1500
         card = Image.new("RGB", (card_width, card_height), "white")
         draw = ImageDraw.Draw(card)
 
-        # Load fonts with doubled sizes
+        # Increased font sizes significantly
         try:
-            title_font = ImageFont.truetype("arialbd.ttf", 36)  # Double font size
-            stat_font = ImageFont.truetype("arialbd.ttf", 28)
-            text_font = ImageFont.truetype("arialbd.ttf", 22)  # Double font size
+            title_font = ImageFont.truetype("arialbd.ttf", 48)  # Increased from 36
+            stat_font = ImageFont.truetype("arialbd.ttf", 36)   # Increased from 28
+            text_font = ImageFont.truetype("arialbd.ttf", 32)   # Increased from 22
         except IOError:
+            print("Failed to load Arial Bold, falling back to default font")
             title_font = ImageFont.load_default()
             stat_font = ImageFont.load_default()
             text_font = ImageFont.load_default()
 
-        # Add Border
+        # Border
         border_color = (220, 220, 220)
-        draw.rectangle([(10, 10), (card_width - 10, card_height - 10)], outline=border_color, width=10)  # Double border thickness
+        draw.rectangle([(10, 10), (card_width - 10, card_height - 10)], outline=border_color, width=10)
 
-        # Step 3: Place Character Image in the Top Section with Increased Size
-        image_max_width = card_width - 40  # Double original image width allowance
-        image_max_height = 480  # Double original height
+        # Character Image - maintained same size but adjusted positioning
+        image_max_width = card_width - 80  # Slightly smaller to add padding
+        image_max_height = 480
         character_image.thumbnail((image_max_width, image_max_height))
-        card.paste(character_image, (40, 30))  # Double offsets
+        # Center the image
+        image_x = (card_width - character_image.width) // 2
+        card.paste(character_image, (image_x, 30))
 
-        # Step 4: Draw Title and Health Box
-        y_offset = 520  # Adjust start position below the larger image
+        # Title and Health Box
+        y_offset = 520
 
-        # Title Box
-        draw.rectangle([(40, y_offset), (760, y_offset + 60)], fill="lightgrey")  # Double dimensions
-        draw.text((50, y_offset + 10), card_data['name'], font=title_font, fill="black")
-        y_offset += 80  # Double spacing
+        # Title Box - wider to use more space
+        draw.rectangle([(40, y_offset), (card_width - 40, y_offset + 70)], fill="lightgrey")
+        # Center the title text
+        title_width = draw.textlength(card_data['name'], font=title_font)
+        title_x = (card_width - title_width) // 2
+        draw.text((title_x, y_offset + 10), card_data['name'], font=title_font, fill="black")
+        y_offset += 90
 
-        # Health
-        draw.text((40, y_offset), f"Health: {card_data['health']}", font=stat_font, fill="red")
-        y_offset += 60  # Double spacing
+        # Health - positioned with more space
+        health_text = f"Health: {card_data['health']}"
+        health_width = draw.textlength(health_text, font=stat_font)
+        health_x = (card_width - health_width) // 2
+        draw.text((health_x, y_offset), health_text, font=stat_font, fill="red")
+        y_offset += 70
 
-        # Step 5: Draw Description with Slightly Narrower Text Wrapping
+        # Description - using more horizontal space
         description_text = card_data['description']
-        wrapped_description = textwrap.fill(description_text, width=48)  # Adjusted wrap width for no overflow
-        draw.text((40, y_offset), wrapped_description, font=text_font, fill="black")
-        y_offset += 220  # Increase space after description for better separation
+        # Reduced wrap width to create longer lines
+        wrapped_description = textwrap.fill(description_text, width=40)
+        # Add padding from both sides
+        draw.text((60, y_offset), wrapped_description, font=text_font, fill="black")
+        y_offset += 160  # Increased spacing after description
 
-        # Step 6: Draw Attacks with Stats and Adjusted Text Wrapping
+        # Attacks - better formatted with more space
         for attack in card_data['attacks']:
-            # Attack Name and Description
-            attack_text = f"{attack['name']} - {attack['description']}"
-            wrapped_attack_text = textwrap.fill(attack_text, width=48)  # Adjusted wrap width
-            draw.text((40, y_offset), wrapped_attack_text, font=text_font, fill="black")
-            y_offset += 80  # Double spacing
+            # Attack Name
+            draw.text((60, y_offset), attack['name'], font=stat_font, fill="black")
+            y_offset += 45
 
-            # Attack Stats
+            # Attack Description
+            wrapped_attack_text = textwrap.fill(attack['description'], width=40)
+            draw.text((60, y_offset), wrapped_attack_text, font=text_font, fill="black")
+            y_offset += 70
+
+            # Attack Stats with better spacing
             stats_text = f"Damage: {attack['attack_damage']}  Speed: {attack['attack_speed']}  Cooldown: {attack['attack_cooldown']}"
-            draw.text((40, y_offset), stats_text, font=text_font, fill="grey")
-            y_offset += 60  # Double spacing
+            draw.text((60, y_offset), stats_text, font=text_font, fill="grey")
+            y_offset += 80
 
         return card
     else:
