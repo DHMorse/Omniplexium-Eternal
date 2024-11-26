@@ -6,7 +6,7 @@ from const import CARD_DATA_IMAGES_PATH
 from const import pool
 
 @commands.command()
-async def viewCard(ctx, card: str = "") -> None:
+async def reset(ctx, *, card: str = "") -> None:
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You do not have the required permissions to use this command.")
         return
@@ -24,7 +24,7 @@ async def viewCard(ctx, card: str = "") -> None:
         card_data = cursor.fetchone()
         
         if card_data is None:
-            await ctx.send("Card not found.")
+            await ctx.send(f"Card '{card}' not found.")
             return
 
         # Extract the itemId and construct the image path
