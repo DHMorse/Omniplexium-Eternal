@@ -33,6 +33,7 @@ from adminCommands.set import set
 from adminCommands.stats import stats
 from adminCommands.reset import reset
 from adminCommands.vanity import vanity
+from adminCommands.viewCard import viewCard
 
 from floor10_game_concept import guess_the_number_command
 
@@ -62,6 +63,7 @@ bot.add_command(set)
 bot.add_command(stats)
 bot.add_command(reset)
 bot.add_command(vanity)
+bot.add_command(viewCard)
 
 ### ADMIN COMMANDS ###
 
