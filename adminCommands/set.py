@@ -21,7 +21,8 @@ async def set(ctx, stat: str = '', value: str = '', member: discord.Member = Non
         return
     
     try:
-        value = int(value)
+        if stat == "xp":
+            value = int(value)
     except ValueError:
         await ctx.send("Value's for xp and money must be integers.")
         return
