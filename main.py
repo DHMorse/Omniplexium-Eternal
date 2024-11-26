@@ -38,6 +38,7 @@ from floor10_game_concept import guess_the_number_command
 
 from generateCardAI import genAiCard
 from cardImageMaker import makeCardFromJson
+from fight import ChallengeView
 
 class MyBot(commands.Bot):
     def __init__(self):
@@ -374,6 +375,18 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     # Edit the initial deferred response to include the embed with the image file
     await interaction.followup.send(file=file)
 
+@bot.tree.command(name="challenge", description="Send a challenge to a user with accept or decline options.")
+@app_commands.describe(member="The member to challenge")
+async def challenge(interaction: discord.Interaction, member: discord.Member):
+    view = ChallengeView(member)
+    view.message = await interaction.response.send_message(
+        content=f"{member.mention}, you have been challenged! Choose an option below.",
+        view=view
+    )
+    await view.wait()  # Wait for a response or timeout
 
+    if not view.response:
+        # If no response is given
+        await interaction.followup.send("The challenge was cancelled due to no response.")
 
 bot.run(TOKEN)
