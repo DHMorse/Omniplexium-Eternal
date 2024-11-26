@@ -421,7 +421,7 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
                 name=f"{interaction.user.name} vs {member.name}",
                 type=discord.ChannelType.public_thread
             )
-            card_view = CardView(member.id, pool)
+            card_view = CardView(pool)
             await thread.send(
                 content="Click this button to view your cards.",
                 view=card_view
