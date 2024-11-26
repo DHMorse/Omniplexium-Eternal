@@ -322,69 +322,15 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
     await interaction.response.send_message(embed=embed, file=discord.File(LEADERBOARD_PIC))
 
 
-@bot.tree.command(name="generatecard", description="Generate a custom playing card. (demo)")
-@app_commands.describe(prompt="Choose the type for the card.")
-async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
-    
-    # Defer the response to allow more time for processing
-    await interaction.response.defer()
-
-    output = await genAiCard(prompt) # returns a list, the first item is the json data, the second is the image url
-    card = await makeCardFromJson(output[0], output[1]) # output[1] is doing nothing we over write the varible in the file
-
-    # Update the user's items in the database
-    conn = pool.get_connection()
-    cursor = conn.cursor()
-
-    try:
-
-        # Fetch the current highest itemID
-        cursor.execute("SELECT MAX(itemId) FROM cards")
-        result = cursor.fetchone()
-        currentItemId = result[0] + 1 if result[0] is not None else 1
-
-        cursor.execute("INSERT INTO cards (itemName, userId) VALUES (%s, %s)", (output[0]['name'], interaction.user.id))
-        conn.commit()
-
-
-        # Save the card data as a JSON file
-        output_filename = f"{currentItemId}.json"
-        output_path = os.path.join(CARD_DATA_JSON_PATH, output_filename)
-
-        if not os.path.exists(CARD_DATA_JSON_PATH):
-            os.makedirs(CARD_DATA_JSON_PATH)
-
-        with open(output_path, 'w') as json_file:
-            json.dump(output[0], json_file, indent=4)
-
-
-        # Save the card image
-        card_name = f"{currentItemId}.png"
-        
-        if not os.path.exists(CARD_DATA_IMAGES_PATH):
-            os.makedirs(CARD_DATA_IMAGES_PATH)
-
-        cardFilePath = f'{CARD_DATA_IMAGES_PATH}/{card_name}'
-        
-        card.save(cardFilePath)
-
-    finally:
-        cursor.close()
-        conn.close()
-
-    file = discord.File(cardFilePath, filename="card.png")
-
-    # Edit the initial deferred response to include the embed with the image file
-    await interaction.followup.send(file=file)
-
 @bot.tree.command(name="challenge", description="Send a challenge to a user with accept or decline options.")
 @app_commands.describe(member="The member to challenge")
 async def challenge(interaction: discord.Interaction, member: discord.Member):
     conn = pool.get_connection()
     cursor = conn.cursor(dictionary=True)
+    valid_cards = {}  # Store valid cards for each user
 
     try:
-        # Check if the interaction user has enough cards
+        # Check if both players have enough cards
         cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE userId = %s", (interaction.user.id,))
         user_cards = cursor.fetchone()["card_count"]
 
@@ -392,7 +338,6 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
             await interaction.response.send_message("You need at least 3 cards to create a challenge.", ephemeral=True)
             return
 
-        # Check if the member has enough cards
         cursor.execute("SELECT COUNT(*) AS card_count FROM cards WHERE userId = %s", (member.id,))
         member_cards = cursor.fetchone()["card_count"]
 
@@ -400,14 +345,11 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
             await interaction.response.send_message(f"{member.mention} does not have enough cards to be challenged.", ephemeral=True)
             return
 
-        # If both have enough cards, proceed with the challenge
-        await interaction.response.send_message(
-            content=f"{member.mention}, you have been challenged! Choose an option below."
-        )
-        
+        # Proceed with the challenge
+        await interaction.response.send_message(f"{member.mention}, you have been challenged! Choose an option below.")
         view = ChallengeView(member)
         message = await interaction.followup.send(content="Respond to the challenge:", view=view)
-        view.message = message  # Store the message object in the view
+        view.message = message
 
         await view.wait()
 
@@ -422,17 +364,75 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
         elif view.response == "Accepted":
             thread = await interaction.channel.create_thread(
                 name=f"{interaction.user.name} vs {member.name}",
-                type=discord.ChannelType.public_thread
+                type=discord.ChannelType.public_thread,
             )
-            card_view = CardView(pool)
+
+            card_view = CardView(pool=pool, member_id=None, valid_cards=valid_cards)
             await thread.send(
                 content="Click this button to view your cards.",
-                view=card_view
+                view=card_view,
             )
+
+            # Track locked-in cards
+            locked_in = {interaction.user.id: False, member.id: False}
+
+            @bot.event
+            async def on_message(message):
+                # Only process messages in the thread
+                if message.channel.id != thread.id:
+                    return
+
+                user_id = message.author.id
+
+                # Check if this user is allowed to participate
+                if user_id not in [interaction.user.id, member.id]:
+                    await message.delete()
+                    return
+
+                # Validate card selection
+                try:
+                    selected_cards = list(map(int, message.content.split()))
+                except ValueError:
+                    await message.delete()
+                    await message.channel.send(
+                        f"{message.author.mention}, please send the numbers of your cards in the format `1 2 3`.",
+                        delete_after=5,
+                    )
+                    return
+
+                # Ensure the selection is valid
+                if len(selected_cards) != 3 or len(set(selected_cards)) != 3:
+                    await message.delete()
+                    await message.channel.send(
+                        f"{message.author.mention}, you must select exactly 3 different cards.",
+                        delete_after=5,
+                    )
+                    return
+
+                if not all(1 <= card <= len(valid_cards[user_id]) for card in selected_cards):
+                    await message.delete()
+                    await message.channel.send(
+                        f"{message.author.mention}, one or more selected cards are invalid. Please try again.",
+                        delete_after=5,
+                    )
+                    return
+
+                # Lock in cards
+                card_view.locked_in_cards[user_id] = selected_cards
+                locked_in[user_id] = True
+                await message.channel.send(
+                    f"{message.author.mention} has locked in their cards: {', '.join(map(str, selected_cards))}."
+                )
+
+                # Check if both players are locked in
+                if all(locked_in.values()):
+                    await thread.send("Both players have locked in their cards! Let the battle begin!")
+                    bot.remove_listener(on_message)
 
     finally:
         cursor.close()
         conn.close()
+
 
 
 @bot.event

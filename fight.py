@@ -6,41 +6,37 @@ from discord import Interaction, Thread, ButtonStyle, app_commands
 from const import ADMIN_LOG_CHANNEL_ID, pool, updateXpAndCheckLevelUp
 
 class CardView(View):
-    def __init__(self, pool):
+    def __init__(self, member_id, pool, valid_cards):
         super().__init__(timeout=None)
+        self.member_id = member_id
         self.pool = pool
-        self.selected_cards = {}  # To track selected cards for each user
+        self.valid_cards = valid_cards
+        self.locked_in_cards = {}
 
     @discord.ui.button(label="View Your Cards", style=ButtonStyle.primary)
     async def view_cards(self, interaction: Interaction, button: Button):
-        user_id = interaction.user.id
         conn = self.pool.get_connection()
         cursor = conn.cursor(dictionary=True)
 
         try:
-            cursor.execute("SELECT itemName FROM cards WHERE userId = %s", (user_id,))
+            cursor.execute("SELECT itemName FROM cards WHERE userId = %s", (interaction.user.id,))
             cards = cursor.fetchall()
 
             if not cards:
                 await interaction.response.send_message("You have no cards.", ephemeral=True)
-                return
-
-            # Format card list
-            card_names = "\n".join(f'{i + 1}. {card["itemName"]}' for i, card in enumerate(cards))
-            await interaction.response.send_message(
-                f"Your cards:\n{card_names}\n\nSend a message in this thread with the numbers of 3 cards to choose them for battle (e.g., `1 3 5`).",
-                ephemeral=True
-            )
-
-            # Save the card list for validation later
-            self.selected_cards[user_id] = {
-                "available_cards": cards,
-                "locked_in": False
-            }
-
+            else:
+                card_names = ""
+                self.valid_cards[interaction.user.id] = [card["itemName"] for card in cards]
+                for i, card in enumerate(cards):
+                    card_names += f"{i + 1}. {card['itemName']} \n"
+                await interaction.response.send_message(
+                    f"Your cards:\n{card_names}\n\nSend a message in this thread with the numbers of 3 cards to choose them for battle (e.g., `1 3 5`).",
+                    ephemeral=True,
+                )
         finally:
             cursor.close()
             conn.close()
+
 
     async def handle_message(self, message: discord.Message):
         user_id = message.author.id
