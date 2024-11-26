@@ -1,34 +1,38 @@
 from discord.ext import commands
 import discord
-import os
-from pathlib import Path  # Import pathlib
-
-from const import CARD_DATA_IMAGES_PATH
-from const import pool
+from pathlib import Path
+from const import CARD_DATA_IMAGES_PATH, pool
 
 # Ensure CARD_DATA_IMAGES_PATH is a Path object
 CARD_DATA_IMAGES_PATH = Path(CARD_DATA_IMAGES_PATH)
 
 @commands.command()
-async def viewCard(ctx, *, card: str = "") -> None:
+async def viewCard(ctx, *, query: str = "") -> None:
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You do not have the required permissions to use this command.")
         return
     
     conn = pool.get_connection()
-    cursor = conn.cursor(dictionary=True)  # Use dictionary cursor for easier field access
+    cursor = conn.cursor(dictionary=True)
 
     try:
-        if not card:
-            await ctx.send("Please specify a valid card to reset.")
+        if not query:
+            await ctx.send("Please specify a valid card name or ID to view.")
             return
 
-        # Query the cards table based on cardName
-        cursor.execute("SELECT * FROM cards WHERE itemName = %s", (card,))
-        card_data = cursor.fetchone()
+        card_data = None
+
+        # Try to find by itemId if the query is numeric
+        if query.isdigit():
+            cursor.execute("SELECT * FROM cards WHERE itemId = %s", (int(query),))
+            card_data = cursor.fetchone()
+        else:
+            # Otherwise, find by itemName (case-insensitive)
+            cursor.execute("SELECT * FROM cards WHERE LOWER(itemName) = LOWER(%s)", (query,))
+            card_data = cursor.fetchone()
         
         if card_data is None:
-            await ctx.send(f"Card '{card}' not found.")
+            await ctx.send(f"No card found for '{query}'.")
             return
 
         # Extract the itemId and construct the image path
