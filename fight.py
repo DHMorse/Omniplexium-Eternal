@@ -24,6 +24,9 @@ class ChallengeView(discord.ui.View):
             await interaction.response.send_message("You can't accept this challenge for someone else.", ephemeral=True)
             return
 
+        # Stop the timeout
+        self.stop()
+
         # Disable the buttons and confirm acceptance
         for item in self.children:
             item.disabled = True
@@ -41,6 +44,9 @@ class ChallengeView(discord.ui.View):
         if interaction.user.id != self.challenged.id:
             await interaction.response.send_message("You can't decline this challenge for someone else.", ephemeral=True)
             return
+
+        # Stop the timeout
+        self.stop()
 
         # Disable the buttons and confirm decline
         for item in self.children:
