@@ -24,7 +24,7 @@ class CardView(View):
                 await interaction.response.send_message("You have no cards.", ephemeral=True)
             else:
                 for i in range(len(cards)):
-                    card_names += f'{i + 1}. {cards[i]['itemName']} \n'
+                    card_names += f'{i + 1}. {cards[i]} \n'
                 await interaction.response.send_message(f"Your cards:\n{card_names}", ephemeral=True)
 
         finally:
