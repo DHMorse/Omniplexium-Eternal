@@ -385,6 +385,9 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
     )
     await view.wait()  # Wait for a response or timeout
 
+    print('main was here first')
+    print(view.response)
+
     if not view.response:
         # If no response is given
         await interaction.followup.send("The challenge was cancelled due to no response.")
