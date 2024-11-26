@@ -407,6 +407,9 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
                     )
                     return
 
+                # Ensure `valid_cards` retrieval is awaited if asynchronous
+                valid_cards_for_user = await valid_cards.get(user_id)  # Assuming this function is async
+
                 # Ensure the selection is valid
                 if len(selected_cards) != 3 or len(set(selected_cards)) != 3:
                     try:
@@ -419,7 +422,7 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
                     )
                     return
 
-                if not all(1 <= card <= len(valid_cards[user_id]) for card in selected_cards):
+                if not all(1 <= card <= len(valid_cards_for_user) for card in selected_cards):
                     try:
                         await message.delete()
                     except discord.errors.NotFound:
@@ -441,6 +444,7 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
                 if all(locked_in.values()):
                     await thread.send("Both players have locked in their cards! Let the battle begin!")
                     bot.remove_listener(on_message)
+
 
     finally:
         cursor.close()
