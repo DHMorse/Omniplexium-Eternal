@@ -39,7 +39,7 @@ from floor10_game_concept import guess_the_number_command
 
 from generateCardAI import genAiCard
 from cardImageMaker import makeCardFromJson
-from fight import ChallengeView, CardView
+from fight import ChallengeView
 
 class MyBot(commands.Bot):
     def __init__(self):
@@ -350,10 +350,11 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
             await interaction.response.send_message(f"{member.mention} needs at least 3 cards to accept a challenge.", ephemeral=True)
             return
 
-        # If both players have enough cards, proceed with the challenge logic
+        # If both players have enough cards, send the challenge with buttons
+        view = ChallengeView(challenger=interaction.user, challenged=member)
         await interaction.response.send_message(
             f"{member.mention}, {interaction.user.mention} has challenged you to a duel! Do you accept?",
-            ephemeral=False
+            view=view
         )
 
     finally:
