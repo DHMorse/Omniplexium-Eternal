@@ -395,6 +395,7 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
 
                 # Validate card selection
                 try:
+                    # Parse message content into a list of integers
                     selected_cards = list(map(int, message.content.split()))
                 except ValueError:
                     try:
@@ -407,10 +408,8 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
                     )
                     return
 
-                # Retrieve valid cards for user synchronously (no await)
-                valid_cards_for_user = valid_cards.get(user_id)  # No 'await' here, since it's not async
-
                 # Ensure the selection is valid
+                valid_cards_for_user = valid_cards.get(user_id, [])  # Fetch valid cards or empty list
                 if len(selected_cards) != 3 or len(set(selected_cards)) != 3:
                     try:
                         await message.delete()
@@ -444,6 +443,7 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
                 if all(locked_in.values()):
                     await thread.send("Both players have locked in their cards! Let the battle begin!")
                     bot.remove_listener(on_message)
+
 
 
 
