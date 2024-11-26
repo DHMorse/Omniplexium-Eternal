@@ -325,6 +325,10 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
 @bot.tree.command(name="challenge", description="Send a challenge to a user with accept or decline options.")
 @app_commands.describe(member="The member to challenge")
 async def challenge(interaction: discord.Interaction, member: discord.Member):
+    if member.id == interaction.user.id:
+        await interaction.response.send_message("You can't challenge yourself to a duel!", ephemeral=True)
+        return
+
     conn = pool.get_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -351,11 +355,13 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
             return
 
         # If both players have enough cards, send the challenge with buttons
-        view = ChallengeView(challenger=interaction.user, challenged=member)
-        await interaction.response.send_message(
+        message = await interaction.response.send_message(
             f"{member.mention}, {interaction.user.mention} has challenged you to a duel! Do you accept?",
-            view=view
+            ephemeral=False
         )
+
+        view = ChallengeView(challenger=interaction.user, challenged=member, timeout_message=message)
+        await message.edit(view=view)
 
     finally:
         cursor.close()
