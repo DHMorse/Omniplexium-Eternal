@@ -84,7 +84,7 @@ async def on_message(message):
         cursor.execute("SELECT xp FROM users WHERE userId = %s", (user_id,))
         result = cursor.fetchone()
 
-        if result:
+        if result[0] != None:
             # Directly call level-up update function and get level-up flag
             await updateXpAndCheckLevelUp(ctx=message, bot=bot, xp=1, add=True)
         else:
