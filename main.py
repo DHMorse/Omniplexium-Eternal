@@ -101,6 +101,22 @@ async def on_message(message):
     # Continue processing other commands if any
     await bot.process_commands(message)
 
+@bot.command()
+async def login(ctx):
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT * FROM users WHERE userId = %s", (ctx.author.id,))
+        result = cursor.fetchone()
+        if result:
+            await ctx.send(result)
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
 @bot.event
 async def on_member_join(member: discord.Member):
 
