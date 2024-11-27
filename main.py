@@ -103,7 +103,7 @@ async def on_message(message):
     await bot.process_commands(message)
 
 @bot.command()
-async def login(ctx, day: int = None) -> None:
+async def login(ctx, day: float = None) -> None:
     if not ctx.author.guild_permissions.administrator:
         day = None
 
