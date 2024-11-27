@@ -36,7 +36,7 @@ async def reset(ctx, stat: str = "", member: discord.Member = None):
 
 
     # Ask for confirmation to reset
-    await ctx.send(f"Are you sure you want to reset '{stat}' for {member.name}? Type ```confirm``` to confirm.")
+    await ctx.send(f"Are you sure you want to reset '{stat}' for {member.name}? Type `confirm` to confirm.")
 
     def check(m):
         return m.author == ctx.author and m.channel == ctx.channel and m.content.lower() == 'confirm'
@@ -51,7 +51,7 @@ async def reset(ctx, stat: str = "", member: discord.Member = None):
 
         try:
             
-            cursor.execute("UPDATE users SET {stat} = DEFAULT WHERE userId = %s", (member_id,)) 
+            cursor.execute(f"UPDATE users SET {stat} = DEFAULT WHERE userId = %s", (member_id,)) 
 
             # this should always work but it's not recommended because it's vulnerable to SQL injection
             # this is an admin only command however so we can look into it later
