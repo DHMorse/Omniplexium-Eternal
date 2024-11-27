@@ -102,6 +102,8 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
     levelUp = current_level < newLevel
     levelDown = current_level > newLevel
 
+    print(levelDown)
+
     if levelUp or levelDown:
         # Send the level-up message with the correct level
         try:
