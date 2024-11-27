@@ -177,6 +177,7 @@ async def login(ctx, day: float = None) -> None:
             print(day * 86400)
             print((day * 86400) - lastLogin > 172800)
             print((day * 86400) - lastLogin > 86400)
+            day += lastLogin
             if time.time() - lastLogin > 172800 or (day * 86400) - lastLogin > 172800:
                 await ctx.send("You have lost your daily login streak!")
                 cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
