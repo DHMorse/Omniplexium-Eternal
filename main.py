@@ -107,6 +107,10 @@ async def login(ctx, day: float = None) -> None:
     if not ctx.author.guild_permissions.administrator:
         day = None
 
+    if day is not None:
+        # everything is a string
+        float(day)
+
     conn = pool.get_connection()
     cursor = conn.cursor()
 
