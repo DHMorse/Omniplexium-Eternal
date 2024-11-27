@@ -26,7 +26,7 @@ async def stats(ctx, member: discord.Member = None):
             level = xpToLevel(xp)
 
             # Convert lastLogin to human-readable format
-            last_login_datetime = datetime.datetime.fromtimestamp(lastLogin)
+            last_login_datetime = datetime.datetime.utcfromtimestamp(lastLogin)
             last_login_readable = last_login_datetime.strftime("%Y-%m-%d %H:%M:%S UTC")
 
             # Create a list of dictionaries for the items
@@ -49,7 +49,7 @@ async def stats(ctx, member: discord.Member = None):
                            f"Level: {level}\n"
                            f"Money: ${money}\n"
                            f"Last Login: {lastLogin}\n"
-                           f"Last Login (Human Readable): {last_login_readable} UTC\n"
+                           f"Last Login (Human Readable): {last_login_readable}\n"
                            f"Days Logged In In A Row: {daysLoggedInInARow}\n"
                            f"Items: ```json\n{json.dumps(items_list, indent=4)}\n```")
         else:
