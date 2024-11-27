@@ -150,14 +150,12 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
             if role is None:
                 channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
                 await channel.send(f"Role 'Level {i + 1}' does not exist.")
-                return
             if role in discordAuthor.roles:
                 try:
                     channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
                 except:
                     channel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
                 await channel.send(f"{discordAuthor.name} already has the 'Level {i+ 1}' role, but we tried to give it to them again.")
-                return
             elif levelUp:
                 await discordAuthor.add_roles(role)
             elif levelDown:
