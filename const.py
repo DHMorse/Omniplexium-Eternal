@@ -110,11 +110,11 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
             channel = bot.client.get_channel(LOG_CHANNEL_ID)
 
         if newLevel == 1 or newLevel > 9 and levelUp:
-            userField = discordAuthor.mention
+            doMention = True
         elif levelUp:
-            userField = discordAuthor
+            doMention = False
         elif levelDown:
-            userField = discordAuthor.mention
+            doMention = True
         
         if levelUp:
             now = datetime.now(timezone.utc)
@@ -128,7 +128,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
 
             embed.set_thumbnail(url=discordAuthor.display_avatar.url)
 
-            await channel.send(userField, embed=embed)
+            await channel.send(discordAuthor.mention if doMention == True else '', embed=embed)
         
         if levelDown:
             now = datetime.now(timezone.utc)
