@@ -58,6 +58,18 @@ async def reset(ctx, stat: str = "", member: discord.Member = None):
 
             conn.commit()
             await ctx.send(f"Successfully reset '{stat}' for {member.name} to its default value.")
+
+            # there has to be a smarter way to do this
+            # but I'm lazy
+            if stat == 'xp':
+                for i in range(1, 101):
+                    try:
+                        role = discord.utils.get(ctx.guild.roles, name=f"Level {i}")
+                        await member.remove_roles(role)
+                    except:
+                        pass
+                    
+
         except Exception as e:
             await ctx.send(f"An error occurred while resetting the stat: {e}")
         finally:
