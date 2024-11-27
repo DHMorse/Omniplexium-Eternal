@@ -22,6 +22,7 @@ import os
 import requests
 import json
 from datetime import datetime, timezone
+import time
 
 from secret_const import TOKEN
 
@@ -109,8 +110,13 @@ async def login(ctx):
     try:
         cursor.execute("SELECT * FROM users WHERE userId = %s", (ctx.author.id,))
         result = cursor.fetchone()
-        if result:
-            await ctx.send(result)
+        
+        lastLogin = result[4]
+        
+        if lastLogin is None:
+            await ctx.send("Welcome to the server! You have been registered.")
+            # write the current time since ephoc to the data base
+            cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
 
     finally:
         cursor.close()
