@@ -170,8 +170,6 @@ async def login(ctx, day: float = None) -> None:
             cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (1, ctx.author.id))
             conn.commit()
         else:
-            day += lastLogin
-            print(day * 86400)
             if time.time() - lastLogin > 172800 or (day * 86400) > 172800:
                 await ctx.send("You have lost your daily login streak!")
                 cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
