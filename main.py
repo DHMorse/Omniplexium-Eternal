@@ -174,10 +174,10 @@ async def login(ctx, day: float = None) -> None:
             cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (1, ctx.author.id))
             conn.commit()
         else:
+            day += lastLogin
             print(day * 86400)
             print((day * 86400) - lastLogin > 172800)
             print((day * 86400) - lastLogin > 86400)
-            day += lastLogin
             if time.time() - lastLogin > 172800 or (day * 86400) - lastLogin > 172800:
                 await ctx.send("You have lost your daily login streak!")
                 cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
@@ -186,6 +186,7 @@ async def login(ctx, day: float = None) -> None:
             elif time.time() - lastLogin > 86400 or (day * 86400) - lastLogin > 86400:
                 await ctx.send("You have made your daily login!")
                 cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
+                cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (daysLoggedInInARow + 1, ctx.author.id))
                 conn.commit()
             else:
                 await ctx.send("You have already logged in today!")
