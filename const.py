@@ -145,7 +145,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
 
                 embed.set_thumbnail(url=discordAuthor.display_avatar.url)
 
-                await channel.send(embed=embed)
+                await channel.send(discordAuthor.mention if doMention == True else '', embed=embed)
 
             role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
             
