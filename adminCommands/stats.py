@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
 import json
+import datetime
 
 from const import pool
 from const import xpToLevel
@@ -44,7 +45,7 @@ async def stats(ctx, member: discord.Member = None):
                            f"Level: {level}\n"
                            f"Money: ${money}\n"
                            f"Last Login: {lastLogin}\n"
-                           f"Last Login Human Readable: {lastLogin.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                           f"Last Login Human Readable: {datetime.fromtimestamp(lastLogin).strftime('%Y-%m-%d %H:%M:%S')}\n"
                            f"Days Logged In In A Row: {daysLoggedInInARow}\n"
                            f"Items: ```json\n{json.dumps(items_list, indent=4)}\n```")
         else:
