@@ -53,6 +53,7 @@ async def reset(ctx, stat: str = "", member: discord.Member = None):
             if stat != "xp":
                 cursor.execute(f"UPDATE users SET {stat} = DEFAULT WHERE userId = %s", (member_id,)) 
             elif stat == "xp":
+                print('stat is xp')
                 cursor.execute(f"SELECT xp FROM users WHERE userId = %s", (member_id,))
                 xp = cursor.fetchone()[0]
                 await updateXpAndCheckLevelUp(ctx=ctx, bot=ctx.bot, xp=xp, add=False)
