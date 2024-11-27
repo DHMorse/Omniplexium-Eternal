@@ -144,22 +144,23 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
 
             await channel.send(embed=embed)
 
-        role = discord.utils.get(ctx.guild.roles, name=f"Level {newLevel}")
-        
-        if role is None:
-            channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-            await channel.send(f"Role 'Level {newLevel}' does not exist.")
-            return
-        if role in discordAuthor.roles:
-            try:
+        for i in range(current_level, newLevel + 1):
+            role = discord.utils.get(ctx.guild.roles, name=f"Level {i}")
+            
+            if role is None:
                 channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-            except:
-                channel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-            await channel.send(f"{discordAuthor.name} already has the 'Level {newLevel}' role, but we tried to give it to them again.")
-            return
-        elif levelUp:
-            await discordAuthor.add_roles(role)
-        elif levelDown:
-            await discordAuthor.remove_roles(role)
+                await channel.send(f"Role 'Level {i}' does not exist.")
+                return
+            if role in discordAuthor.roles:
+                try:
+                    channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                except:
+                    channel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+                await channel.send(f"{discordAuthor.name} already has the 'Level {i}' role, but we tried to give it to them again.")
+                return
+            elif levelUp:
+                await discordAuthor.add_roles(role)
+            elif levelDown:
+                await discordAuthor.remove_roles(role)
 
     return None
