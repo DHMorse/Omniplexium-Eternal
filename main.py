@@ -376,7 +376,45 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
         cursor.close()
         conn.close()
 
-
+@bot.tree.command(name="generatecard", description="Generate a custom playing card. (demo)")
+@app_commands.describe(prompt="Choose the type for the card.")
+async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
+    
+    # Defer the response to allow more time for processing
+    await interaction.response.defer()
+    output = await genAiCard(prompt) # returns a list, the first item is the json data, the second is the image url
+    card = await makeCardFromJson(output[0], output[1]) # output[1] is doing nothing we over write the varible in the file
+    # Update the user's items in the database
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+    try:
+        # Fetch the current highest itemID
+        cursor.execute("SELECT MAX(itemId) FROM cards")
+        result = cursor.fetchone()
+        currentItemId = result[0] + 1 if result[0] is not None else 1
+        cursor.execute("INSERT INTO cards (itemName, userId) VALUES (%s, %s)", (output[0]['name'], interaction.user.id))
+        conn.commit()
+        # Save the card data as a JSON file
+        output_filename = f"{currentItemId}.json"
+        output_path = os.path.join(CARD_DATA_JSON_PATH, output_filename)
+        if not os.path.exists(CARD_DATA_JSON_PATH):
+            os.makedirs(CARD_DATA_JSON_PATH)
+        with open(output_path, 'w') as json_file:
+            json.dump(output[0], json_file, indent=4)
+        # Save the card image
+        card_name = f"{currentItemId}.png"
+        
+        if not os.path.exists(CARD_DATA_IMAGES_PATH):
+            os.makedirs(CARD_DATA_IMAGES_PATH)
+        cardFilePath = f'{CARD_DATA_IMAGES_PATH}/{card_name}'
+        
+        card.save(cardFilePath)
+    finally:
+        cursor.close()
+        conn.close()
+    file = discord.File(cardFilePath, filename="card.png")
+    # Edit the initial deferred response to include the embed with the image file
+    await interaction.followup.send(file=file)
 
 
 bot.run(TOKEN)
