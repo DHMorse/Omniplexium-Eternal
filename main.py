@@ -81,7 +81,7 @@ async def on_message(message):
 
     try:
         # Check if user exists in the database
-        cursor.execute("SELECT xp, money FROM users WHERE userId = %s", (user_id,))
+        cursor.execute("SELECT xp FROM users WHERE userId = %s", (user_id,))
         result = cursor.fetchone()
 
         if result:
