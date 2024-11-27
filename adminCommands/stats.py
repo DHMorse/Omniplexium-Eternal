@@ -17,11 +17,11 @@ async def stats(ctx, member: discord.Member = None):
     member = member or ctx.author
     
     try:
-        cursor.execute("SELECT xp, money FROM users WHERE userId = %s", (member.id,))
+        cursor.execute("SELECT xp, money, lastLogin, daysLoggedInInARow FROM users WHERE userId = %s", (member.id,))
         result = cursor.fetchone()
 
         if result:
-            xp, money = result
+            xp, money, lastLogin, daysLoggedInInARow = result
             level = xpToLevel(xp)
 
             # Create a list of dictionaries for the items
@@ -43,6 +43,9 @@ async def stats(ctx, member: discord.Member = None):
                            f"xp: {xp}\n"
                            f"Level: {level}\n"
                            f"Money: ${money}\n"
+                           f"Last Login: {lastLogin}\n"
+                           f"Last Login Human Readable: {lastLogin.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                           f"Days Logged In In A Row: {daysLoggedInInARow}\n"
                            f"Items: ```json\n{json.dumps(items_list, indent=4)}\n```")
         else:
             await ctx.send(f"{member.name} has no records in the database.")
