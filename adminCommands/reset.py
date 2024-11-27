@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 import asyncio
 
-from const import pool
+from const import pool, updateXpAndCheckLevelUp
 
 @commands.command()
 async def reset(ctx, stat: str = "", member: discord.Member = None):
@@ -50,25 +50,18 @@ async def reset(ctx, stat: str = "", member: discord.Member = None):
         cursor = conn.cursor()
 
         try:
-            
-            cursor.execute(f"UPDATE users SET {stat} = DEFAULT WHERE userId = %s", (member_id,)) 
+            if stat != "xp":
+                cursor.execute(f"UPDATE users SET {stat} = DEFAULT WHERE userId = %s", (member_id,)) 
+            elif stat == "xp":
+                cursor.execute(f"SELECT xp FROM users WHERE userId = %s", (member_id,))
+                xp = cursor.fetchone()[0]
+                updateXpAndCheckLevelUp(ctx, ctx.bot, xp, False)
 
             # this should always work but it's not recommended because it's vulnerable to SQL injection
             # this is an admin only command however so we can look into it later
 
             conn.commit()
             await ctx.send(f"Successfully reset '{stat}' for {member.name} to its default value.")
-
-            # there has to be a smarter way to do this
-            # but I'm lazy
-            if stat == 'xp':
-                for i in range(1, 101):
-                    try:
-                        role = discord.utils.get(ctx.guild.roles, name=f"Level {i}")
-                        await member.remove_roles(role)
-                    except:
-                        pass
-                    
 
         except Exception as e:
             await ctx.send(f"An error occurred while resetting the stat: {e}")
