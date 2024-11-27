@@ -108,18 +108,24 @@ async def login(ctx):
     cursor = conn.cursor()
 
     try:
-        cursor.execute("SELECT * FROM users WHERE userId = %s", (ctx.author.id,))
+        cursor.execute("SELECT lastLogin, daysLoggedInInARow FROM users WHERE userId = %s", (ctx.author.id,))
         result = cursor.fetchone()
         
-        lastLogin = result[4]
+        lastLogin = result[0]
+        daysLoggedInInARow = result[1]
         
         if lastLogin is None:
             await ctx.send("You have made your first daily login!")
-            # write the current time since ephoc to the data base
             cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
+            cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (1, ctx.author.id))
             conn.commit()
         else:
-            if time.time() - lastLogin > 86400:
+            if time.time() - lastLogin > 172800:
+                await ctx.send("You have lost your daily login streak!")
+                cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
+                cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (1, ctx.author.id))
+                conn.commit()
+            elif time.time() - lastLogin > 86400:
                 await ctx.send("You have made your daily login!")
                 cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
                 conn.commit()
