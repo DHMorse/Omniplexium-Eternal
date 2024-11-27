@@ -46,9 +46,9 @@ async def stats(ctx, member: discord.Member = None):
             # Send the stats with items as a JSON code block
             await ctx.send(f"{member.name}'s Stats:\n"
                            f"```ansi\n"
-                           f"\u001b[0;36mXp: {xp}\n"
-                           f"\u001b[0;34mLevel: {level}\n"
-                           f"\u001b[0;31mMoney: ${money}\n"
+                           f"\u001b[0;36;46mXp: {xp}\n"
+                           f"\u001b[0;36mLevel: {level}\n"
+                           f"\u001b[0;34mMoney: ${money}\n"
                            f"\u001b[0;35mLast Login: {lastLogin}\n"
                            f"\u001b[0;35mLast Login (Human Readable): {last_login_readable}\n"
                            f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
