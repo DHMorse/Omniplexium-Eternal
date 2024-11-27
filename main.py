@@ -118,6 +118,13 @@ async def login(ctx):
             # write the current time since ephoc to the data base
             cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
             conn.commit()
+        else:
+            if time.time() - lastLogin > 86400:
+                await ctx.send("You have made your daily login!")
+                cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
+                conn.commit()
+            else:
+                await ctx.send("You have already logged in today!")
 
     finally:
         cursor.close()
