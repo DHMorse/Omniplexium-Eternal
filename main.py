@@ -181,8 +181,6 @@ async def login(ctx, day: float = None) -> None:
                 conn.commit()
             else:
                 await ctx.send("You have already logged in today!")
-                cursor.close()
-                conn.close()
                 return
         
         cursor.execute("SELECT daysLoggedInInARow FROM users WHERE userId = %s", (ctx.author.id,))
