@@ -111,7 +111,9 @@ async def login(ctx, day: float = None) -> None:
         # everything is a string
         print('day is not None')
         float(day)
+        print(type(day))
         print(day)
+        
 
     conn = pool.get_connection()
     cursor = conn.cursor()
@@ -172,6 +174,7 @@ async def login(ctx, day: float = None) -> None:
             cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (1, ctx.author.id))
             conn.commit()
         else:
+            print(day * 86400)
             print((day * 86400) - lastLogin > 172800)
             print((day * 86400) - lastLogin > 86400)
             if time.time() - lastLogin > 172800 or (day * 86400) - lastLogin > 172800:
