@@ -105,11 +105,14 @@ async def on_message(message):
 @bot.command()
 async def login(ctx, day: float = None) -> None:
     if not ctx.author.guild_permissions.administrator:
-        day = None
+        day = 0
 
     if day is not None:
         # everything is a string
         float(day)
+
+    if day is None:
+        day = 0
 
     conn = pool.get_connection()
     cursor = conn.cursor()
