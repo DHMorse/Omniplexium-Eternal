@@ -103,7 +103,10 @@ async def on_message(message):
     await bot.process_commands(message)
 
 @bot.command()
-async def login(ctx):
+async def login(ctx, day: int = None) -> None:
+    if not ctx.author.guild_permissions.administrator:
+        day = None
+
     conn = pool.get_connection()
     cursor = conn.cursor()
 
@@ -163,12 +166,12 @@ async def login(ctx):
             cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (1, ctx.author.id))
             conn.commit()
         else:
-            if time.time() - lastLogin > 172800:
+            if time.time() - lastLogin > 172800 or (day * 86400) - lastLogin > 172800:
                 await ctx.send("You have lost your daily login streak!")
                 cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
                 cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (1, ctx.author.id))
                 conn.commit()
-            elif time.time() - lastLogin > 86400:
+            elif time.time() - lastLogin > 86400 or (day * 86400) - lastLogin > 86400:
                 await ctx.send("You have made your daily login!")
                 cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
                 conn.commit()
