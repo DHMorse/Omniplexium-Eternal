@@ -116,13 +116,13 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
         elif levelDown:
             doMention = True
         
-        for i in range(current_level, newLevel + 1):
+        for i in range(current_level, newLevel):
             if levelUp:
                 now = datetime.now(timezone.utc)
                 embed = discord.Embed(
                     title="Member Leveled Up",
                     description=f"**Member:** \n{discordAuthor}\n\n"
-                                f"**Account Level:** \n{i}\n",
+                                f"**Account Level:** \n{i + 1}\n",
                     color=discord.Color.green(),
                     timestamp=now  # Automatically add the timestamp to the footer
                 )
@@ -136,7 +136,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                 embed = discord.Embed(
                     title="Member Leveled Down",
                     description=f"**Member:** \n{discordAuthor}\n\n"
-                                f"**Account Level:** \n{i}\n",
+                                f"**Account Level:** \n{i + 1}\n",
                     color=discord.Color.dark_magenta(),
                     timestamp=now  # Automatically add the timestamp to the footer
                 )
@@ -145,18 +145,18 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
 
                 await channel.send(embed=embed)
 
-            role = discord.utils.get(ctx.guild.roles, name=f"Level {i}")
+            role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
             
             if role is None:
                 channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                await channel.send(f"Role 'Level {i}' does not exist.")
+                await channel.send(f"Role 'Level {i + 1}' does not exist.")
                 return
             if role in discordAuthor.roles:
                 try:
                     channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
                 except:
                     channel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-                await channel.send(f"{discordAuthor.name} already has the 'Level {i}' role, but we tried to give it to them again.")
+                await channel.send(f"{discordAuthor.name} already has the 'Level {i+ 1}' role, but we tried to give it to them again.")
                 return
             elif levelUp:
                 await discordAuthor.add_roles(role)
