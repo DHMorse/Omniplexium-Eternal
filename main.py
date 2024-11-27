@@ -114,9 +114,10 @@ async def login(ctx):
         lastLogin = result[4]
         
         if lastLogin is None:
-            await ctx.send("Welcome to the server! You have been registered.")
+            await ctx.send("You have made your first daily login!")
             # write the current time since ephoc to the data base
             cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
+            conn.commit()
 
     finally:
         cursor.close()
