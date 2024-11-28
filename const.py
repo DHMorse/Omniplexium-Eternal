@@ -48,32 +48,72 @@ PRIZES = {
     },
     4: {
         "type": "xp",
-        "amount": 100
+        "amount": 70
     },
     5: {
         "type": "money",
-        "amount": 10
+        "amount": 5
     },
     6: {
         "type": "xp",
-        "amount": 150
+        "amount": 100
     },
     7: {
         "type": "xp",
-        "amount": 250
+        "amount": 130
     },
     8: {
         "type": "xp",
-        "amount": 400
+        "amount": 160
     },
     9: {
         "type": "xp",
-        "amount": 550
+        "amount": 200
     },
     10: {
         "type": "money",
-        "amount": 50
-    }
+        "amount": 10
+    },
+    11: {
+        "type": "xp",
+        "amount": 250
+    },
+    12: {
+        "type": "xp",
+        "amount": 310
+    },
+    13: {
+        "type": "xp",
+        "amount": 370
+    },
+    14: {
+        "type": "xp",
+        "amount": 430
+    },
+    15: {
+        "type": "money",
+        "amount": 15
+    },
+    16: {
+        "type": "xp",
+        "amount": 500
+    },
+    17: {
+        "type": "xp",
+        "amount": 570
+    },
+    18: {
+        "type": "xp",
+        "amount": 640
+    },
+    19: {
+        "type": "xp",
+        "amount": 710
+    },
+    20: {
+        "type": "money",
+        "amount": 20
+    },
 }
 
 def xpToLevel(xp: any) -> int:
