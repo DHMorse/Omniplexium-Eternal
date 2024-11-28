@@ -56,6 +56,9 @@ def xpToLevel(xp: any) -> int:
     level = 10 + np.log(xp / XP_LEVEL_10) / np.log(base)
     return int(level)
 
+
+
+
 async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
     if isinstance(xp, float): 
         xp = int(xp)
@@ -107,9 +110,12 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
     if levelUp or levelDown:
         # Send the level-up message with the correct level
         try:
+
             channel = bot.get_channel(LOG_CHANNEL_ID)
+            print(f'we tried and we didnt fail {channel}')
         except:
             channel = bot.client.get_channel(LOG_CHANNEL_ID)
+            print(f'we tried and we failed {channel}')
 
         if newLevel == 1 or newLevel > 9 and levelUp:
             doMention = True
