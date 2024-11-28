@@ -9,6 +9,8 @@ Welcome to the admin commands guide for Omniplexium-Eternal! Below you'll find d
 - **`!reset`** - Reset a user’s stat
 - **`!set`** - Set a specific stat to a given value
 - **`!stats`** - Display a user’s stats
+- **`!vanity`** - Display bot statistics
+- **`!viewCard`** - View details of a specific card
 
 ---
 
@@ -41,6 +43,35 @@ Displays a user’s stats.
 - **Syntax**: `!stats {discord.Member}`
 - **Arguments**:
   - **{discord.Member}** *(optional)*: The Discord username (e.g., `404_5971` or `ih8tk`). Defaults to displaying your own stats if no member is specified.
+
+#### 4. **Vanity Command**
+Displays the bot's statistics, including total lines of code, total commands, and total files.
+
+- **Syntax**: `!vanity`
+- **Arguments**: None
+
+#### 5. **ViewCard Command**
+View details of a specific card by its name or ID.
+
+- **Syntax**: `!viewCard {query}`
+- **Arguments**:
+  - **{query}** *(required)*: The card name or ID to view. If the query is numeric, it will search by ID; otherwise, it will search by name.
+
+---
+
+### Additional Information
+
+#### Database Connection
+The bot uses a MySQL connection pool to manage database connections efficiently. Ensure that the database configuration is correctly set in the `secret_const.py` file.
+
+#### Font Handling
+The bot attempts to use multiple font options for rendering images. If the specified fonts are not found, it falls back to default fonts and logs a warning.
+
+#### Image Generation
+The bot uses the OpenAI API to generate card images based on descriptions. Ensure that the `openai_key` is correctly set in the `secret_const.py` file.
+
+#### Error Handling
+Commands include error handling to manage common issues, such as missing permissions or invalid input. Ensure that users have the necessary permissions to execute commands.
 
 ---
 
