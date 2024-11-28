@@ -56,19 +56,19 @@ PRIZES = {
     },
     6: {
         "type": "xp",
-        "amount": 200
+        "amount": 150
     },
     7: {
         "type": "xp",
-        "amount": 300
+        "amount": 250
     },
     8: {
         "type": "xp",
-        "amount": 500
+        "amount": 400
     },
     9: {
         "type": "xp",
-        "amount": 750
+        "amount": 550
     },
     10: {
         "type": "money",
