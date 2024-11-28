@@ -33,6 +33,49 @@ pool = pooling.MySQLConnectionPool(
     **DATABASE_CONFIG
 )
 
+PRIZES = {
+    1: {
+        "type": "xp",
+        "amount": 10
+    },
+    2: {
+        "type": "xp",
+        "amount": 30
+    },
+    3: {
+        "type": "xp",
+        "amount": 50
+    },
+    4: {
+        "type": "xp",
+        "amount": 100
+    },
+    5: {
+        "type": "money",
+        "amount": 10
+    },
+    6: {
+        "type": "xp",
+        "amount": 200
+    },
+    7: {
+        "type": "xp",
+        "amount": 300
+    },
+    8: {
+        "type": "xp",
+        "amount": 500
+    },
+    9: {
+        "type": "xp",
+        "amount": 750
+    },
+    10: {
+        "type": "money",
+        "amount": 50
+    }
+}
+
 def xpToLevel(xp: any) -> int:
     # Constants
     TOTAL_LEVELS = 100

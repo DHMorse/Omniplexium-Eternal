@@ -26,7 +26,7 @@ import time
 
 from secret_const import TOKEN
 
-from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH
+from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH, PRIZES
 from const import pool 
 from const import xpToLevel, updateXpAndCheckLevelUp
 
@@ -117,49 +117,6 @@ async def login(ctx, day: float = None) -> None:
     conn = pool.get_connection()
     cursor = conn.cursor()
 
-    prizes = {
-        1: {
-            "type": "xp",
-            "amount": 10
-        },
-        2: {
-            "type": "xp",
-            "amount": 30
-        },
-        3: {
-            "type": "xp",
-            "amount": 50
-        },
-        4: {
-            "type": "xp",
-            "amount": 100
-        },
-        5: {
-            "type": "money",
-            "amount": 10
-        },
-        6: {
-            "type": "xp",
-            "amount": 200
-        },
-        7: {
-            "type": "xp",
-            "amount": 300
-        },
-        8: {
-            "type": "xp",
-            "amount": 500
-        },
-        9: {
-            "type": "xp",
-            "amount": 750
-        },
-        10: {
-            "type": "money",
-            "amount": 50
-        }
-    }
-
     try:
         cursor.execute("SELECT lastLogin, daysLoggedInInARow FROM users WHERE userId = %s", (ctx.author.id,))
         result = cursor.fetchone()
@@ -191,14 +148,14 @@ async def login(ctx, day: float = None) -> None:
         result = cursor.fetchone()
         daysLoggedInInARow = result[0]
         
-        if prizes[daysLoggedInInARow]["type"] == "xp":
-            await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=prizes[daysLoggedInInARow]["amount"], add=True)
-            await ctx.send(f"Congratulations! You have received {prizes[daysLoggedInInARow]['amount']} XP for logging in {daysLoggedInInARow} days in a row!")
+        if PRIZES[daysLoggedInInARow]["type"] == "xp":
+            await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=PRIZES[daysLoggedInInARow]["amount"], add=True)
+            await ctx.send(f"Congratulations! You have received {PRIZES[daysLoggedInInARow]['amount']} XP for logging in {daysLoggedInInARow} days in a row!")
 
-        elif prizes[daysLoggedInInARow]["type"] == "money":
-            cursor.execute("UPDATE users SET money = money + %s WHERE userId = %s", (prizes[daysLoggedInInARow]["amount"], ctx.author.id))
+        elif PRIZES[daysLoggedInInARow]["type"] == "money":
+            cursor.execute("UPDATE users SET money = money + %s WHERE userId = %s", (PRIZES[daysLoggedInInARow]["amount"], ctx.author.id))
             conn.commit()
-            await ctx.send(f"Congratulations! You have received ${prizes[daysLoggedInInARow]['amount']} for logging in {daysLoggedInInARow} days in a row!")
+            await ctx.send(f"Congratulations! You have received ${PRIZES[daysLoggedInInARow]['amount']} for logging in {daysLoggedInInARow} days in a row!")
 
     finally:
         cursor.close()
