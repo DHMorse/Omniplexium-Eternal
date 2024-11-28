@@ -23,7 +23,7 @@ async def levelToXp(ctx, level: int) -> None:
     xp = levelToXp(level)
     
     await ctx.send(f"Level {level} requires {xp} XP.")
-
+''''
 @commands.command()
 async def leveltoxp(ctx, level: int) -> None:
     """Converts a level to the amount of XP required to reach that level."""
@@ -46,6 +46,7 @@ async def leveltoxp(ctx, level: int) -> None:
     xp = levelToXp(level)
     
     await ctx.send(f"Level {level} requires {xp} XP.")
+'''
 
 def levelToXp(level: int) -> int:
     # Constants
