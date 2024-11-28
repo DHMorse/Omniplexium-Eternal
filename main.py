@@ -66,7 +66,7 @@ bot.add_command(stats)
 bot.add_command(reset)
 bot.add_command(vanity)
 bot.add_command(viewCard)
-bot.add_command(levelToXp)
+#bot.add_command(levelToXp)
 #bot.add_command(leveltoxp)
 
 ### ADMIN COMMANDS ###
