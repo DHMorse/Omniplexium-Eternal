@@ -230,7 +230,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                         except:
                             adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
                         await adminChannel.send(f"{discordAuthor.name} already has the 'Level {i+ 1}' role, but we tried to give it to them again.")
-                        await discordAuthor.add_roles(role)
+                    await discordAuthor.add_roles(role)
 
 
         elif levelDown:
@@ -261,6 +261,6 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                         adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
                     await adminChannel.send(f"{discordAuthor.name} already has the 'Level {i+ 1}' role, but we tried to give it to them again.")
 
-                    await discordAuthor.remove_roles(role)
+                await discordAuthor.remove_roles(role)
 
     return None
