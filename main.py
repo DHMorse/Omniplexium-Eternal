@@ -304,7 +304,6 @@ async def on_user_update(before: discord.Member, after: discord.Member):
 
     # Check if the avatar has changed
     if before.avatar != after.avatar:
-        print('check did not fail')
         user = await bot.fetch_user(after.id)
         # Ensure the directory exists
         profile_picture_dir = os.path.join(os.path.expanduser(CACHE_DIR_PFP))

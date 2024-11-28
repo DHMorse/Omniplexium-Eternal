@@ -105,17 +105,13 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
     levelUp = current_level < newLevel
     levelDown = current_level > newLevel
 
-    print(levelDown)
-
     if levelUp or levelDown:
         # Send the level-up message with the correct level
         try:
 
             channel = bot.get_channel(LOG_CHANNEL_ID)
-            print(f'we tried and we didnt fail {channel}')
         except:
             channel = bot.client.get_channel(LOG_CHANNEL_ID)
-            print(f'we tried and we failed {channel}')
 
         if newLevel == 1 or newLevel > 9 and levelUp:
             doMention = True
