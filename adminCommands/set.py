@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord
 
 from const import ADMIN_LOG_CHANNEL_ID
+from const import updateXpAndCheckLevelUp
 from const import pool 
 
 @commands.command()
@@ -29,9 +30,17 @@ async def set(ctx, stat: str = '', value: str = '', member: discord.Member = Non
 
     try:
         if stat == "xp":
-            cursor.execute("UPDATE users SET xp = %s WHERE userId = %s", (value, member.id))
-            conn.commit()
+            cursor.execute("SELECT xp FROM users WHERE userId = %s", (member.id,))
+            result = cursor.fetchone()
+            current_xp = result[0]
+            
+            if value > current_xp:
+                await updateXpAndCheckLevelUp(ctx, ctx.bot, value - current_xp, True)
+            elif value < current_xp:
+                await updateXpAndCheckLevelUp(ctx, ctx.bot, current_xp - value, False)
+
             await ctx.send(f"Set {member.name}'s xp to {value}.")
+        
         elif stat == "money":
             cursor.execute("UPDATE users SET money = %s WHERE userId = %s", (value, member.id))
             conn.commit()
