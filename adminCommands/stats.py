@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord
 import json
 import datetime
+import pytz
 
 from const import pool
 from const import xpToLevel
@@ -29,6 +30,13 @@ async def stats(ctx, member: discord.Member = None):
                 # Convert lastLogin to human-readable format
                 last_login_datetime = datetime.datetime.utcfromtimestamp(lastLogin)
                 last_login_readable = last_login_datetime.strftime("%Y-%m-%d %H:%M:%S UTC")
+                # Convert to CST
+                cst_tz = pytz.timezone("America/Chicago")
+                last_login_CST = last_login_datetime.replace(tzinfo=pytz.utc).astimezone(cst_tz).strftime("%Y-%m-%d %H:%M:%S CST")
+                
+                # Convert to EST
+                est_tz = pytz.timezone("America/New_York")
+                last_login_EST = last_login_datetime.replace(tzinfo=pytz.utc).astimezone(est_tz).strftime("%Y-%m-%d %H:%M:%S EST")
             else:
                 last_login_readable = None
 
@@ -54,6 +62,8 @@ async def stats(ctx, member: discord.Member = None):
                            f"\u001b[0;36mMoney: ${money}\n"
                            f"\u001b[0;34mLast Login: {lastLogin}\n"
                            f"\u001b[0;34mLast Login (Human Readable): {last_login_readable}\n"
+                           f"\u001b[0;34mLast Login (CST): {last_login_CST}\n"
+                           f"\u001b[0;34mLast Login (EST): {last_login_EST}\n"
                            f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
                            f"```"
                            f"Items: ```json\n{json.dumps(items_list, indent=4)}\n```")
