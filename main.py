@@ -35,7 +35,7 @@ from adminCommands.stats import stats
 from adminCommands.reset import reset
 from adminCommands.vanity import vanity
 from adminCommands.viewCard import viewCard
-from adminCommands.levelToXp import crreate_level_to_xp_command
+from adminCommands.levelToXp import create_level_to_xp_command
 
 from floor10_game_concept import guess_the_number_command
 
@@ -66,7 +66,7 @@ bot.add_command(stats)
 bot.add_command(reset)
 bot.add_command(vanity)
 bot.add_command(viewCard)
-crreate_level_to_xp_command(bot)
+create_level_to_xp_command(bot)
 #bot.add_command(leveltoxp)
 
 ### ADMIN COMMANDS ###
