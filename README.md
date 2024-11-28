@@ -59,6 +59,94 @@ View details of a specific card by its name or ID.
 
 ---
 
+# Function: `updateXpAndCheckLevelUp`
+
+## Description
+`updateXpAndCheckLevelUp` is an asynchronous function that updates a Discord user's XP in a database and checks if their level has changed (leveled up or leveled down) based on the updated XP. It handles database interactions, calculates levels using a custom function `xpToLevel`, and sends appropriate notifications to a Discord channel when a level change occurs. The function also manages roles corresponding to levels in the Discord server.
+
+---
+
+## Parameters
+
+### `ctx`
+- **Type**: `discord.ext.commands.Context` or `discord.Interaction`
+- **Description**: The context of the command or interaction that triggered the function. This is used to identify the user and access the Discord server.
+
+### `bot`
+- **Type**: `commands.Bot`
+- **Description**: The bot instance used to interact with Discord channels, users, and roles.
+
+### `xp`
+- **Type**: `int`, `float`, or `str`
+- **Description**: The amount of XP to add or subtract. If a float or string is provided, it will be converted to an integer.
+
+### `add` (optional)
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: Determines whether to add or subtract XP:
+  - `True`: Adds the provided XP to the user's total.
+  - `False`: Subtracts the provided XP from the user's total.
+
+---
+
+## Raises
+
+### `ValueError`
+- Raised if:
+  - `xp` is not a valid integer, float, or string that can be converted to an integer.
+  - `add` is not a boolean.
+
+---
+
+## Behavior
+
+1. **XP Validation**: Ensures the provided `xp` is a valid integer. Converts floats and strings as necessary.
+2. **User Identification**: Determines the user ID based on the Discord API version.
+3. **Database Operations**:
+   - Retrieves the current XP for the user from the database.
+   - Calculates the user's current level using `xpToLevel`.
+   - Updates the user's XP in the database based on the `add` parameter.
+   - Recalculates the user's level after the XP update.
+4. **Level Change Notifications**:
+   - Detects whether the user leveled up or down.
+   - Sends a notification to a designated log channel with an embedded message.
+5. **Role Management**:
+   - Attempts to assign or remove roles corresponding to the user's new level.
+   - Sends an admin notification if a required role is missing or if the user already has the role.
+
+---
+
+## Notifications
+
+### Level-Up Notifications
+- Sent to the log channel.
+- Includes:
+  - User's mention (based on conditions).
+  - Current level after leveling up.
+- Assigns the appropriate role if it exists, or logs an error if it does not.
+
+### Level-Down Notifications
+- Sent to the log channel.
+- Includes:
+  - User's mention (based on conditions).
+  - Current level after leveling down.
+- Removes the appropriate role if it exists, or logs an error if it does not.
+
+---
+
+## Returns
+- **Type**: `None`
+- **Description**: The function does not return a value.
+
+---
+
+## Notes
+- The function assumes the existence of the following global constants:
+  - `LOG_CHANNEL_ID`: The ID of the channel for logging level changes.
+  - `ADMIN_LOG_CHANNEL_ID`: The ID of the admin log channel for reporting errors or missing roles.
+- The `xpToLevel` function must be implemented separately to handle level calculation logic.
+
+
 ### Additional Information
 
 #### Database Connection
