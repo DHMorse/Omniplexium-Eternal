@@ -124,49 +124,64 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
         elif levelDown:
             doMention = True
         
-        for i in range(current_level, newLevel):
-            if levelUp:
-                now = datetime.now(timezone.utc)
-                embed = discord.Embed(
-                    title="Member Leveled Up",
-                    description=f"**Member:** \n{discordAuthor}\n\n"
-                                f"**Account Level:** \n{i + 1}\n",
-                    color=discord.Color.green(),
-                    timestamp=now  # Automatically add the timestamp to the footer
-                )
+        if levelUp:
+            for i in range(current_level, newLevel):
+                if levelUp:
+                    now = datetime.now(timezone.utc)
+                    embed = discord.Embed(
+                        title="Member Leveled Up",
+                        description=f"**Member:** \n{discordAuthor}\n\n"
+                                    f"**Account Level:** \n{i + 1}\n",
+                        color=discord.Color.green(),
+                        timestamp=now  # Automatically add the timestamp to the footer
+                    )
 
-                embed.set_thumbnail(url=discordAuthor.display_avatar.url)
+                    embed.set_thumbnail(url=discordAuthor.display_avatar.url)
 
-                await channel.send(discordAuthor.mention if doMention == True else '', embed=embed)
-            
-            if levelDown:
-                now = datetime.now(timezone.utc)
-                embed = discord.Embed(
-                    title="Member Leveled Down",
-                    description=f"**Member:** \n{discordAuthor}\n\n"
-                                f"**Account Level:** \n{i + 1}\n",
-                    color=discord.Color.dark_magenta(),
-                    timestamp=now  # Automatically add the timestamp to the footer
-                )
+                    await channel.send(discordAuthor.mention if doMention == True else '', embed=embed)
 
-                embed.set_thumbnail(url=discordAuthor.display_avatar.url)
+                    role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
+                
+                    if role is None:
+                        adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                        await adminChannel.send(f"Role 'Level {i + 1}' does not exist.")
+                    if role in discordAuthor.roles:
+                        try:
+                            adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                        except:
+                            adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+                        await adminChannel.send(f"{discordAuthor.name} already has the 'Level {i+ 1}' role, but we tried to give it to them again.")
+                        await discordAuthor.add_roles(role)
 
-                await channel.send(discordAuthor.mention if doMention == True else '', embed=embed)
 
-            role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
-            
-            if role is None:
-                adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                await adminChannel.send(f"Role 'Level {i + 1}' does not exist.")
-            if role in discordAuthor.roles:
-                try:
+        elif levelDown:
+            for i in range(newLevel, current_level):
+                if levelDown:
+                    now = datetime.now(timezone.utc)
+                    embed = discord.Embed(
+                        title="Member Leveled Down",
+                        description=f"**Member:** \n{discordAuthor}\n\n"
+                                    f"**Account Level:** \n{i + 1}\n",
+                        color=discord.Color.dark_magenta(),
+                        timestamp=now  # Automatically add the timestamp to the footer
+                    )
+
+                    embed.set_thumbnail(url=discordAuthor.display_avatar.url)
+
+                    await channel.send(discordAuthor.mention if doMention == True else '', embed=embed)
+
+                role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
+                
+                if role is None:
                     adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                except:
-                    adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-                await adminChannel.send(f"{discordAuthor.name} already has the 'Level {i+ 1}' role, but we tried to give it to them again.")
-            elif levelUp:
-                await discordAuthor.add_roles(role)
-            elif levelDown:
-                await discordAuthor.remove_roles(role)
+                    await adminChannel.send(f"Role 'Level {i + 1}' does not exist.")
+                if role in discordAuthor.roles:
+                    try:
+                        adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                    except:
+                        adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+                    await adminChannel.send(f"{discordAuthor.name} already has the 'Level {i+ 1}' role, but we tried to give it to them again.")
+
+                    await discordAuthor.remove_roles(role)
 
     return None
