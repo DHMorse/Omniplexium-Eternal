@@ -27,6 +27,7 @@ async def stats(ctx, member: discord.Member = None):
             level = xpToLevel(xp)
 
             formatedXp = "{:,}".format(xp)
+            formatedMoney = "{:,}".format(money)
 
             if lastLogin != None:
                 # Convert lastLogin to human-readable format
@@ -63,7 +64,7 @@ async def stats(ctx, member: discord.Member = None):
                            f"```ansi\n"
                            f"\u001b[0;34mXp: {formatedXp}\n"
                            f"\u001b[0;34mLevel: {level}\n"
-                           f"\u001b[0;36mMoney: ${money}\n"
+                           f"\u001b[0;36mMoney: ${formatedMoney}\n"
                            f"\u001b[0;36mLast Login (Seconds Since Ephoc): {lastLogin}\n"
                            f"\u001b[0;34mLast Login (UTC): {last_login_readable}\n"
                            f"\u001b[0;34mLast Login (CST): {last_login_CST}\n"
