@@ -26,6 +26,8 @@ async def stats(ctx, member: discord.Member = None):
             xp, money, lastLogin, daysLoggedInInARow = result
             level = xpToLevel(xp)
 
+            formatedXp = "{:,}".format(xp)
+
             if lastLogin != None:
                 # Convert lastLogin to human-readable format
                 last_login_datetime = datetime.datetime.utcfromtimestamp(lastLogin)
@@ -59,7 +61,7 @@ async def stats(ctx, member: discord.Member = None):
             # Send the stats with items as a JSON code block
             await ctx.send(f"{member.name}'s Stats:\n"
                            f"```ansi\n"
-                           f"\u001b[0;34mXp: {xp}\n"
+                           f"\u001b[0;34mXp: {formatedXp}\n"
                            f"\u001b[0;34mLevel: {level}\n"
                            f"\u001b[0;36mMoney: ${money}\n"
                            f"\u001b[0;36mLast Login (Seconds Since Ephoc): {lastLogin}\n"
