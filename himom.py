@@ -1,14 +1,6 @@
 import json
 
 def generate_reward_progression(max_level=300, output_file='rewards.json'):
-    """
-    Generate a dictionary of rewards with increasing XP and money rewards.
-    Write the rewards to a JSON file.
-    
-    :param max_level: Maximum level to generate rewards for
-    :param output_file: Name of the JSON file to write rewards to
-    :return: Dictionary of rewards
-    """
     rewards = {}
     xp_amount = 10
     xp_increment = 20
