@@ -18,7 +18,7 @@ async def makeLoginRewards(ctx, numberOfLevels: int):
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS loginRewards (
                 level INT PRIMARY KEY,
-                reward_type VARCHAR(10) NOT NULL,
+                rewardType VARCHAR(10) NOT NULL,
                 amount INT NOT NULL
             )
         """)
@@ -41,10 +41,10 @@ async def makeLoginRewards(ctx, numberOfLevels: int):
         
         # Insert rewards into the database
         cursor.executemany("""
-            INSERT INTO loginRewards (level, reward_type, amount)
+            INSERT INTO loginRewards (level, rewardType, amount)
             VALUES (%s, %s, %s)
             ON DUPLICATE KEY UPDATE
-                reward_type=VALUES(reward_type),
+                rewardType=VALUES(rewardType),
                 amount=VALUES(amount)
         """, rewards)
 

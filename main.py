@@ -153,25 +153,21 @@ async def login(ctx, day: float = None) -> None:
         result = cursor.fetchone()
         daysLoggedInInARow = result[0]
 
-        cursor.execute("SELECT * FROM loginRewards WHERE level = %s", (daysLoggedInInARow,))
+        cursor.execute("SELECT rewardType, amount FROM loginRewards WHERE level = %s", (daysLoggedInInARow,))
         result = cursor.fetchone()
+        type, amount = result
 
-        await ctx.send(result)
-    
+        if type == "xp":
+            await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=amount, add=True)
+            await ctx.send(f"Congratulations! You have received {amount} XP for logging in {daysLoggedInInARow} days in a row!")
+        elif type == "money":
+            cursor.execute("UPDATE users SET money = money + %s WHERE userId = %s", (amount, ctx.author.id))
+            conn.commit()
+            await ctx.send(f"Congratulations! You have received ${amount} for logging in {daysLoggedInInARow} days in a row!")
+
     finally:
         cursor.close()
         conn.close()
-
-'''
-        if PRIZES[daysLoggedInInARow]["type"] == "xp":
-            await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=PRIZES[daysLoggedInInARow]["amount"], add=True)
-            await ctx.send(f"Congratulations! You have received {PRIZES[daysLoggedInInARow]['amount']} XP for logging in {daysLoggedInInARow} days in a row!")
-
-        elif PRIZES[daysLoggedInInARow]["type"] == "money":
-            cursor.execute("UPDATE users SET money = money + %s WHERE userId = %s", (PRIZES[daysLoggedInInARow]["amount"], ctx.author.id))
-            conn.commit()
-            await ctx.send(f"Congratulations! You have received ${PRIZES[daysLoggedInInARow]['amount']} for logging in {daysLoggedInInARow} days in a row!")
-'''
 
 
 @bot.event
