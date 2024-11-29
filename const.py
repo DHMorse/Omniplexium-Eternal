@@ -68,7 +68,7 @@ PRIZES = {
     },
     9: {
         "type": "xp",
-        "amount": 200
+        "amount": 190
     },
     10: {
         "type": "money",
@@ -76,19 +76,19 @@ PRIZES = {
     },
     11: {
         "type": "xp",
-        "amount": 250
+        "amount": 230
     },
     12: {
         "type": "xp",
-        "amount": 310
+        "amount": 270
     },
     13: {
         "type": "xp",
-        "amount": 370
+        "amount": 310
     },
     14: {
         "type": "xp",
-        "amount": 430
+        "amount": 350
     },
     15: {
         "type": "money",
@@ -96,23 +96,27 @@ PRIZES = {
     },
     16: {
         "type": "xp",
-        "amount": 500
+        "amount": 400
     },
     17: {
         "type": "xp",
-        "amount": 570
+        "amount": 450
     },
     18: {
         "type": "xp",
-        "amount": 640
+        "amount": 500
     },
     19: {
         "type": "xp",
-        "amount": 710
+        "amount": 550
     },
     20: {
         "type": "money",
         "amount": 20
+    },
+    21: {
+        "type": "xp",
+        "amount": 610
     },
 }
 

@@ -39,6 +39,8 @@ async def stats(ctx, member: discord.Member = None):
                 last_login_EST = last_login_datetime.replace(tzinfo=pytz.utc).astimezone(est_tz).strftime("%Y-%m-%d %H:%M:%S EST")
             else:
                 last_login_readable = None
+                last_login_CST = None
+                last_login_EST = None
 
             # Create a list of dictionaries for the items
             items_list = []

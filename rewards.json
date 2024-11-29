@@ -1,0 +1,1202 @@
+{
+    "1": {
+        "type": "xp",
+        "amount": 10
+    },
+    "2": {
+        "type": "xp",
+        "amount": 30
+    },
+    "3": {
+        "type": "xp",
+        "amount": 50
+    },
+    "4": {
+        "type": "xp",
+        "amount": 70
+    },
+    "5": {
+        "type": "money",
+        "amount": 10
+    },
+    "6": {
+        "type": "xp",
+        "amount": 100
+    },
+    "7": {
+        "type": "xp",
+        "amount": 130
+    },
+    "8": {
+        "type": "xp",
+        "amount": 160
+    },
+    "9": {
+        "type": "xp",
+        "amount": 190
+    },
+    "10": {
+        "type": "money",
+        "amount": 20
+    },
+    "11": {
+        "type": "xp",
+        "amount": 230
+    },
+    "12": {
+        "type": "xp",
+        "amount": 270
+    },
+    "13": {
+        "type": "xp",
+        "amount": 310
+    },
+    "14": {
+        "type": "xp",
+        "amount": 350
+    },
+    "15": {
+        "type": "money",
+        "amount": 30
+    },
+    "16": {
+        "type": "xp",
+        "amount": 400
+    },
+    "17": {
+        "type": "xp",
+        "amount": 450
+    },
+    "18": {
+        "type": "xp",
+        "amount": 500
+    },
+    "19": {
+        "type": "xp",
+        "amount": 550
+    },
+    "20": {
+        "type": "money",
+        "amount": 40
+    },
+    "21": {
+        "type": "xp",
+        "amount": 610
+    },
+    "22": {
+        "type": "xp",
+        "amount": 670
+    },
+    "23": {
+        "type": "xp",
+        "amount": 730
+    },
+    "24": {
+        "type": "xp",
+        "amount": 790
+    },
+    "25": {
+        "type": "money",
+        "amount": 50
+    },
+    "26": {
+        "type": "xp",
+        "amount": 860
+    },
+    "27": {
+        "type": "xp",
+        "amount": 930
+    },
+    "28": {
+        "type": "xp",
+        "amount": 1000
+    },
+    "29": {
+        "type": "xp",
+        "amount": 1070
+    },
+    "30": {
+        "type": "money",
+        "amount": 60
+    },
+    "31": {
+        "type": "xp",
+        "amount": 1150
+    },
+    "32": {
+        "type": "xp",
+        "amount": 1230
+    },
+    "33": {
+        "type": "xp",
+        "amount": 1310
+    },
+    "34": {
+        "type": "xp",
+        "amount": 1390
+    },
+    "35": {
+        "type": "money",
+        "amount": 70
+    },
+    "36": {
+        "type": "xp",
+        "amount": 1480
+    },
+    "37": {
+        "type": "xp",
+        "amount": 1570
+    },
+    "38": {
+        "type": "xp",
+        "amount": 1660
+    },
+    "39": {
+        "type": "xp",
+        "amount": 1750
+    },
+    "40": {
+        "type": "money",
+        "amount": 80
+    },
+    "41": {
+        "type": "xp",
+        "amount": 1850
+    },
+    "42": {
+        "type": "xp",
+        "amount": 1950
+    },
+    "43": {
+        "type": "xp",
+        "amount": 2050
+    },
+    "44": {
+        "type": "xp",
+        "amount": 2150
+    },
+    "45": {
+        "type": "money",
+        "amount": 90
+    },
+    "46": {
+        "type": "xp",
+        "amount": 2260
+    },
+    "47": {
+        "type": "xp",
+        "amount": 2370
+    },
+    "48": {
+        "type": "xp",
+        "amount": 2480
+    },
+    "49": {
+        "type": "xp",
+        "amount": 2590
+    },
+    "50": {
+        "type": "money",
+        "amount": 100
+    },
+    "51": {
+        "type": "xp",
+        "amount": 2710
+    },
+    "52": {
+        "type": "xp",
+        "amount": 2830
+    },
+    "53": {
+        "type": "xp",
+        "amount": 2950
+    },
+    "54": {
+        "type": "xp",
+        "amount": 3070
+    },
+    "55": {
+        "type": "money",
+        "amount": 110
+    },
+    "56": {
+        "type": "xp",
+        "amount": 3200
+    },
+    "57": {
+        "type": "xp",
+        "amount": 3330
+    },
+    "58": {
+        "type": "xp",
+        "amount": 3460
+    },
+    "59": {
+        "type": "xp",
+        "amount": 3590
+    },
+    "60": {
+        "type": "money",
+        "amount": 120
+    },
+    "61": {
+        "type": "xp",
+        "amount": 3730
+    },
+    "62": {
+        "type": "xp",
+        "amount": 3870
+    },
+    "63": {
+        "type": "xp",
+        "amount": 4010
+    },
+    "64": {
+        "type": "xp",
+        "amount": 4150
+    },
+    "65": {
+        "type": "money",
+        "amount": 130
+    },
+    "66": {
+        "type": "xp",
+        "amount": 4300
+    },
+    "67": {
+        "type": "xp",
+        "amount": 4450
+    },
+    "68": {
+        "type": "xp",
+        "amount": 4600
+    },
+    "69": {
+        "type": "xp",
+        "amount": 4750
+    },
+    "70": {
+        "type": "money",
+        "amount": 140
+    },
+    "71": {
+        "type": "xp",
+        "amount": 4910
+    },
+    "72": {
+        "type": "xp",
+        "amount": 5070
+    },
+    "73": {
+        "type": "xp",
+        "amount": 5230
+    },
+    "74": {
+        "type": "xp",
+        "amount": 5390
+    },
+    "75": {
+        "type": "money",
+        "amount": 150
+    },
+    "76": {
+        "type": "xp",
+        "amount": 5560
+    },
+    "77": {
+        "type": "xp",
+        "amount": 5730
+    },
+    "78": {
+        "type": "xp",
+        "amount": 5900
+    },
+    "79": {
+        "type": "xp",
+        "amount": 6070
+    },
+    "80": {
+        "type": "money",
+        "amount": 160
+    },
+    "81": {
+        "type": "xp",
+        "amount": 6250
+    },
+    "82": {
+        "type": "xp",
+        "amount": 6430
+    },
+    "83": {
+        "type": "xp",
+        "amount": 6610
+    },
+    "84": {
+        "type": "xp",
+        "amount": 6790
+    },
+    "85": {
+        "type": "money",
+        "amount": 170
+    },
+    "86": {
+        "type": "xp",
+        "amount": 6980
+    },
+    "87": {
+        "type": "xp",
+        "amount": 7170
+    },
+    "88": {
+        "type": "xp",
+        "amount": 7360
+    },
+    "89": {
+        "type": "xp",
+        "amount": 7550
+    },
+    "90": {
+        "type": "money",
+        "amount": 180
+    },
+    "91": {
+        "type": "xp",
+        "amount": 7750
+    },
+    "92": {
+        "type": "xp",
+        "amount": 7950
+    },
+    "93": {
+        "type": "xp",
+        "amount": 8150
+    },
+    "94": {
+        "type": "xp",
+        "amount": 8350
+    },
+    "95": {
+        "type": "money",
+        "amount": 190
+    },
+    "96": {
+        "type": "xp",
+        "amount": 8560
+    },
+    "97": {
+        "type": "xp",
+        "amount": 8770
+    },
+    "98": {
+        "type": "xp",
+        "amount": 8980
+    },
+    "99": {
+        "type": "xp",
+        "amount": 9190
+    },
+    "100": {
+        "type": "money",
+        "amount": 200
+    },
+    "101": {
+        "type": "xp",
+        "amount": 9410
+    },
+    "102": {
+        "type": "xp",
+        "amount": 9630
+    },
+    "103": {
+        "type": "xp",
+        "amount": 9850
+    },
+    "104": {
+        "type": "xp",
+        "amount": 10070
+    },
+    "105": {
+        "type": "money",
+        "amount": 210
+    },
+    "106": {
+        "type": "xp",
+        "amount": 10300
+    },
+    "107": {
+        "type": "xp",
+        "amount": 10530
+    },
+    "108": {
+        "type": "xp",
+        "amount": 10760
+    },
+    "109": {
+        "type": "xp",
+        "amount": 10990
+    },
+    "110": {
+        "type": "money",
+        "amount": 220
+    },
+    "111": {
+        "type": "xp",
+        "amount": 11230
+    },
+    "112": {
+        "type": "xp",
+        "amount": 11470
+    },
+    "113": {
+        "type": "xp",
+        "amount": 11710
+    },
+    "114": {
+        "type": "xp",
+        "amount": 11950
+    },
+    "115": {
+        "type": "money",
+        "amount": 230
+    },
+    "116": {
+        "type": "xp",
+        "amount": 12200
+    },
+    "117": {
+        "type": "xp",
+        "amount": 12450
+    },
+    "118": {
+        "type": "xp",
+        "amount": 12700
+    },
+    "119": {
+        "type": "xp",
+        "amount": 12950
+    },
+    "120": {
+        "type": "money",
+        "amount": 240
+    },
+    "121": {
+        "type": "xp",
+        "amount": 13210
+    },
+    "122": {
+        "type": "xp",
+        "amount": 13470
+    },
+    "123": {
+        "type": "xp",
+        "amount": 13730
+    },
+    "124": {
+        "type": "xp",
+        "amount": 13990
+    },
+    "125": {
+        "type": "money",
+        "amount": 250
+    },
+    "126": {
+        "type": "xp",
+        "amount": 14260
+    },
+    "127": {
+        "type": "xp",
+        "amount": 14530
+    },
+    "128": {
+        "type": "xp",
+        "amount": 14800
+    },
+    "129": {
+        "type": "xp",
+        "amount": 15070
+    },
+    "130": {
+        "type": "money",
+        "amount": 260
+    },
+    "131": {
+        "type": "xp",
+        "amount": 15350
+    },
+    "132": {
+        "type": "xp",
+        "amount": 15630
+    },
+    "133": {
+        "type": "xp",
+        "amount": 15910
+    },
+    "134": {
+        "type": "xp",
+        "amount": 16190
+    },
+    "135": {
+        "type": "money",
+        "amount": 270
+    },
+    "136": {
+        "type": "xp",
+        "amount": 16480
+    },
+    "137": {
+        "type": "xp",
+        "amount": 16770
+    },
+    "138": {
+        "type": "xp",
+        "amount": 17060
+    },
+    "139": {
+        "type": "xp",
+        "amount": 17350
+    },
+    "140": {
+        "type": "money",
+        "amount": 280
+    },
+    "141": {
+        "type": "xp",
+        "amount": 17650
+    },
+    "142": {
+        "type": "xp",
+        "amount": 17950
+    },
+    "143": {
+        "type": "xp",
+        "amount": 18250
+    },
+    "144": {
+        "type": "xp",
+        "amount": 18550
+    },
+    "145": {
+        "type": "money",
+        "amount": 290
+    },
+    "146": {
+        "type": "xp",
+        "amount": 18860
+    },
+    "147": {
+        "type": "xp",
+        "amount": 19170
+    },
+    "148": {
+        "type": "xp",
+        "amount": 19480
+    },
+    "149": {
+        "type": "xp",
+        "amount": 19790
+    },
+    "150": {
+        "type": "money",
+        "amount": 300
+    },
+    "151": {
+        "type": "xp",
+        "amount": 20110
+    },
+    "152": {
+        "type": "xp",
+        "amount": 20430
+    },
+    "153": {
+        "type": "xp",
+        "amount": 20750
+    },
+    "154": {
+        "type": "xp",
+        "amount": 21070
+    },
+    "155": {
+        "type": "money",
+        "amount": 310
+    },
+    "156": {
+        "type": "xp",
+        "amount": 21400
+    },
+    "157": {
+        "type": "xp",
+        "amount": 21730
+    },
+    "158": {
+        "type": "xp",
+        "amount": 22060
+    },
+    "159": {
+        "type": "xp",
+        "amount": 22390
+    },
+    "160": {
+        "type": "money",
+        "amount": 320
+    },
+    "161": {
+        "type": "xp",
+        "amount": 22730
+    },
+    "162": {
+        "type": "xp",
+        "amount": 23070
+    },
+    "163": {
+        "type": "xp",
+        "amount": 23410
+    },
+    "164": {
+        "type": "xp",
+        "amount": 23750
+    },
+    "165": {
+        "type": "money",
+        "amount": 330
+    },
+    "166": {
+        "type": "xp",
+        "amount": 24100
+    },
+    "167": {
+        "type": "xp",
+        "amount": 24450
+    },
+    "168": {
+        "type": "xp",
+        "amount": 24800
+    },
+    "169": {
+        "type": "xp",
+        "amount": 25150
+    },
+    "170": {
+        "type": "money",
+        "amount": 340
+    },
+    "171": {
+        "type": "xp",
+        "amount": 25510
+    },
+    "172": {
+        "type": "xp",
+        "amount": 25870
+    },
+    "173": {
+        "type": "xp",
+        "amount": 26230
+    },
+    "174": {
+        "type": "xp",
+        "amount": 26590
+    },
+    "175": {
+        "type": "money",
+        "amount": 350
+    },
+    "176": {
+        "type": "xp",
+        "amount": 26960
+    },
+    "177": {
+        "type": "xp",
+        "amount": 27330
+    },
+    "178": {
+        "type": "xp",
+        "amount": 27700
+    },
+    "179": {
+        "type": "xp",
+        "amount": 28070
+    },
+    "180": {
+        "type": "money",
+        "amount": 360
+    },
+    "181": {
+        "type": "xp",
+        "amount": 28450
+    },
+    "182": {
+        "type": "xp",
+        "amount": 28830
+    },
+    "183": {
+        "type": "xp",
+        "amount": 29210
+    },
+    "184": {
+        "type": "xp",
+        "amount": 29590
+    },
+    "185": {
+        "type": "money",
+        "amount": 370
+    },
+    "186": {
+        "type": "xp",
+        "amount": 29980
+    },
+    "187": {
+        "type": "xp",
+        "amount": 30370
+    },
+    "188": {
+        "type": "xp",
+        "amount": 30760
+    },
+    "189": {
+        "type": "xp",
+        "amount": 31150
+    },
+    "190": {
+        "type": "money",
+        "amount": 380
+    },
+    "191": {
+        "type": "xp",
+        "amount": 31550
+    },
+    "192": {
+        "type": "xp",
+        "amount": 31950
+    },
+    "193": {
+        "type": "xp",
+        "amount": 32350
+    },
+    "194": {
+        "type": "xp",
+        "amount": 32750
+    },
+    "195": {
+        "type": "money",
+        "amount": 390
+    },
+    "196": {
+        "type": "xp",
+        "amount": 33160
+    },
+    "197": {
+        "type": "xp",
+        "amount": 33570
+    },
+    "198": {
+        "type": "xp",
+        "amount": 33980
+    },
+    "199": {
+        "type": "xp",
+        "amount": 34390
+    },
+    "200": {
+        "type": "money",
+        "amount": 400
+    },
+    "201": {
+        "type": "xp",
+        "amount": 34810
+    },
+    "202": {
+        "type": "xp",
+        "amount": 35230
+    },
+    "203": {
+        "type": "xp",
+        "amount": 35650
+    },
+    "204": {
+        "type": "xp",
+        "amount": 36070
+    },
+    "205": {
+        "type": "money",
+        "amount": 410
+    },
+    "206": {
+        "type": "xp",
+        "amount": 36500
+    },
+    "207": {
+        "type": "xp",
+        "amount": 36930
+    },
+    "208": {
+        "type": "xp",
+        "amount": 37360
+    },
+    "209": {
+        "type": "xp",
+        "amount": 37790
+    },
+    "210": {
+        "type": "money",
+        "amount": 420
+    },
+    "211": {
+        "type": "xp",
+        "amount": 38230
+    },
+    "212": {
+        "type": "xp",
+        "amount": 38670
+    },
+    "213": {
+        "type": "xp",
+        "amount": 39110
+    },
+    "214": {
+        "type": "xp",
+        "amount": 39550
+    },
+    "215": {
+        "type": "money",
+        "amount": 430
+    },
+    "216": {
+        "type": "xp",
+        "amount": 40000
+    },
+    "217": {
+        "type": "xp",
+        "amount": 40450
+    },
+    "218": {
+        "type": "xp",
+        "amount": 40900
+    },
+    "219": {
+        "type": "xp",
+        "amount": 41350
+    },
+    "220": {
+        "type": "money",
+        "amount": 440
+    },
+    "221": {
+        "type": "xp",
+        "amount": 41810
+    },
+    "222": {
+        "type": "xp",
+        "amount": 42270
+    },
+    "223": {
+        "type": "xp",
+        "amount": 42730
+    },
+    "224": {
+        "type": "xp",
+        "amount": 43190
+    },
+    "225": {
+        "type": "money",
+        "amount": 450
+    },
+    "226": {
+        "type": "xp",
+        "amount": 43660
+    },
+    "227": {
+        "type": "xp",
+        "amount": 44130
+    },
+    "228": {
+        "type": "xp",
+        "amount": 44600
+    },
+    "229": {
+        "type": "xp",
+        "amount": 45070
+    },
+    "230": {
+        "type": "money",
+        "amount": 460
+    },
+    "231": {
+        "type": "xp",
+        "amount": 45550
+    },
+    "232": {
+        "type": "xp",
+        "amount": 46030
+    },
+    "233": {
+        "type": "xp",
+        "amount": 46510
+    },
+    "234": {
+        "type": "xp",
+        "amount": 46990
+    },
+    "235": {
+        "type": "money",
+        "amount": 470
+    },
+    "236": {
+        "type": "xp",
+        "amount": 47480
+    },
+    "237": {
+        "type": "xp",
+        "amount": 47970
+    },
+    "238": {
+        "type": "xp",
+        "amount": 48460
+    },
+    "239": {
+        "type": "xp",
+        "amount": 48950
+    },
+    "240": {
+        "type": "money",
+        "amount": 480
+    },
+    "241": {
+        "type": "xp",
+        "amount": 49450
+    },
+    "242": {
+        "type": "xp",
+        "amount": 49950
+    },
+    "243": {
+        "type": "xp",
+        "amount": 50450
+    },
+    "244": {
+        "type": "xp",
+        "amount": 50950
+    },
+    "245": {
+        "type": "money",
+        "amount": 490
+    },
+    "246": {
+        "type": "xp",
+        "amount": 51460
+    },
+    "247": {
+        "type": "xp",
+        "amount": 51970
+    },
+    "248": {
+        "type": "xp",
+        "amount": 52480
+    },
+    "249": {
+        "type": "xp",
+        "amount": 52990
+    },
+    "250": {
+        "type": "money",
+        "amount": 500
+    },
+    "251": {
+        "type": "xp",
+        "amount": 53510
+    },
+    "252": {
+        "type": "xp",
+        "amount": 54030
+    },
+    "253": {
+        "type": "xp",
+        "amount": 54550
+    },
+    "254": {
+        "type": "xp",
+        "amount": 55070
+    },
+    "255": {
+        "type": "money",
+        "amount": 510
+    },
+    "256": {
+        "type": "xp",
+        "amount": 55600
+    },
+    "257": {
+        "type": "xp",
+        "amount": 56130
+    },
+    "258": {
+        "type": "xp",
+        "amount": 56660
+    },
+    "259": {
+        "type": "xp",
+        "amount": 57190
+    },
+    "260": {
+        "type": "money",
+        "amount": 520
+    },
+    "261": {
+        "type": "xp",
+        "amount": 57730
+    },
+    "262": {
+        "type": "xp",
+        "amount": 58270
+    },
+    "263": {
+        "type": "xp",
+        "amount": 58810
+    },
+    "264": {
+        "type": "xp",
+        "amount": 59350
+    },
+    "265": {
+        "type": "money",
+        "amount": 530
+    },
+    "266": {
+        "type": "xp",
+        "amount": 59900
+    },
+    "267": {
+        "type": "xp",
+        "amount": 60450
+    },
+    "268": {
+        "type": "xp",
+        "amount": 61000
+    },
+    "269": {
+        "type": "xp",
+        "amount": 61550
+    },
+    "270": {
+        "type": "money",
+        "amount": 540
+    },
+    "271": {
+        "type": "xp",
+        "amount": 62110
+    },
+    "272": {
+        "type": "xp",
+        "amount": 62670
+    },
+    "273": {
+        "type": "xp",
+        "amount": 63230
+    },
+    "274": {
+        "type": "xp",
+        "amount": 63790
+    },
+    "275": {
+        "type": "money",
+        "amount": 550
+    },
+    "276": {
+        "type": "xp",
+        "amount": 64360
+    },
+    "277": {
+        "type": "xp",
+        "amount": 64930
+    },
+    "278": {
+        "type": "xp",
+        "amount": 65500
+    },
+    "279": {
+        "type": "xp",
+        "amount": 66070
+    },
+    "280": {
+        "type": "money",
+        "amount": 560
+    },
+    "281": {
+        "type": "xp",
+        "amount": 66650
+    },
+    "282": {
+        "type": "xp",
+        "amount": 67230
+    },
+    "283": {
+        "type": "xp",
+        "amount": 67810
+    },
+    "284": {
+        "type": "xp",
+        "amount": 68390
+    },
+    "285": {
+        "type": "money",
+        "amount": 570
+    },
+    "286": {
+        "type": "xp",
+        "amount": 68980
+    },
+    "287": {
+        "type": "xp",
+        "amount": 69570
+    },
+    "288": {
+        "type": "xp",
+        "amount": 70160
+    },
+    "289": {
+        "type": "xp",
+        "amount": 70750
+    },
+    "290": {
+        "type": "money",
+        "amount": 580
+    },
+    "291": {
+        "type": "xp",
+        "amount": 71350
+    },
+    "292": {
+        "type": "xp",
+        "amount": 71950
+    },
+    "293": {
+        "type": "xp",
+        "amount": 72550
+    },
+    "294": {
+        "type": "xp",
+        "amount": 73150
+    },
+    "295": {
+        "type": "money",
+        "amount": 590
+    },
+    "296": {
+        "type": "xp",
+        "amount": 73760
+    },
+    "297": {
+        "type": "xp",
+        "amount": 74370
+    },
+    "298": {
+        "type": "xp",
+        "amount": 74980
+    },
+    "299": {
+        "type": "xp",
+        "amount": 75590
+    },
+    "300": {
+        "type": "money",
+        "amount": 600
+    }
+}
