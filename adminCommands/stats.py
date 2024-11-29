@@ -65,7 +65,7 @@ async def stats(ctx, member: discord.Member = None):
                            f"\u001b[0;34mXp: {formatedXp}\n"
                            f"\u001b[0;34mLevel: {level}\n"
                            f"\u001b[0;36mMoney: ${formatedMoney}\n"
-                           f"\u001b[0;36mLast Login (Seconds Since Ephoc): {lastLogin}\n"
+                           f"\u001b[0;36mLast Login (Seconds Since Epoch): {lastLogin}\n"
                            f"\u001b[0;34mLast Login (UTC): {last_login_readable}\n"
                            f"\u001b[0;34mLast Login (CST): {last_login_CST}\n"
                            f"\u001b[0;34mLast Login (EST): {last_login_EST}\n"
