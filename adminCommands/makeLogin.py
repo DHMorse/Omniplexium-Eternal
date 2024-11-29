@@ -50,7 +50,7 @@ async def makeLoginRewards(ctx, numberOfLevels: int):
 
         # Commit changes
         conn.commit()
-        ctx.send(f"Login rewards for {numberOfLevels} levels have been successfully created.")
+        await ctx.send(f"Login rewards for {numberOfLevels} levels have been successfully created.")
 
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")

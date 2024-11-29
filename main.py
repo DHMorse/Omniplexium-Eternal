@@ -152,7 +152,17 @@ async def login(ctx, day: float = None) -> None:
         cursor.execute("SELECT daysLoggedInInARow FROM users WHERE userId = %s", (ctx.author.id,))
         result = cursor.fetchone()
         daysLoggedInInARow = result[0]
-        '''
+
+        cursor.execute("SELECT * FROM loginRewards WHERE level = %s", (daysLoggedInInARow,))
+        result = cursor.fetchone()
+
+        await ctx.send(result)
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+'''
         if PRIZES[daysLoggedInInARow]["type"] == "xp":
             await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=PRIZES[daysLoggedInInARow]["amount"], add=True)
             await ctx.send(f"Congratulations! You have received {PRIZES[daysLoggedInInARow]['amount']} XP for logging in {daysLoggedInInARow} days in a row!")
@@ -162,9 +172,6 @@ async def login(ctx, day: float = None) -> None:
             conn.commit()
             await ctx.send(f"Congratulations! You have received ${PRIZES[daysLoggedInInARow]['amount']} for logging in {daysLoggedInInARow} days in a row!")
 '''
-    finally:
-        cursor.close()
-        conn.close()
 
 
 @bot.event
