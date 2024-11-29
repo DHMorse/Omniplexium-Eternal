@@ -26,7 +26,7 @@ import time
 
 from secret_const import TOKEN
 
-from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH, PRIZES
+from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH
 from const import pool 
 from const import xpToLevel, updateXpAndCheckLevelUp
 
@@ -150,7 +150,7 @@ async def login(ctx, day: float = None) -> None:
         cursor.execute("SELECT daysLoggedInInARow FROM users WHERE userId = %s", (ctx.author.id,))
         result = cursor.fetchone()
         daysLoggedInInARow = result[0]
-        
+        '''
         if PRIZES[daysLoggedInInARow]["type"] == "xp":
             await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=PRIZES[daysLoggedInInARow]["amount"], add=True)
             await ctx.send(f"Congratulations! You have received {PRIZES[daysLoggedInInARow]['amount']} XP for logging in {daysLoggedInInARow} days in a row!")
@@ -159,7 +159,7 @@ async def login(ctx, day: float = None) -> None:
             cursor.execute("UPDATE users SET money = money + %s WHERE userId = %s", (PRIZES[daysLoggedInInARow]["amount"], ctx.author.id))
             conn.commit()
             await ctx.send(f"Congratulations! You have received ${PRIZES[daysLoggedInInARow]['amount']} for logging in {daysLoggedInInARow} days in a row!")
-
+'''
     finally:
         cursor.close()
         conn.close()
