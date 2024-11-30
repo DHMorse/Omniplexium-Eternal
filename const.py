@@ -199,8 +199,12 @@ def copyCard(cardId: int, userId: int) -> None:
         cursor.execute("INSERT INTO cards (itemName, userId) VALUES (%s, %s)", (cardName, userId)) # card name is a tuple
         conn.commit()
 
-        shutil.copyfile(os.path.join(CARD_DATA_JSON_PATH, f"{cardId}.json"), os.path.join(CARD_DATA_JSON_PATH, f"{cardName}.json"))
-        shutil.copyfile(os.path.join(CARD_DATA_IMAGES_PATH, f"{cardId}.png"), os.path.join(CARD_DATA_IMAGES_PATH, f"{cardName}.png"))
+        # get the current max itemId
+        cursor.execute("SELECT MAX(itemId) FROM cards")
+        maxItemId = cursor.fetchone()[0]
+
+        shutil.copyfile(os.path.join(CARD_DATA_JSON_PATH, f"{cardId}.json"), os.path.join(CARD_DATA_JSON_PATH, f"{maxItemId + 1}.json"))
+        shutil.copyfile(os.path.join(CARD_DATA_IMAGES_PATH, f"{cardId}.png"), os.path.join(CARD_DATA_IMAGES_PATH, f"{maxItemId + 1}.png"))
 
     finally:
         cursor.close()
