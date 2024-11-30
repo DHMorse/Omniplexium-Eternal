@@ -61,6 +61,27 @@ def xpToLevel(xp: any) -> int:
 
 
 
+def levelToXp(level: int) -> int:
+    # Constants
+    TOTAL_LEVELS = 100
+    XP_LEVEL_10 = 100
+    XP_LEVEL_100 = 10e12  # 1 trillion
+
+    # Calculate the exponential growth factor
+    base = (XP_LEVEL_100 / XP_LEVEL_10) ** (1 / (TOTAL_LEVELS - 10))
+    
+    if level <= 10:
+        # XP grows linearly for levels <= 10
+        return level * 10
+    elif level >= TOTAL_LEVELS:
+        # XP caps at XP_LEVEL_100 for level 100
+        return int(XP_LEVEL_100)
+
+    # Calculate XP required for the level
+    xp = XP_LEVEL_10 * (base ** (level - 10))
+    return int(xp)
+
+
 
 async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
     if isinstance(xp, float): 
