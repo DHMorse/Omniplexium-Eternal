@@ -190,12 +190,12 @@ def copyCard(cardId: int, userId: int) -> None:
 
     try:
         cursor.execute("SELECT itemName FROM cards WHERE itemId = %s", (cardId,))
-        card = cursor.fetchone()
+        cardName = cursor.fetchone()
 
-        if card is None:
+        if cardName is None:
             raise ValueError(f"Card with ID {cardId} does not exist.")
 
-        cursor.execute("INSERT INTO cards (itemName, userId) VALUES (%s, %s)", (card[1], userId))
+        cursor.execute("INSERT INTO cards (itemName, userId) VALUES (%s, %s)", (cardName, userId))
         conn.commit()
 
     finally:
