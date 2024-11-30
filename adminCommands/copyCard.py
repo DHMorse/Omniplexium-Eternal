@@ -2,7 +2,6 @@ from discord.ext import commands
 import discord
 
 from const import copyCard
-from const import pool 
 
 @commands.command()
 async def copycard(ctx, cardId: int, member: discord.Member = None):
