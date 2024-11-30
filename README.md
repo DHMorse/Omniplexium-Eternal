@@ -139,26 +139,94 @@ Automatically generates a structured login reward system for game progression, c
 - Database connection issues
 - Invalid number of levels
 
-#### **Reset Command**
-Reset a specific stat for a user.
+## Reset Command
 
-- **Syntax**: `!reset {stat}* {discord.Member}`
-- **Arguments**:
-  - **{stat}** *(required)*: The stat to reset. Options:
-    - `xp`
-    - `money`
-  - **{discord.Member}** *(optional)*: The Discord username (e.g., `404_5971` or `ih8tk`). Defaults to your own stats if no member is specified.
+### Description
+Allows administrators to reset specific user statistics to their default values, with a confirmation step to prevent accidental resets.
 
-#### 2. **Set Command**
-Set a specific stat to a given integer value for a user.
+### Syntax
+`!reset {stat}* {discord.Member}`
 
-- **Syntax**: `!set {stat}* {value}* {discord.Member}`
-- **Arguments**:
-  - **{stat}** *(required)*: The stat to set. Options:
-    - `xp`
-    - `money`
-  - **{value}** *(required)*: Any integer value, such as `1`, `3`, or `45`.
-  - **{discord.Member}** *(optional)*: The Discord username (e.g., `404_5971` or `ih8tk`). Defaults to your own stats if no member is specified.
+### Arguments
+- **{stat}** *(required)*: The statistic to reset
+ - Supported options:
+   - `xp`: Resets user's experience points
+   - `money`: Resets user's currency balance
+   - `lastLogin`: Resets last login timestamp
+   - `daysLoggedInInARow`: Resets consecutive login streak
+
+- **{discord.Member}** *(optional)*: The Discord user whose stat will be reset
+ - Default: If no member specified, resets the command user's own stat
+
+### Permissions
+- Requires administrator privileges
+
+### Confirmation Process
+- Command prompts for explicit confirmation
+- User must type `confirm` within 60 seconds
+- Cancels if no confirmation received
+
+### Usage Examples
+`!reset xp`           # Resets your own XP
+`!reset money @User`  # Resets another user's money balance
+`!reset lastLogin`    # Resets your own last login timestamp
+
+### Behavior Details
+- Validates requested stat against allowed columns
+- Resets stat to database default value
+- Uses a secure confirmation mechanism
+- Provides detailed error messaging
+
+### Potential Errors
+- Insufficient permissions
+- Invalid stat specified
+- User not found
+- Confirmation timeout
+## Set Command
+
+### Description
+Allows administrators to manually set specific user statistics to precise values with logging support.
+
+### Syntax
+`!set {stat}* {value}* {discord.Member}`
+
+### Arguments
+- **{stat}** *(required)*: The statistic to modify
+ - Supported options:
+   - `xp`: Sets user's experience points
+   - `money`: Sets user's currency balance
+
+- **{value}** *(required)*: The exact value to set
+ - Must be an integer
+ - For XP: Compares against current XP to determine level changes
+ - For Money: Direct currency amount
+
+- **{discord.Member}** *(optional)*: The Discord user whose stat will be modified
+ - Default: If no member specified, modifies the command user's own stat
+
+### Permissions
+- Requires administrator privileges
+
+### XP Modification Behavior
+- Calculates difference from current XP
+- Triggers level up/down events based on XP change
+- Preserves level progression mechanics
+
+### Usage Examples
+`!set xp 500`         # Sets your own XP to 500
+`!set money 1000 @User`  # Sets another user's balance to $1,000
+`!set xp 250`         # Sets your own XP to 250
+
+### Error Handling
+- Logs errors to admin log channel
+- Validates input types
+- Prevents invalid stat modifications
+
+### Potential Errors
+- Insufficient permissions
+- Invalid stat specified
+- Non-integer input values
+- Database connection issues
 
 #### 3. **Stats Command**
 Displays a user’s stats.
