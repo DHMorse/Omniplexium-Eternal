@@ -40,7 +40,7 @@ Copies a specific card to a user's collection. Allows copying by card ID or card
 
 ### Usage Examples
 `!copycard 123`           # Copies card with ID 123 to your own collection
-`!copycard "Rare Card"`   # Copies card by name to your own collection
+`!copycard Rare Card`   # Copies card by name to your own collection
 `!copycard 456 @User`     # Copies card with ID 456 to specified user's collection
 
 ### Behavior
