@@ -3,6 +3,8 @@ import discord
 import json
 import datetime
 import pytz
+import json
+import io
 
 from const import pool
 from const import xpToLevel
@@ -60,19 +62,24 @@ async def stats(ctx, member: discord.Member = None):
                 }
                 items_list.append(item)
 
+            items_json = json.dumps(items_list, indent=4)
+            json_file = io.BytesIO(items_json.encode('utf-8'))
+
             # Send the stats with items as a JSON code block
-            await ctx.send(f"{member.name}'s Stats:\n"
-                           f"```ansi\n"
-                           f"\u001b[0;34mXp: {formatedXp}\n"
-                           f"\u001b[0;34mLevel: {level}\n"
-                           f"\u001b[0;36mMoney: ${formatedMoney}\n"
-                           f"\u001b[0;36mLast Login (Seconds Since Epoch): {lastLogin}\n"
-                           f"\u001b[0;34mLast Login (UTC): {last_login_readable}\n"
-                           f"\u001b[0;34mLast Login (CST): {last_login_CST}\n"
-                           f"\u001b[0;34mLast Login (EST): {last_login_EST}\n"
-                           f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
-                           f"```"
-                           f"Items: ```json\n{json.dumps(items_list, indent=4)}\n```")
+            await ctx.send(
+                            f"{member.name}'s Stats:\n"
+                            f"```ansi\n"
+                            f"\u001b[0;34mXp: {formatedXp}\n"
+                            f"\u001b[0;34mLevel: {level}\n"
+                            f"\u001b[0;36mMoney: ${formatedMoney}\n"
+                            f"\u001b[0;36mLast Login (Seconds Since Epoch): {lastLogin}\n"
+                            f"\u001b[0;34mLast Login (UTC): {last_login_readable}\n"
+                            f"\u001b[0;34mLast Login (CST): {last_login_CST}\n"
+                            f"\u001b[0;34mLast Login (EST): {last_login_EST}\n"
+                            f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
+                            f"```",
+                            file=discord.File(json_file, filename=f"{member.name}_items.json")
+                            )    
         else:
             await ctx.send(f"{member.name} has no records in the database.")
     
