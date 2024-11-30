@@ -196,7 +196,7 @@ def copyCard(cardId: int, userId: int) -> None:
         if cardName is None:
             raise ValueError(f"Card with ID {cardId} does not exist.")
 
-        cursor.execute("INSERT INTO cards (itemName, userId, cardId) VALUES (%s, %s)", (cardName, userId, cardId)) # card name is a tuple
+        cursor.execute("INSERT INTO cards (itemName, userId, cardId) VALUES (%s, %s, %s)", (cardName, userId, cardId)) # card name is a tuple
         conn.commit()
 
         # get the current max itemId
