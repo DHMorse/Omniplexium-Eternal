@@ -19,7 +19,7 @@ async def makeloginrewards(ctx, numberOfLevels: int):
             CREATE TABLE IF NOT EXISTS loginRewards (
                 level INT PRIMARY KEY,
                 rewardType VARCHAR(10) NOT NULL,
-                amount INT NOT NULL
+                amountOrCardId INT NOT NULL
             )
         """)
         
@@ -29,7 +29,9 @@ async def makeloginrewards(ctx, numberOfLevels: int):
         xp_increment = 20
 
         for level in range(1, numberOfLevels + 1):
-            if level % 5 == 0:  # Money reward every 5 levels
+            if level == 10:
+                rewards.append((level, "card", 6))
+            elif level % 5 == 0:  # Money reward every 5 levels
                 rewards.append((level, "money", level * 2))
                 xp_increment += 10  # Increase XP increment every 5 levels
             else:
@@ -41,11 +43,11 @@ async def makeloginrewards(ctx, numberOfLevels: int):
         
         # Insert rewards into the database
         cursor.executemany("""
-            INSERT INTO loginRewards (level, rewardType, amount)
+            INSERT INTO loginRewards (level, rewardType, amountOrCardId)
             VALUES (%s, %s, %s)
             ON DUPLICATE KEY UPDATE
                 rewardType=VALUES(rewardType),
-                amount=VALUES(amount)
+                amountOrCardId=VALUES(amountOrCardId)
         """, rewards)
 
         # Commit changes

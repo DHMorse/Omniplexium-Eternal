@@ -5,7 +5,7 @@ from const import copyCard
 from const import pool
 
 @commands.command()
-async def copycard(ctx, *cardIdOrName: str, member: discord.Member = None):
+async def copycard(ctx, *cardIdOrName: str, member: discord.Member = None) -> None:
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You do not have the required permissions to use this command.")
         return

@@ -28,7 +28,7 @@ from secret_const import TOKEN
 
 from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH
 from const import pool 
-from const import xpToLevel, updateXpAndCheckLevelUp
+from const import xpToLevel, updateXpAndCheckLevelUp, copyCard
 
 from adminCommands.set import set
 from adminCommands.stats import stats
@@ -155,7 +155,7 @@ async def login(ctx, day: float = None) -> None:
         result = cursor.fetchone()
         daysLoggedInInARow = result[0]
 
-        cursor.execute("SELECT rewardType, amount FROM loginRewards WHERE level = %s", (daysLoggedInInARow,))
+        cursor.execute("SELECT rewardType, amountOrCardId FROM loginRewards WHERE level = %s", (daysLoggedInInARow,))
         result = cursor.fetchone()
         type, amount = result
 
@@ -166,6 +166,13 @@ async def login(ctx, day: float = None) -> None:
             cursor.execute("UPDATE users SET money = money + %s WHERE userId = %s", (amount, ctx.author.id))
             conn.commit()
             await ctx.send(f"Congratulations! You have received ${amount} for logging in {daysLoggedInInARow} days in a row!")
+        elif type == "card":
+            copyCard(amount, ctx.author.id)
+            
+            cursor.execute("SELECT itemName FROM cards WHERE itemId = %s", (amount,))
+            cardName = cursor.fetchone()[0]
+            
+            await ctx.send(f"Congratulations! You have received {cardName} for logging in {daysLoggedInInARow} days in a row!")
 
     finally:
         cursor.close()
