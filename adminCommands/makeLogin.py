@@ -4,7 +4,7 @@ import discord
 from const import pool 
 
 @commands.command()
-async def makeLoginRewards(ctx, numberOfLevels: int):
+async def makeloginrewards(ctx, numberOfLevels: int):
     if ctx.author.guild_permissions.administrator != True:
         await ctx.send("You do not have the required permissions to use this command.")
         return

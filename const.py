@@ -2,7 +2,7 @@ import os
 import numpy as np
 import discord
 from discord.ext import commands
-from mysql.connector import pooling
+from mysql.connector import pooling # type: ignore
 from datetime import datetime, timezone
 
 from secret_const import DATABASE_CONFIG
@@ -181,5 +181,25 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                         await adminChannel.send(f"{discordAuthor.name} already has the 'Level {i+ 1}' role, but we tried to give it to them again.")
 
                 await discordAuthor.remove_roles(role)
+
+    return None
+
+def copyCard(cardId: int, userId: int) -> None:
+    conn = pool.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT itemName FROM cards WHERE itemId = %s", (cardId,))
+        card = cursor.fetchone()
+
+        if card is None:
+            raise ValueError(f"Card with ID {cardId} does not exist.")
+
+        cursor.execute("INSERT INTO cards (itemName, userId) VALUES (%s, %s)", (card[1], userId))
+        conn.commit()
+
+    finally:
+        cursor.close()
+        conn.close()
 
     return None

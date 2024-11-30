@@ -2,7 +2,7 @@ from discord.ext import commands
 
 def create_level_to_xp_command(bot):
     @bot.command()
-    async def levelToXp(ctx, level: int) -> None:
+    async def leveltoxp(ctx, level: int) -> None:
         """Converts a level to the amount of XP required to reach that level."""
         if not ctx.author.guild_permissions.administrator:
             await ctx.send("You do not have the required permissions to use this command.")
