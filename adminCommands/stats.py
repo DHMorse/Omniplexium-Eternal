@@ -53,6 +53,7 @@ async def stats(ctx, member: discord.Member = None):
 
             for card in cards:
                 item = {
+                    "cardId": card[3],
                     "itemId": card[0],
                     "itemName": card[1],
                     "userId": card[2]
