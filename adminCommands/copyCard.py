@@ -10,12 +10,11 @@ async def copycard(ctx, cardId: int, member: discord.Member = None):
         await ctx.send("You do not have the required permissions to use this command.")
         return
 
-
     if member is None:
         member = ctx.author
 
     try:
-        copyCard(cardId, member.id)
+        copyCard(int(cardId), int(member.id))
         await ctx.send(f"Card with ID {cardId} has been successfully copied to {member.name}.")
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")
