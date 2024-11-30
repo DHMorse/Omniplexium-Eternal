@@ -18,10 +18,128 @@ Welcome to the admin commands guide for Omniplexium-Eternal! Below you'll find d
 
 ### Command Details
 
-### 1. **CopyCard Command**
+## CopyCard Command
 
+### Description
+Copies a specific card to a user's collection. Allows copying by card ID or card name.
 
-#### 1. **Reset Command**
+### Syntax
+`!copycard {cardIdOrName}* {discord.Member}`
+
+### Arguments
+- **{cardIdOrName}** *(required)*: Identifier for the card
+ - Accepts:
+   - Card ID (numeric)
+   - Full card name (multiple words supported)
+
+- **{discord.Member}** *(optional)*: The Discord user to receive the card
+ - Default: If no member is specified, copies the card to the command user
+
+### Permissions
+- Requires administrator privileges
+
+### Usage Examples
+`!copycard 123`           # Copies card with ID 123 to your own collection
+`!copycard "Rare Card"`   # Copies card by name to your own collection
+`!copycard 456 @User`     # Copies card with ID 456 to specified user's collection
+
+### Behavior
+- Converts multi-word card names into a single string
+- Looks up card ID if a name is provided instead of a numeric ID
+- Searches cards database to validate card name/ID
+- Handles potential errors during card copying process
+
+### Potential Errors
+- Insufficient permissions
+- Card not found
+- Database connection issues
+- Invalid card identifier
+
+## LevelToXP Command
+
+### Description
+Converts a game level to the total XP (experience points) required to reach that level.
+
+### Syntax
+`!leveltoxp {level}`
+
+### Arguments
+- **{level}** *(required)*: The target game level
+ - Must be an integer
+ - Valid range: 1-100
+
+### Permissions
+- Requires administrator privileges
+
+### XP Calculation Details
+- Levels 1-10: Linear XP growth (10 XP per level)
+- Levels 11-99: Exponential XP growth
+- Level 100: Caps at maximum XP (10 trillion)
+
+### Usage Examples
+`!leveltoxp 1`     # Shows XP required to reach level 1
+`!leveltoxp 50`    # Shows XP required to reach level 50
+`!leveltoxp 100`   # Shows XP required to reach maximum level
+
+### Potential Errors
+- Invalid level input (non-integer)
+- Level below 1
+- Level above 100
+- Insufficient permissions
+
+### Notes
+- XP calculation uses an exponential growth model
+- Provides precise XP requirements for character progression
+
+## MakeLoginRewards Command
+
+### Description
+Automatically generates a structured login reward system for game progression, creating a database table with rewards for each level.
+
+### Syntax
+`!makeloginrewards {numberOfLevels}`
+
+### Arguments
+- **{numberOfLevels}** *(required)*: Total number of levels to generate rewards for
+ - Defines the extent of the login reward progression
+ - Determines how many levels will have unique rewards
+
+### Reward Generation Rules
+- **Level 1**: Base XP reward
+- **Every Level**: Incrementing XP rewards
+- **Level 10**: Special card reward (Card ID: 6)
+- **Every 5th Level**: Money reward
+ - Money amount scales with level
+
+### Reward Types
+- `xp`: Experience points
+ - Increasing amount with each level
+ - XP increment grows progressively
+- `money`: Currency reward
+ - Amount calculated as `level * 2`
+- `card`: Specific card reward
+ - Currently hardcoded card at level 10
+
+### Database Impact
+- Creates `loginRewards` table if not existing
+- Stores reward details:
+ - `level`: Progression level
+ - `rewardType`: Type of reward
+ - `amountOrCardId`: Specific reward value
+
+### Permissions
+- Requires administrator privileges
+
+### Usage Examples
+`!makeloginrewards 50`   # Generates login rewards for first 50 levels
+`!makeloginrewards 100`  # Generates login rewards for first 100 levels
+
+### Potential Errors
+- Insufficient permissions
+- Database connection issues
+- Invalid number of levels
+
+#### **Reset Command**
 Reset a specific stat for a user.
 
 - **Syntax**: `!reset {stat}* {discord.Member}`
