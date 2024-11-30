@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from mysql.connector import pooling # type: ignore
 from datetime import datetime, timezone
+import shutil
 
 from secret_const import DATABASE_CONFIG
 
@@ -190,13 +191,16 @@ def copyCard(cardId: int, userId: int) -> None:
 
     try:
         cursor.execute("SELECT itemName FROM cards WHERE itemId = %s", (cardId,))
-        cardName = cursor.fetchone()
+        cardName = cursor.fetchone()[0]
 
         if cardName is None:
             raise ValueError(f"Card with ID {cardId} does not exist.")
 
-        cursor.execute("INSERT INTO cards (itemName, userId) VALUES (%s, %s)", (cardName[0], userId)) # card name is a tuple
+        cursor.execute("INSERT INTO cards (itemName, userId) VALUES (%s, %s)", (cardName, userId)) # card name is a tuple
         conn.commit()
+
+        shutil.copyfile(os.path.join(CARD_DATA_JSON_PATH, f"{cardId}.json"), os.path.join(CARD_DATA_JSON_PATH, f"{cardName}.json"))
+        shutil.copyfile(os.path.join(CARD_DATA_IMAGES_PATH, f"{cardId}.png"), os.path.join(CARD_DATA_IMAGES_PATH, f"{cardName}.png"))
 
     finally:
         cursor.close()
