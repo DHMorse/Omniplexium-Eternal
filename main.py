@@ -469,7 +469,7 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
         cursor.execute("SELECT MAX(itemId) FROM cards")
         result = cursor.fetchone()
         currentItemId = result[0] + 1 if result[0] is not None else 1
-        cursor.execute("INSERT INTO cards (itemName, userId) VALUES (%s, %s)", (output[0]['name'], interaction.user.id))
+        cursor.execute("INSERT INTO cards (itemName, userId, cardId) VALUES (%s, %s, %s)", (output[0]['name'], interaction.user.id, currentItemId))
         conn.commit()
         # Save the card data as a JSON file
         output_filename = f"{currentItemId}.json"

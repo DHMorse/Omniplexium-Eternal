@@ -5,16 +5,21 @@ Welcome to the admin commands guide for Omniplexium-Eternal! Below you'll find d
 ---
 
 ### Commands Overview
-
+- **`!copycard`** - Copy a card and give it to a new player
+- **`!leveltoxp`** - Displays the amount of xp required for a level
+- **`!makeloginrewards`** - Generates the loginRewards table
 - **`!reset`** - Reset a user’s stat
 - **`!set`** - Set a specific stat to a given value
 - **`!stats`** - Display a user’s stats
 - **`!vanity`** - Display bot statistics
-- **`!viewCard`** - View details of a specific card
+- **`!viewcard`** - View details of a specific card
 
 ---
 
 ### Command Details
+
+### 1. **CopyCard Command**
+
 
 #### 1. **Reset Command**
 Reset a specific stat for a user.
