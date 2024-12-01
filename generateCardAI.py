@@ -9,7 +9,7 @@ async def genAiCard(description: str, health: int=50, damage: int=20, type: str=
     false = False
 
     if type == 'standard':
-        prompt= f'Generate a playing card. It should have a health of {health}, and various attacks with damages ranging around {damage}. The card cannot reference random mechanics like "stunning the opponent, stopping them for a move" or "distracts the attacker, halving their damage" because you do not have access to these mechanics. You can describe the attack in detail for fun (which is required), but at the end of the day the only thing that matters is the integer values of the attack. Keep the descriptions concise and a maximum of one long sentence.\n\nHere is the prompt for the card: \"{description}\"\n'
+        prompt= f'Generate a playing card. It should have a health of {health}, and various attacks with damages ranging around {damage}. The card cannot reference random mechanics like "stunning the opponent, stopping them for a move" or "distracts the attacker, halving their damage" because you do not have access to these mechanics. You can describe the attack in detail for fun (which is required), but at the end of the day the only thing that matters is the integer values of the attack. Keep the descriptions concise and a maximum of one long sentence. Try to make attacks overall balanced with one great one with a high cooldown.\n\nHere is the prompt for the card: \"{description}\"\n'
     elif type == 'mega':
         prompt= f'Generate a playing card. It should have a health of {health}, a particularly good attack with a damage of {damage*2}, and various attacks with damages ranging around {damage}. The card cannot reference random mechanics like "stunning the opponent, stopping them for a move" or "distracts the attacker, halving their damage" because you do not have access to these mechanics. You can describe the attack in detail for fun (which is required), but at the end of the day the only thing that matters is the integer values of the attack. Keep the descriptions concise and a maximum of one long sentence.\n\nHere is the prompt for the card: \"{description}\"\n'
     
@@ -76,6 +76,10 @@ async def genAiCard(description: str, health: int=50, damage: int=20, type: str=
                     "attack_cooldown": {
                     "type": "number",
                     "description": "Cooldown of the attack, ranging from 0 to 3. Most attacks have a cooldown of 0 or 1. The best attack, if significantly better than the others, generally has a cooldown of 2 to 3."
+                    }
+                    "attack_hitrate": {
+                    "type": "number",
+                    "description": "The hitrate of an attack. Usually 80 to 90 percent. This is the chance that the attack actually does anything. Some attacks can be really powerful but have a low hitrate, and you don't need to compensate with a high cooldown."
                     }
                 },
                 "required": [
