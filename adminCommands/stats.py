@@ -11,9 +11,8 @@ from const import xpToLevel
 
 @commands.command()
 async def stats(ctx, member: discord.Member = None):
-    if ctx.author.guild_permissions.administrator != True:
-        await ctx.send("You do not have the required permissions to use this command.")
-        return
+    if ctx.author.guild_permissions.administrator is not True:
+        member = None
 
     conn = pool.get_connection()
     cursor = conn.cursor()
@@ -66,20 +65,33 @@ async def stats(ctx, member: discord.Member = None):
             json_file = io.BytesIO(items_json.encode('utf-8'))
 
             # Send the stats with items as a JSON code block
-            await ctx.send(
+            if ctx.author.guild_permissions.administrator is not True:
+                await ctx.send(
                             f"{member.name}'s Stats:\n"
                             f"```ansi\n"
                             f"\u001b[0;34mXp: {formatedXp}\n"
                             f"\u001b[0;34mLevel: {level}\n"
                             f"\u001b[0;36mMoney: ${formatedMoney}\n"
-                            f"\u001b[0;36mLast Login (Seconds Since Epoch): {lastLogin}\n"
                             f"\u001b[0;34mLast Login (UTC): {last_login_readable}\n"
-                            f"\u001b[0;34mLast Login (CST): {last_login_CST}\n"
-                            f"\u001b[0;34mLast Login (EST): {last_login_EST}\n"
                             f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
                             f"```",
                             file=discord.File(json_file, filename=f"{member.name}_items.json")
-                            )    
+                            )
+            else:    
+                await ctx.send(
+                                f"{member.name}'s Stats:\n"
+                                f"```ansi\n"
+                                f"\u001b[0;34mXp: {formatedXp}\n"
+                                f"\u001b[0;34mLevel: {level}\n"
+                                f"\u001b[0;36mMoney: ${formatedMoney}\n"
+                                f"\u001b[0;36mLast Login (Seconds Since Epoch): {lastLogin}\n"
+                                f"\u001b[0;34mLast Login (UTC): {last_login_readable}\n"
+                                f"\u001b[0;34mLast Login (CST): {last_login_CST}\n"
+                                f"\u001b[0;34mLast Login (EST): {last_login_EST}\n"
+                                f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
+                                f"```",
+                                file=discord.File(json_file, filename=f"{member.name}_items.json")
+                                )    
         else:
             await ctx.send(f"{member.name} has no records in the database.")
     
