@@ -76,7 +76,7 @@ async def genAiCard(description: str, health: int=50, damage: int=20, type: str=
                     "attack_cooldown": {
                     "type": "number",
                     "description": "Cooldown of the attack, ranging from 0 to 3. Most attacks have a cooldown of 0 or 1. The best attack, if significantly better than the others, generally has a cooldown of 2 to 3."
-                    }
+                    },
                     "attack_hitrate": {
                     "type": "number",
                     "description": "The hitrate of an attack. Usually 80 to 90 percent. This is the chance that the attack actually does anything. Some attacks can be really powerful but have a low hitrate, and you don't need to compensate with a high cooldown."
