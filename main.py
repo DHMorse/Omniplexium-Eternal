@@ -23,12 +23,12 @@ import requests
 import json
 from datetime import datetime, timezone
 import time
+import sqlite3
 
 from secret_const import TOKEN
 
-from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH
-from const import pool 
-from const import xpToLevel, updateXpAndCheckLevelUp, copyCard
+from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH, DATABASE_PATH
+from const import xpToLevel, updateXpAndCheckLevelUp, copyCard, checkDatabase
 
 from adminCommands.set import set
 from adminCommands.stats import stats
@@ -58,6 +58,7 @@ bot = MyBot()
 
 @bot.event
 async def on_ready():
+    checkDatabase()
     await bot.tree.sync()
     print(f'Bot is ready. Logged in as {bot.user}')
 
@@ -80,15 +81,14 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    user_id = message.author.id
+    userId = message.author.id
     username = message.author.name
 
-    conn = pool.get_connection()
-    cursor = conn.cursor()
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
 
-    try:
         # Check if user exists in the database
-        cursor.execute("SELECT xp FROM users WHERE userId = %s", (user_id,))
+        cursor.execute("SELECT * FROM users WHERE userId = ?", (userId,))
         result = cursor.fetchone()
 
         if result:
@@ -97,14 +97,11 @@ async def on_message(message):
         else:
             # Insert new user record if they don't exist
             cursor.execute(
-                "INSERT INTO users (userId, username, xp, money) VALUES (%s, %s, %s, %s)",
-                (user_id, username, 1, 0)
-            )
+                "INSERT INTO users (userId, username, xp, money, lastLogin, daysLoggedInInARow) VALUES (?, ?, ?, ?, ?, ?)", 
+                (userId, username, 1, 0, None, 0)
+                )
             conn.commit()
 
-    finally:
-        cursor.close()
-        conn.close()
 
     # Continue processing other commands if any
     await bot.process_commands(message)
@@ -121,11 +118,10 @@ async def login(ctx, day: float = None) -> None:
     if day is None:
         day = 0
 
-    conn = pool.get_connection()
-    cursor = conn.cursor()
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
 
-    try:
-        cursor.execute("SELECT lastLogin, daysLoggedInInARow FROM users WHERE userId = %s", (ctx.author.id,))
+        cursor.execute("SELECT lastLogin, daysLoggedInInARow FROM users WHERE userId = ?", (ctx.author.id,))
         result = cursor.fetchone()
         
         lastLogin = result[0]
@@ -133,29 +129,29 @@ async def login(ctx, day: float = None) -> None:
         
         if lastLogin is None:
             await ctx.send("You have made your first daily login!")
-            cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
-            cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (1, ctx.author.id))
+            cursor.execute("UPDATE users SET lastLogin = ? WHERE userId = ?", (time.time(), ctx.author.id))
+            cursor.execute("UPDATE users SET daysLoggedInInARow = ? WHERE userId = ?", (1, ctx.author.id))
             conn.commit()
         else:
             if time.time() - lastLogin > 172800 or (day * 86400) > 172800:
                 await ctx.send("You have lost your daily login streak!")
-                cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
-                cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (1, ctx.author.id))
+                cursor.execute("UPDATE users SET daysLoggedInInARow = ? WHERE userId = ?", (1, ctx.author.id))
+                cursor.execute("UPDATE users SET lastLogin = ? WHERE userId = ?", (time.time(), ctx.author.id))
                 conn.commit()
             elif time.time() - lastLogin > 86400 or (day * 86400) > 86400:
                 await ctx.send("You have made your daily login!")
-                cursor.execute("UPDATE users SET lastLogin = %s WHERE userId = %s", (time.time(), ctx.author.id))
-                cursor.execute("UPDATE users SET daysLoggedInInARow = %s WHERE userId = %s", (daysLoggedInInARow + 1, ctx.author.id))
+                cursor.execute("UPDATE users SET lastLogin = ? WHERE userId = ?", (time.time(), ctx.author.id))
+                cursor.execute("UPDATE users SET daysLoggedInInARow = ? WHERE userId = ?", (daysLoggedInInARow + 1, ctx.author.id))
                 conn.commit()
             else:
                 await ctx.send("You have already logged in today!")
                 return
         
-        cursor.execute("SELECT daysLoggedInInARow FROM users WHERE userId = %s", (ctx.author.id,))
+        cursor.execute("SELECT daysLoggedInInARow FROM users WHERE userId = ?", (ctx.author.id,))
         result = cursor.fetchone()
         daysLoggedInInARow = result[0]
 
-        cursor.execute("SELECT rewardType, amountOrCardId FROM loginRewards WHERE level = %s", (daysLoggedInInARow,))
+        cursor.execute("SELECT rewardType, amountOrCardId FROM loginRewards WHERE level = ?", (daysLoggedInInARow,))
         result = cursor.fetchone()
         type, amount = result
 
@@ -163,39 +159,32 @@ async def login(ctx, day: float = None) -> None:
             await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=amount, add=True)
             await ctx.send(f"Congratulations! You have received {amount} XP for logging in {daysLoggedInInARow} days in a row!")
         elif type == "money":
-            cursor.execute("UPDATE users SET money = money + %s WHERE userId = %s", (amount, ctx.author.id))
+            cursor.execute("UPDATE users SET money = money + ? WHERE userId = ?", (amount, ctx.author.id))
             conn.commit()
             await ctx.send(f"Congratulations! You have received ${amount} for logging in {daysLoggedInInARow} days in a row!")
         elif type == "card":
             copyCard(amount, ctx.author.id)
             
-            cursor.execute("SELECT itemName FROM cards WHERE itemId = %s", (amount,))
+            cursor.execute("SELECT itemName FROM cards WHERE itemId = ?", (amount,))
             cardName = cursor.fetchone()[0]
             
             await ctx.send(f"Congratulations! You have received {cardName} for logging in {daysLoggedInInARow} days in a row!")
-
-    finally:
-        cursor.close()
-        conn.close()
 
 
 @bot.event
 async def on_member_join(member: discord.Member):
 
-    conn = pool.get_connection()
-    cursor = conn.cursor()
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
 
-    try:
         # see if the user is in the data base
-        cursor.execute("SELECT xp, money FROM users WHERE userId = %s", (member.id,))
+        cursor.execute("SELECT xp FROM users WHERE userId = ?", (member.id,))
         result = cursor.fetchone()
         if result:
             xp = result[0]
             for i in range(xpToLevel(xp)):
                 await member.add_roles(discord.utils.get(member.guild.roles, name=f"Level {i + 1}"))
-    finally:
-        cursor.close()
-        conn.close()
+
 
     # Calculate account age
     now = datetime.now(timezone.utc)
@@ -300,9 +289,8 @@ async def on_user_update(before: discord.Member, after: discord.Member):
 @bot.tree.command(name="leaderboard", description="Display the leaderboard based on level or money.")
 @app_commands.describe(type="Choose between 'level' or 'money' for the leaderboard type.")
 async def leaderboard(interaction: discord.Interaction, type: str = "level"):
-    conn = pool.get_connection()
-    cursor = conn.cursor()
-    try:
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
         # Determine the query based on the selected type
         if type == "money":
             cursor.execute("SELECT userId, username, money FROM users ORDER BY money DESC, xp DESC LIMIT 10")
@@ -311,9 +299,6 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
             type = 'level' # handles edge case where the user types something other than 'money' or 'level'
             cursor.execute("SELECT userId, username, xp FROM users ORDER BY xp DESC, xp DESC LIMIT 10")
             leaderboard_data = cursor.fetchall()
-    finally:
-        cursor.close()
-        conn.close()
 
     # Create an image for the leaderboard
     image_width = 600
@@ -406,15 +391,14 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
         await interaction.response.send_message("You can't challenge yourself to a duel!", ephemeral=True)
         return
 
-    conn = pool.get_connection()
-    cursor = conn.cursor(dictionary=True)
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor(dictionary=True)
 
-    try:
-        user_id = interaction.user.id  # The ID of the user who used the command
+        userId = interaction.user.id  # The ID of the user who used the command
         opponent_id = member.id  # The ID of the opponent
 
         # Query to count the number of cards for the user
-        cursor.execute("SELECT COUNT(*) as card_count FROM cards WHERE userId = %s", (user_id,))
+        cursor.execute("SELECT COUNT(*) as card_count FROM cards WHERE userId = ?", (userId,))
         user_card_count = cursor.fetchone()["card_count"]
 
         # Check if the user has at least three cards
@@ -423,7 +407,7 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
             return
 
         # Query to count the number of cards for the opponent
-        cursor.execute("SELECT COUNT(*) as card_count FROM cards WHERE userId = %s", (opponent_id,))
+        cursor.execute("SELECT COUNT(*) as card_count FROM cards WHERE userId = ?", (opponent_id,))
         opponent_card_count = cursor.fetchone()["card_count"]
 
         # Check if the opponent has at least three cards
@@ -449,10 +433,6 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
         challenge_view.timeout_message = challenge_message
         await challenge_message.edit(view=challenge_view)
 
-    finally:
-        cursor.close()
-        conn.close()
-
 @bot.tree.command(name="generatecard", description="Generate a custom playing card. (demo)")
 @app_commands.describe(prompt="Choose the type for the card.")
 async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
@@ -461,15 +441,16 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     await interaction.response.defer()
     output = await genAiCard(prompt) # returns a list, the first item is the json data, the second is the image url
     card = await makeCardFromJson(output[0], output[1]) # output[1] is doing nothing we over write the varible in the file
+
     # Update the user's items in the database
-    conn = pool.get_connection()
-    cursor = conn.cursor()
-    try:
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+
         # Fetch the current highest itemID
         cursor.execute("SELECT MAX(itemId) FROM cards")
         result = cursor.fetchone()
         currentItemId = result[0] + 1 if result[0] is not None else 1
-        cursor.execute("INSERT INTO cards (itemName, userId, cardId) VALUES (%s, %s, %s)", (output[0]['name'], interaction.user.id, currentItemId))
+        cursor.execute("INSERT INTO cards (itemName, userId, cardId) VALUES (?, ?, ?)", (output[0]['name'], interaction.user.id, currentItemId))
         conn.commit()
         # Save the card data as a JSON file
         output_filename = f"{currentItemId}.json"
@@ -486,9 +467,7 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
         cardFilePath = f'{CARD_DATA_IMAGES_PATH}/{card_name}'
         
         card.save(cardFilePath)
-    finally:
-        cursor.close()
-        conn.close()
+
     file = discord.File(cardFilePath, filename="card.png")
     # Edit the initial deferred response to include the embed with the image file
     await interaction.followup.send(file=file)

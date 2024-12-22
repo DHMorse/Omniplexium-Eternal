@@ -1,13 +1,16 @@
 from discord.ext import commands
 import discord
+import sqlite3
 
+from const import DATABASE_PATH, COLORS
 from const import copyCard
-from const import pool
 
 @commands.command()
 async def copycard(ctx, *cardIdOrName: str, member: discord.Member = None) -> None:
     if not ctx.author.guild_permissions.administrator:
-        await ctx.send("You do not have the required permissions to use this command.")
+        await ctx.send(f'''```ansi
+{COLORS['yellow']}You do not have the required permissions to use this command.{COLORS['reset']}
+```''')
         return
     
     if member is None:
@@ -22,22 +25,27 @@ async def copycard(ctx, *cardIdOrName: str, member: discord.Member = None) -> No
             card_id = int(card_name)
         else:
             # If not a digit, look up the card ID by name
-            conn = pool.get_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT itemId FROM cards WHERE itemName = %s", (card_name,))
-            result = cursor.fetchone()
-            
-            if result is None:
-                await ctx.send(f"No card found with the name '{card_name}'.")
-                return
-            
-            card_id = result[0]
-            cursor.close()
-            conn.close()
+            with sqlite3.connect(DATABASE_PATH) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT itemId FROM cards WHERE itemName = ?", (card_name,))
+                result = cursor.fetchone()
+                
+                if result is None:
+                    await ctx.send(f'''```ansi
+{COLORS['red']}No card found with the name "{card_name}".{COLORS['reset']}
+```''')
+                    return
+                
+                card_id = result[0]
         
         # Copy the card
         copyCard(card_id, int(member.id))
-        await ctx.send(f"Card with ID {card_id} has been successfully copied to {member.name}.")
-    
+        await ctx.send(f'''```ansi
+{COLORS['blue']}Card with ID {card_id} has been successfully copied to {member.name}.{COLORS['reset']}
+```''')
+
     except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
+        #await ctx.send(f"An error occurred: {e}")
+        await ctx.send(f'''```ansi
+{COLORS['red']}An error occurred: {e}\u001b[0m{COLORS['reset']}
+```''')

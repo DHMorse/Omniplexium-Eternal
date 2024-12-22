@@ -1,8 +1,10 @@
 from discord.ext import commands
 import discord
 import asyncio
+import sqlite3
 
-from const import pool, updateXpAndCheckLevelUp
+from const import DATABASE_PATH
+from const import updateXpAndCheckLevelUp
 
 @commands.command()
 async def reset(ctx, stat: str = "", member: discord.Member = None):
@@ -46,30 +48,29 @@ async def reset(ctx, stat: str = "", member: discord.Member = None):
         confirmation_msg = await ctx.bot.wait_for('message', timeout=60.0, check=check)
 
         # If confirmed, reset the stat to the default value
-        conn = pool.get_connection()
-        cursor = conn.cursor()
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
 
-        try:
-            if stat != "xp":
-                cursor.execute(f"UPDATE users SET {stat} = DEFAULT WHERE userId = %s", (member_id,)) 
+            try:
+                if stat != "xp":
+                    cursor.execute(f"UPDATE users SET {stat} = DEFAULT WHERE userId = ?", (member_id,))
 
-            elif stat == "xp":
-                cursor.execute(f"SELECT xp FROM users WHERE userId = %s", (member_id,))
-                xp = cursor.fetchone()[0]
-                await updateXpAndCheckLevelUp(ctx=ctx, bot=ctx.bot, xp=xp, add=False)
+                elif stat == "xp":
+                    cursor.execute("SELECT xp FROM users WHERE userId = ?", (member_id,))
+                    xp = cursor.fetchone()[0]
+                    await updateXpAndCheckLevelUp(ctx=ctx, bot=ctx.bot, xp=xp, add=False)
 
-            # this should always work but it's not recommended because it's vulnerable to SQL injection
-            # this is an admin only command however so we can look into it later
+                # this should always work but it's not recommended because it's vulnerable to SQL injection
+                # this is an admin only command however so we can look into it later
 
-            conn.commit()
-            await ctx.send(f"Successfully reset '{stat}' for {member.name} to its default value.")
+                conn.commit()
+                # ANSI GREEN COLOR CODE: \033[92m
+                await ctx.send(f"\033[92mSuccessfully reset '{stat}' for {member.name}.\033[0m")
 
-        except Exception as e:
-            await ctx.send(f"An error occurred while resetting the stat: {e}")
+            except Exception as e:
+                # ANSI RED COLOR CODE: \033[91m
+                await ctx.send(f"\033[91mAn error occurred: {e}\033[0m")
 
-        finally:
-            cursor.close()
-            conn.close()
     
     except asyncio.TimeoutError:
         await ctx.send("You took too long to respond. The action was canceled.")
