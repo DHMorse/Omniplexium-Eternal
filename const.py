@@ -17,14 +17,6 @@ ADMIN_LOG_CHANNEL_ID = 1304245019300986941
 
 ROOT_DIR = os.path.expanduser('~/Omniplexium-Eternal')
 
-# FOR TESTING ONLY 
-# FOR TESTING ONLY 
-# FOR TESTING ONLY 
-ROOT_DIR = os.path.expanduser('./')
-# FOR TESTING ONLY 
-# FOR TESTING ONLY 
-# FOR TESTING ONLY 
-
 DATABASE_PATH = os.path.join(ROOT_DIR, 'discorddb.db')
 
 CURRENT_ITEM_ID_PATH = os.path.join(ROOT_DIR, 'currentItemID.txt')
