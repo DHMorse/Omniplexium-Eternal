@@ -1,6 +1,8 @@
 import discord
-from discord import app_commands
-from discord.ext import commands
+
+from const import COLORS
+
+# I'm changing this too even tho I think by this point it's deprecated
 
 class ChallengeView(discord.ui.View):
     def __init__(self, challenger, challenged, timeout_message=None):
@@ -14,14 +16,14 @@ class ChallengeView(discord.ui.View):
             try:
                 await self.timeout_message.edit(content="The duel invite has timed out.", view=None)
             except discord.NotFound:
-                print("The message was deleted before the timeout occurred.")
+                print(f"{COLORS['red']}The message was deleted before the timeout occurred.{COLORS['reset']}")
         else:
-            print("Timeout message was not set.")
+            print(f"{COLORS['red']}Timeout message was not set.{COLORS['reset']}")
 
     @discord.ui.button(label="Accept", style=discord.ButtonStyle.green)
     async def accept_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.challenged.id:
-            await interaction.response.send_message("You can't accept this challenge for someone else.", ephemeral=True)
+            await interaction.response.send_message(f"{COLORS['red']}You can't accept this challenge for someone else.{COLORS['reset']}", ephemeral=True)
             return
 
         # Stop the timeout
@@ -42,7 +44,7 @@ class ChallengeView(discord.ui.View):
     @discord.ui.button(label="Decline", style=discord.ButtonStyle.red)
     async def decline_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.challenged.id:
-            await interaction.response.send_message("You can't decline this challenge for someone else.", ephemeral=True)
+            await interaction.response.send_message(f"{COLORS['red']}You can't decline this challenge for someone else.{COLORS['reset']}", ephemeral=True)
             return
 
         # Stop the timeout

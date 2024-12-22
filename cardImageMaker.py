@@ -3,6 +3,8 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 import textwrap
 
+from const import COLORS
+
 async def makeCardFromJson(data: dict, url: str) -> Image:
     card_data = data
     card_data["image_url"] = url
@@ -14,10 +16,10 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
             image_data = io.BytesIO(response.content)
             character_image = Image.open(image_data)
         except Exception as e:
-            print(f"Error opening image: {e}")
+            print(f"{COLORS['red']}Error opening image: {e}{COLORS['reset']}")
             return None
     else:
-        print("Failed to download the image. Check the URL.")
+        print(f"{COLORS['red']}Failed to download the image. Check the URL.{COLORS['reset']}")
         return None
 
     if character_image:
@@ -37,7 +39,7 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
                     title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 48)
                 except IOError:
                     title_font = ImageFont.load_default()
-                    print("Warning: Using default font for title")
+                    print(f"{COLORS['yellow']}Warning: Using default font for title{COLORS['reset']}")
 
         try:
             text_font = ImageFont.truetype("arial.ttf", 32)
@@ -49,7 +51,7 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
                     text_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 32)
                 except IOError:
                     text_font = ImageFont.load_default()
-                    print("Warning: Using default font for text")
+                    print(f"{COLORS['yellow']}Warning: Using default font for text{COLORS['reset']}")
 
         # Border
         border_color = (220, 220, 220)
@@ -106,5 +108,5 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
 
         return card
     else:
-        print("Unable to create card image due to image loading failure.")
+        print(f"{COLORS['red']}Unable to create card image due to image loading failure.{COLORS['reset']}")
         return None

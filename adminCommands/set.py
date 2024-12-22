@@ -8,7 +8,6 @@ from const import updateXpAndCheckLevelUp
 @commands.command()
 async def set(ctx, stat: str = '', value: str = '', member: discord.Member = None) -> None:
     if ctx.author.guild_permissions.administrator != True:
-        #await ctx.send("You do not have the required permissions to use this command.")
         await ctx.send(f'''```ansi
 {COLORS['yellow']}You do not have the required permissions to use this command.{COLORS['reset']}
 ```''')

@@ -51,4 +51,5 @@ async def ini(ctx):
 [SUCCESS] ✅ Operation completed successfully.
 ```''')
 
+print(f"{COLORS['red']}hi{COLORS['reset']}")
 bot.run(TOKEN)
