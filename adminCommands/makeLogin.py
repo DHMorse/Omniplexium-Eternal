@@ -1,12 +1,14 @@
 import sqlite3
 
 from discord.ext import commands
-from const import DATABASE_PATH
+from const import DATABASE_PATH, COLORS
 
 @commands.command()
-async def makeloginrewards(ctx, numberOfLevels: int):
+async def makeloginrewards(ctx, numberOfLevels: int) -> None:
     if ctx.author.guild_permissions.administrator != True:
-        await ctx.send("You do not have the required permissions to use this command.")
+        await ctx.send(f'''```ansi
+{COLORS['yellow']}You do not have the required permissions to use this command.{COLORS['reset']}
+```''')
         return
 
     with sqlite3.connect(DATABASE_PATH) as conn:
@@ -40,10 +42,13 @@ async def makeloginrewards(ctx, numberOfLevels: int):
                     amountOrCardId=excluded.amountOrCardId
             """, rewards)
 
-            # Commit changes
             conn.commit()
-            await ctx.send(f"Login rewards for {numberOfLevels} levels have been successfully created.")
+            await ctx.send(f'''```ansi
+{COLORS['blue']}Login rewards for {numberOfLevels} levels have been successfully created.{COLORS['reset']}
+```''')
 
         except Exception as e:
-            # ANSI RED COLOR CODE: \033[91m
-            await ctx.send(f"\033[91mAn error occurred: {e}\033[0m")
+            await ctx.send(f'''```ansi
+{COLORS['red']}An error occurred: {e}\u001b[0m{COLORS['reset']}
+```''')
+            return

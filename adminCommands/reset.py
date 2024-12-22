@@ -3,14 +3,15 @@ import discord
 import asyncio
 import sqlite3
 
-from const import DATABASE_PATH
+from const import DATABASE_PATH, COLORS
 from const import updateXpAndCheckLevelUp
 
 @commands.command()
-async def reset(ctx, stat: str = "", member: discord.Member = None):
-    # Check if the user has the required permission
+async def reset(ctx, stat: str = "", member: discord.Member = None) -> None:
     if not ctx.author.guild_permissions.administrator:
-        await ctx.send("You do not have the required permissions to use this command.")
+        await ctx.send(f'''```ansi
+{COLORS['yellow']}You do not have the required permissions to use this command.{COLORS['reset']}
+```''')
         return
 
     # Get the member who is being reset, default to the author if not provided
@@ -29,13 +30,13 @@ async def reset(ctx, stat: str = "", member: discord.Member = None):
 
     # Check if the stat provided is a valid column
     if stat not in valid_columns:
-        await ctx.send(f"Invalid stat specified. Please choose one from: {', '.join(valid_columns)}.")
+        await ctx.send(f'''```ansi
+{COLORS['red']}Invalid stat specified. Please choose one from: {COLORS['reset']}{', '.join(valid_columns)}.
+```''')
         return
 
     # this error handling above is not needed as we catch any expections below
     # we could get rid of it later but it's not doing any harm for now.
-
-
 
     # Ask for confirmation to reset
     await ctx.send(f"Are you sure you want to reset '{stat}' for {member.name}? Type `confirm` to confirm.")
@@ -64,13 +65,18 @@ async def reset(ctx, stat: str = "", member: discord.Member = None):
                 # this is an admin only command however so we can look into it later
 
                 conn.commit()
-                # ANSI GREEN COLOR CODE: \033[92m
-                await ctx.send(f"\033[92mSuccessfully reset '{stat}' for {member.name}.\033[0m")
+                await ctx.send(f'''```ansi
+{COLORS['blue']}Successfully reset '{stat}' for {member.name}.{COLORS['reset']}
+```''')
 
             except Exception as e:
-                # ANSI RED COLOR CODE: \033[91m
-                await ctx.send(f"\033[91mAn error occurred: {e}\033[0m")
+                await ctx.send(f'''```ansi
+{COLORS['red']}An error occurred: {e}\u001b[0m{COLORS['reset']}
+```''')
+                return
 
-    
     except asyncio.TimeoutError:
-        await ctx.send("You took too long to respond. The action was canceled.")
+        await ctx.send(f'''```ansi
+{COLORS['yellow']}You took too long to respond. The action was canceled.{COLORS['reset']}
+```''')
+        return

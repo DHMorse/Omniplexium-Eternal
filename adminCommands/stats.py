@@ -5,8 +5,9 @@ import datetime
 import pytz
 import json
 import io
+import sqlite3
 
-from const import pool
+from const import COLORS
 from const import xpToLevel
 
 @commands.command()
