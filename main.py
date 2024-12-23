@@ -98,11 +98,13 @@ async def on_message(message):
                 )
                 conn.commit()
             
-            if result or not result:  # Execute for both new and existing users
-                await updateXpAndCheckLevelUp(message, bot, 1, True)
-    
+            if result:
+                await updateXpAndCheckLevelUp(ctx=message, bot=bot, xp=1, add=True)
     except sqlite3.Error as e:
         print(f"Database error in on_message: {e}")
+    finally:
+        # Continue processing other commands regardless of database operation success
+        await bot.process_commands(message)
 
 @bot.command()
 async def login(ctx, day: float = None) -> None:
