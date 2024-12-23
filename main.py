@@ -91,17 +91,15 @@ async def on_message(message):
         cursor.execute("SELECT * FROM users WHERE userId = ?", (userId,))
         result = cursor.fetchone()
 
-        if result:
-            # Directly call level-up update function and get level-up flag
-            await updateXpAndCheckLevelUp(ctx=message, bot=bot, xp=1, add=True)
-        else:
-            # Insert new user record if they don't exist
+        if not result:
             cursor.execute(
                 "INSERT INTO users (userId, username, xp, money, lastLogin, daysLoggedInInARow) VALUES (?, ?, ?, ?, ?, ?)", 
                 (userId, username, 1, 0, None, 0)
                 )
             conn.commit()
-
+            # Directly call level-up update function and get level-up flag
+    if result:
+        await updateXpAndCheckLevelUp(ctx=message, bot=bot, xp=1, add=True)
 
     # Continue processing other commands if any
     await bot.process_commands(message)
