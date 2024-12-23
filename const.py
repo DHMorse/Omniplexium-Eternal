@@ -128,127 +128,104 @@ def levelToXp(level: int) -> int:
 
 
 async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
-    if isinstance(xp, float): 
+    # Input validation
+    if isinstance(xp, float):
         xp = int(xp)
     elif isinstance(xp, str):
         try:
             xp = int(xp)
-        except:
+        except ValueError:
             raise ValueError("argument 'xp' must be an int, float, or a string that can be converted to an integer.")
-
+    
     if not isinstance(add, bool):
         raise ValueError("argument 'add' must be a boolean.")
-
-    # checks which version of the discord API is being used 
-    # and this is a bit of hack to use the same function for both
+    
+    # Get discord author
     try:
-        ctx.author.id
         discordAuthor = ctx.author
-    except:
+    except AttributeError:
         discordAuthor = ctx.user
-
-    with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
-
-        try:
+    
+    try:
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
+            
+            # Get current XP
             cursor.execute("SELECT xp FROM users WHERE userId = ?", (discordAuthor.id,))
             database = cursor.fetchone()
-
+            
+            if database is None:
+                return  # User not found in database
+                
             current_xp = database[0]
             current_level = xpToLevel(current_xp)
-
+            
             # Update XP based on add flag
             new_xp = current_xp + xp if add else current_xp - xp
-
             cursor.execute("UPDATE users SET xp = ? WHERE userId = ?", (new_xp, discordAuthor.id))
             conn.commit()
-
+            
             # Calculate new level after XP update
             newLevel = xpToLevel(new_xp)
-
-        finally:
-            cursor.close()
-            conn.close()
-
-        levelUp = current_level < newLevel
-        levelDown = current_level > newLevel
-
-        if levelUp or levelDown:
-            # Send the level-up message with the correct level
-            try:
-
-                channel = bot.get_channel(LOG_CHANNEL_ID)
-            except:
-                channel = bot.client.get_channel(LOG_CHANNEL_ID)
-
-            if newLevel == 1 or newLevel > 9 and levelUp:
-                doMention = True
-            elif levelUp:
-                doMention = False
-            elif levelDown:
-                doMention = True
             
-            if levelUp:
-                for i in range(current_level, newLevel):
-                    if levelUp:
-                        now = datetime.now(timezone.utc)
-                        embed = discord.Embed(
-                            title="Member Leveled Up",
-                            description=f"**Member:** \n{discordAuthor}\n\n"
-                                        f"**Account Level:** \n{i + 1}\n",
-                            color=discord.Color.green(),
-                            timestamp=now  # Automatically add the timestamp to the footer
-                        )
-
-                        embed.set_thumbnail(url=discordAuthor.display_avatar.url)
-
-                        await channel.send(discordAuthor.mention if doMention == True else '', embed=embed)
-
-                        role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
-                    
-                        if role is None:
-                            adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                            await adminChannel.send(f"Role 'Level {i + 1}' does not exist.")
-                        if role in discordAuthor.roles:
-                            try:
-                                adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                            except:
-                                adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-                                await adminChannel.send(f"{discordAuthor.name} already has the 'Level {i+ 1}' role, but we tried to give it to them again.")
-                        await discordAuthor.add_roles(role)
-
-
-        elif levelDown:
-            for i in range(newLevel, current_level):
-                if levelDown:
-                    now = datetime.now(timezone.utc)
-                    embed = discord.Embed(
-                        title="Member Leveled Down",
-                        description=f"**Member:** \n{discordAuthor}\n\n"
-                                    f"**Account Level:** \n{i + 1}\n",
-                        color=discord.Color.dark_magenta(),
-                        timestamp=now  # Automatically add the timestamp to the footer
-                    )
-
-                    embed.set_thumbnail(url=discordAuthor.display_avatar.url)
-
-                    await channel.send(discordAuthor.mention if doMention == True else '', embed=embed)
-
-                role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
+            # Handle level changes
+            if current_level != newLevel:
+                levelUp = current_level < newLevel
+                levelDown = current_level > newLevel
                 
-                if role is None:
-                    adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                    await adminChannel.send(f"Role 'Level {i + 1}' does not exist.")
-                if role in discordAuthor.roles:
-                    try:
-                        adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                    except:
-                        adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-                        await adminChannel.send(f"{discordAuthor.name} already has the 'Level {i+ 1}' role, but we tried to give it to them again.")
+                try:
+                    channel = bot.get_channel(LOG_CHANNEL_ID)
+                except AttributeError:
+                    channel = bot.client.get_channel(LOG_CHANNEL_ID)
+                
+                if channel:
+                    doMention = (newLevel == 1 or newLevel > 9 or levelDown)
+                    
+                    if levelUp:
+                        for i in range(current_level, newLevel):
+                            now = datetime.now(timezone.utc)
+                            embed = discord.Embed(
+                                title="Member Leveled Up",
+                                description=f"**Member:** \n{discordAuthor}\n\n"
+                                          f"**Account Level:** \n{i + 1}\n",
+                                color=discord.Color.green(),
+                                timestamp=now
+                            )
+                            embed.set_thumbnail(url=discordAuthor.display_avatar.url)
+                            
+                            await channel.send(
+                                content=discordAuthor.mention if doMention else '',
+                                embed=embed
+                            )
+                            
+                            # Handle role assignment
+                            role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
+                            if role is None:
+                                try:
+                                    adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                                except AttributeError:
+                                    adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+                                if adminChannel:
+                                    await adminChannel.send(f"Role 'Level {i + 1}' does not exist.")
+                            else:
+                                if role not in discordAuthor.roles:
+                                    await discordAuthor.add_roles(role)
+                                else:
+                                    try:
+                                        adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                                    except AttributeError:
+                                        adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+                                    if adminChannel:
+                                        await adminChannel.send(
+                                            f"{discordAuthor.name} already has the 'Level {i+ 1}' role, "
+                                            "but we tried to give it to them again."
+                                        )
+    
+    except sqlite3.Error as e:
+        print(f"Database error in updateXpAndCheckLevelUp: {e}")
+    except Exception as e:
+        print(f"Unexpected error in updateXpAndCheckLevelUp: {e}")
 
-                await discordAuthor.remove_roles(role)
-
-    return None
 
 def copyCard(cardId: int, userId: int) -> None:
     with sqlite3.connect(DATABASE_PATH) as conn:

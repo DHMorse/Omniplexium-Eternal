@@ -80,29 +80,29 @@ bot.add_command(copycard)
 async def on_message(message):
     if message.author.bot:
         return
-
+    
     userId = message.author.id
     username = message.author.name
-
-    with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
-
-        # Check if user exists in the database
-        cursor.execute("SELECT * FROM users WHERE userId = ?", (userId,))
-        result = cursor.fetchone()
-
-        if not result:
-            cursor.execute(
-                "INSERT INTO users (userId, username, xp, money, lastLogin, daysLoggedInInARow) VALUES (?, ?, ?, ?, ?, ?)", 
-                (userId, username, 1, 0, None, 0)
+    
+    try:
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
+            # Check if user exists in the database
+            cursor.execute("SELECT * FROM users WHERE userId = ?", (userId,))
+            result = cursor.fetchone()
+            
+            if not result:
+                cursor.execute(
+                    "INSERT INTO users (userId, username, xp, money, lastLogin, daysLoggedInInARow) VALUES (?, ?, ?, ?, ?, ?)",
+                    (userId, username, 1, 0, None, 0)
                 )
-            conn.commit()
-            # Directly call level-up update function and get level-up flag
-    if result:
-        await updateXpAndCheckLevelUp(ctx=message, bot=bot, xp=1, add=True)
-
-    # Continue processing other commands if any
-    await bot.process_commands(message)
+                conn.commit()
+            
+            if result or not result:  # Execute for both new and existing users
+                await updateXpAndCheckLevelUp(message, bot, 1, True)
+    
+    except sqlite3.Error as e:
+        print(f"Database error in on_message: {e}")
 
 @bot.command()
 async def login(ctx, day: float = None) -> None:
