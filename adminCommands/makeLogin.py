@@ -4,12 +4,17 @@ from discord.ext import commands
 from const import DATABASE_PATH, COLORS
 
 @commands.command()
-async def makeloginrewards(ctx, numberOfLevels: int) -> None:
+async def makeloginrewards(ctx, numberOfLevels: int = None) -> None:
     if ctx.author.guild_permissions.administrator != True:
         await ctx.send(f'''```ansi
 {COLORS['yellow']}You do not have the required permissions to use this command.{COLORS['reset']}
 ```''')
         return
+
+    if numberOfLevels is None:
+        await ctx.send(f'''```ansi
+{COLORS['red']}Please provide the number of levels for which to create login rewards.{COLORS['reset']}
+```''')
 
     with sqlite3.connect(DATABASE_PATH) as conn:
         try:
