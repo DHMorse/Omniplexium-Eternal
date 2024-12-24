@@ -49,7 +49,7 @@ async def stats(ctx, member: discord.Member = None):
                     last_login_EST = None
 
                 # Create a list of dictionaries for the items
-                itemsList: List[Dict[str, Union[int, str]]]
+                itemsList: List[Dict[str, Union[int, str]]] = []
 
                 cursor.execute("SELECT * FROM cards WHERE userId = ?", (member.id,))
                 cards = cursor.fetchall()
