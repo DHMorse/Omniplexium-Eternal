@@ -15,6 +15,7 @@ async def makeloginrewards(ctx, numberOfLevels: int = None) -> None:
         await ctx.send(f'''```ansi
 {COLORS['red']}Please provide the number of levels for which to create login rewards.{COLORS['reset']}
 ```''')
+        return
 
     with sqlite3.connect(DATABASE_PATH) as conn:
         try:
