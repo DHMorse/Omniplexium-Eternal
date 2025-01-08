@@ -439,8 +439,10 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
     
     # Defer the response to allow more time for processing
     await interaction.response.defer()
-    output = await genAiCard(prompt) # returns a list, the first item is the json data, the second is the image url
-    card = await makeCardFromJson(output[0], output[1]) # output[1] is doing nothing we over write the varible in the file
+    output = await genAiCard(prompt) 
+    # returns a list, the first item is the json data, the second is the image url
+    card = await makeCardFromJson(output[0], output[1]) 
+    # output[1] is doing nothing we over write the varible in the file
 
     # Update the user's items in the database
     with sqlite3.connect(DATABASE_PATH) as conn:
@@ -450,7 +452,9 @@ async def genCard(interaction: discord.Interaction, prompt: str = "prompt"):
         cursor.execute("SELECT MAX(itemId) FROM cards")
         result = cursor.fetchone()
         currentItemId = result[0] + 1 if result[0] is not None else 1
-        cursor.execute("INSERT INTO cards (itemName, userId, cardId) VALUES (?, ?, ?)", (output[0]['name'], interaction.user.id, currentItemId))
+        cursor.execute(
+            "INSERT INTO cards (itemName, userId, cardId) VALUES (?, ?, ?)", 
+            (output[0]['name'], interaction.user.id, currentItemId))
         conn.commit()
         # Save the card data as a JSON file
         output_filename = f"{currentItemId}.json"

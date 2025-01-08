@@ -2,9 +2,12 @@ from openai import OpenAI
 from secret_const import openai_key
 import json
 
+from typing import List
+
 client = OpenAI(api_key=openai_key)
 
-async def genAiCard(description: str, health: int=50, damage: int=20, type: str='standard') -> list:
+async def genAiCard(description: str, health: int=50, damage: int=20, 
+                    type: str='standard') -> List[dict, str]: # Json schema and image url
     true = True
     false = False
 
