@@ -7,7 +7,7 @@ from typing import List
 client = OpenAI(api_key=openai_key)
 
 async def genAiCard(description: str, health: int=50, damage: int=20, 
-                    type: str='standard') -> List[dict, str]: # Json schema and image url
+                    type: str='standard') -> List[dict[str, str]]: # Json schema and image url
     true = True
     false = False
 
