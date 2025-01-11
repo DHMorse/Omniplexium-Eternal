@@ -28,7 +28,7 @@ import sqlite3
 from secret_const import TOKEN
 
 from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH, DATABASE_PATH
-from const import xpToLevel, updateXpAndCheckLevelUp, copyCard, checkDatabase
+from const import xpToLevel, updateXpAndCheckLevelUp, copyCard, checkDatabase, censorMessage
 
 from adminCommands.set import set
 from adminCommands.stats import stats
@@ -81,6 +81,12 @@ async def on_message(message):
     if message.author.bot:
         return
     
+    censoredMessage = await censorMessage(message)
+
+    if censoredMessage != "false":
+        await message.delete()
+        await message.channel.send(censoredMessage)
+
     userId = message.author.id
     username = message.author.name
     

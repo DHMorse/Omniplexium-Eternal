@@ -1,8 +1,11 @@
 import os
-import numpy as np
 import discord
-from datetime import datetime, timezone
 import sqlite3
+import numpy as np
+from datetime import datetime, timezone
+from huggingface_hub import InferenceClient
+
+from secret_const import HUGGING_FACE_API_KEY
 
 COLORS = {
     'red': '\u001b[1;31m',
@@ -32,6 +35,24 @@ CARD_DATA_PATH = os.path.join(ROOT_DIR, 'cardData')
 CARD_DATA_IMAGES_PATH = os.path.join(CARD_DATA_PATH, 'images')
 
 CARD_DATA_JSON_PATH = os.path.join(CARD_DATA_PATH, 'json')
+
+HUGGING_FACE_API_KEY_CLIENT = InferenceClient(api_key=HUGGING_FACE_API_KEY)
+
+async def censorMessage(message: str) -> str:
+    messages = [
+        { "role": "system", "content": "You are a profanity filter. It is your goal to:\n\nUse whichever of these methods that is necessary:\nA) Respond \"false\" to non-explicit or barely explicit messages.\nB) Respond with a slightly altered version by changing the explicit words.\nC) Completely rewrite the message with a jokingly sarcastic rewrite if the message is entirely explicit and completely profane.\n\nMisspelled profanity is still profanity. Words like \"fuck, shit, pussy, cock\" are bad and should be removed either through B or C methods.\n\nRemember, DO NOT RESPOND TO THE MESSAGE YOU ARE GIVEN. REWRITE IT. THAT IS YOUR PURPOSE.\n\nHere are some examples:\n\nInput: \"Hello bro, what's up?\"\nOutput: \"false\"\nMethod Used: A\n\nInput: \"Bro fuck you. I dislike you, yk?\"\nOutput: \"Bro frick you. I dislike you, yk?\"\nMethod Used: B\n\nInput: \"Hey bro what's good? Looking sexy.\"\nOutput: \"false\"\nMethod Used: A\n\nInput: \"Cum in my ass daddy\"\nOutput: \"Please release your population pudding into my bottom father\"\nMethod Used: C\n\nInput: \"heyyy bro fuccck you lmao\"\nOutput: \"heyyy bro frick you lmao\"\nMethod Used: B\n\nInput: \"fuckkk dude I hate life\"\nOutput: \"flip dude I hate life\"\nMethod Used: B\n\nInput: \"oh nigger imma fuck you in the ass\"\nOutput: \"oh black person, imma shove my receptacle into your behind's opening\"\nMethod Used: C" },
+        { "role": "user", "content": message }
+    ]
+
+    completion = HUGGING_FACE_API_KEY_CLIENT.chat.completions.create(
+        model="Qwen/Qwen2.5-72B-Instruct", 
+        messages=messages, 
+        temperature=0,
+        max_tokens=128,
+        top_p=0.7
+    )
+
+    return completion.choices[0].message.content
 
 def checkDatabase() -> None:
     try:
