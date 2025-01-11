@@ -81,7 +81,7 @@ async def on_message(message):
     if message.author.bot:
         return
     
-    censoredMessage = await censorMessage(message)
+    censoredMessage = await censorMessage(message.content)
 
     if censoredMessage != "false":
         await message.delete()
