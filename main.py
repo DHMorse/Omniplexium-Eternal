@@ -87,7 +87,7 @@ async def on_message(message):
     userId = message.author.id
     username = message.author.name
     
-    if censoredMessage not in ['false', "'false'", '"false"', 'False', "'False'", '"False"']:
+    if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"']:
         await message.delete()
         await message.channel.send(f' {username}: {censoredMessage}')
     
