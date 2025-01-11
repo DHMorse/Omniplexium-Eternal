@@ -83,12 +83,13 @@ async def on_message(message):
     
     censoredMessage = await censorMessage(message.content)
 
-    if censoredMessage != "false":
-        await message.delete()
-        await message.channel.send(censoredMessage)
 
     userId = message.author.id
     username = message.author.name
+    
+    if censoredMessage not in ['false', "'false'", '"false"', 'False', "'False'", '"False"']:
+        await message.delete()
+        await message.channel.send(f' {username}: {censoredMessage}')
     
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
