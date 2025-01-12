@@ -87,6 +87,9 @@ async def on_message(message):
         print(f'''```ansi
 {COLORS['red']}Exception "{e}"{COLORS['reset']}
 ```''')
+        
+    if censoredMessage is None:
+        censoredMessage = 'false'
 
     userId = message.author.id
     username = message.author.name
