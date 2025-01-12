@@ -81,8 +81,10 @@ async def on_message(message):
     if message.author.bot:
         return
     
-    censoredMessage = await censorMessage(message.content)
-
+    try:
+        censoredMessage = await censorMessage(message.content)
+    except:
+        pass
 
     userId = message.author.id
     username = message.author.name
