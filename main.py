@@ -88,7 +88,8 @@ async def on_message(message):
     username = message.author.name
     
     if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"'] and username != '404_5971':
-        await ADMIN_LOG_CHANNEL_ID.send(f'{username} sent a message: "{message.content}"\nwhich was censored to: "{censoredMessage}"')
+        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+        await channel.send(f'{username} sent a message: "{message.content}"\nwhich was censored to: "{censoredMessage}"')
         await message.delete()
         await message.channel.send(f' {username}: {censoredMessage}')
     
