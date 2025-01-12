@@ -27,7 +27,7 @@ import sqlite3
 
 from secret_const import TOKEN
 
-from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH, DATABASE_PATH
+from const import CACHE_DIR_PFP, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH, DATABASE_PATH
 from const import xpToLevel, updateXpAndCheckLevelUp, copyCard, checkDatabase, censorMessage
 
 from adminCommands.set import set
@@ -88,7 +88,7 @@ async def on_message(message):
     username = message.author.name
     
     if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"'] and username != '404_5971':
-        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+        channel = bot.get_channel(CENSORSHIP_CHANNEL_ID)
         await channel.send(f'`{username}` sent a message: ```{message.content}```\nwhich was censored to: ```{censoredMessage}```')
         await message.delete()
         await message.channel.send(f'`{username}:` {censoredMessage}')
