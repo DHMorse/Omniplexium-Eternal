@@ -83,7 +83,11 @@ Input: \"oh nigger imma fuck you in the ass\"
 Output: \"oh black person, imma shove my receptacle into your behind's opening\"
 Method Used: C
 
-DO NOT OUTPUT THE METHOD USED. ONLY OUPUT \"false\" OR THE CENSORED MESSAGE.""" },
+Input: \"I\'m so shit at this game\"
+Output: \"false\"
+Method Used: A
+
+DO NOT OUTPUT THE METHOD USED. ONLY OUTPUT \"false\" OR THE CENSORED MESSAGE.""" },
         { "role": "user", "content": message }
     ]
 
