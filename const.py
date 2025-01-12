@@ -47,7 +47,7 @@ A) Respond \"false\" to non-explicit or barely explicit messages.
 B) Respond with a slightly altered version by changing the explicit words.
 C) Completely rewrite the message with a jokingly sarcastic rewrite if the message is entirely explicit and completely profane.
 
-Misspelled profanity is still profanity. Words like \"fuck, shit, pussy, cock\" are bad and should be removed either through B or C methods.
+Misspelled profanity is still profanity. Words like \"fuck, shit, pussy, cock, dick\" are bad and should be removed either through B or C methods.
 
 Some barely explicit words that are ok include \"damn, shit\"
 
@@ -72,7 +72,7 @@ Output: \"Please release your population pudding into my bottom father\"
 Method Used: C
 
 Input: \"heyyy bro fuccck you lmao\"
-Output: \"heyyy bro frick you lmao\"
+Output: \"heyyy bro truck you lmao\"
 Method Used: B
 
 Input: \"fuckkk dude I hate life\"
