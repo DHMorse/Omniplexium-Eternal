@@ -72,7 +72,7 @@ Output: \"Please release your population pudding into my bottom father\"
 Method Used: C
 
 Input: \"heyyy bro fuccck you lmao\"
-Output: \"heyyy bro truck you lmao\"
+Output: \"heyyy bro duck you lmao\"
 Method Used: B
 
 Input: \"fuckkk dude I hate life\"
