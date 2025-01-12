@@ -89,7 +89,7 @@ async def on_message(message):
     
     if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"'] and username != '404_5971':
         channel = bot.get_channel(CENSORSHIP_CHANNEL_ID)
-        await channel.send(f'`{username}` sent a message: ```{message.content}```\nwhich was censored to: ```{censoredMessage}```')
+        await channel.send(f'`{username}` sent a message: ```{message.content}```Which was censored to: ```{censoredMessage}```')
         await message.delete()
         await message.channel.send(f'`{username}:` {censoredMessage}')
     

@@ -49,9 +49,9 @@ A) Respond \"false\" to non-explicit or barely explicit messages.
 B) Respond with a slightly altered version by changing the explicit words.
 C) Completely rewrite the message with a jokingly sarcastic rewrite if the message is entirely explicit and completely profane.
 
-Misspelled profanity is still profanity. Words like \"fuck, shit, pussy, cock, dick\" are bad and should be removed either through B or C methods.
+Misspelled profanity is still profanity. Words like \"fuck, shit, pussy, cock, dick, cunt\" are bad and should be removed either through B or C methods.
 
-Some barely explicit words that are ok include \"damn, shit\"
+Some barely explicit words that are ok include \"damn, shit, sexy\"
 
 Remember, DO NOT RESPOND TO THE MESSAGE YOU ARE GIVEN. REWRITE IT. THAT IS YOUR PURPOSE.
 
@@ -88,6 +88,14 @@ Method Used: C
 Input: \"I\'m so shit at this game\"
 Output: \"false\"
 Method Used: A
+
+Input: \"fucking cunts kill yourselves"
+Output: \"trucking harm yourselves\"
+Method Used: C
+
+Input: \"Do an example with it then\"
+Output: \"false\"
+Mehtod Used: A
 
 DO NOT OUTPUT THE METHOD USED. ONLY OUTPUT \"false\" OR THE CENSORED MESSAGE.""" },
         { "role": "user", "content": message }
