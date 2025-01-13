@@ -89,7 +89,7 @@ Input: \"I\'m so shit at this game\"
 Output: \"false\"
 Method Used: A
 
-Input: \"fucking cunts kill yourselves"
+Input: \"fucking cunts kill yourselves\"
 Output: \"trucking harm yourselves\"
 Method Used: C
 
