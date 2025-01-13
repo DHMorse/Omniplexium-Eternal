@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # if the dir doesn't exist, create it
-if [ ! -d "~/Omniplexium-Eternal" ]; then
-  cd ~/
+if [ ! -d "$HOME/Omniplexium-Eternal" ]; then
+  cd "$HOME"
   git clone https://github.com/Eli-Mason/Omniplexium-Eternal
 fi
 
-cd ~/Omniplexium-Eternal
+cd "$HOME/Omniplexium-Eternal"
 
 # if we have a virtual environment, deactivate it
-if [ -d ".venv" ]; then
+if [ -n "$VIRTUAL_ENV" ]; then
   deactivate
 fi
 
