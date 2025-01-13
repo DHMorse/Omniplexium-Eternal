@@ -8,10 +8,9 @@ fi
 
 cd "$HOME/Omniplexium-Eternal"
 
-# if we have a virtual environment, deactivate it
-if [ -n "$VIRTUAL_ENV" ]; then
-  deactivate
-fi
+rm -rf .venv
+
+python3 -m venv .venv
 
 source .venv/bin/activate
 
