@@ -110,27 +110,23 @@ async def on_message(message):
     except sqlite3.Error as e:
         print(f"Database error in on_message: {e}")
         channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-        await channel.send(f'''```ansi
-{COLORS['red']}Database error in on_message: {e}{COLORS['reset']}
-```''')
-    finally:
+        await channel.send(f'''```ansi{COLORS['red']}Database error in on_message: ```{e}```{COLORS['reset']}```''')
 
+    finally:
         try:
             try:
                 censoredMessage = await asyncio.wait_for(censorMessage(message.content), timeout=1.0)
             except asyncio.TimeoutError:
                 channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
                 await channel.send(f'''```ansi
-{COLORS['red']}`{username}` sent a message: ```{message.content}```Which was not censored in time!{COLORS['reset']}
-```''')
+`{username}` sent a message: ```{message.content}```{COLORS['red']}Which was not censored in time!{COLORS['reset']}```''')
             censoredMessage = "false"
 
         except Exception as e:
             print(f'''{COLORS['red']}Exception "{e}"{COLORS['reset']}''')
             channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
             await channel.send(f'''```ansi
-{COLORS['red']}`{username}` sent a message: ```{message.content}```Which was not censored due to an Exception ```{e}```{COLORS['reset']}
-```''')
+`{username}` sent a message: ```{message.content}```{COLORS['red']}Which was not censored due to an Exception ```{e}```{COLORS['reset']}```''')
             censoredMessage = "false"
 
         if censoredMessage is None:
