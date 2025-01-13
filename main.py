@@ -61,11 +61,11 @@ bot = MyBot()
 async def on_ready():
     checkDatabaseStartTime = time.time()
     await checkDatabase()
-    print(f'Check database took {time.time() - checkDatabaseStartTime} seconds')
+    print(f'The database check took {round(time.time() - checkDatabaseStartTime, 2)} seconds')
 
     botTreeSyncStartTime = time.time()
     await bot.tree.sync()
-    print(f'Bot tree sync took {time.time() - botTreeSyncStartTime} seconds')
+    print(f'Bot tree sync took {round(time.time() - botTreeSyncStartTime, 2)} seconds')
 
     print(f'Bot is ready. Logged in as {bot.user}')
 
@@ -109,11 +109,15 @@ async def on_message(message):
                 await updateXpAndCheckLevelUp(ctx=message, bot=bot, xp=1, add=True)
     except sqlite3.Error as e:
         print(f"Database error in on_message: {e}")
+        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+        await channel.send(f'''```ansi
+{COLORS['red']}Database error in on_message: {e}{COLORS['reset']}
+```''')
     finally:
 
         try:
             try:
-                censoredMessage = await asyncio.wait_for(censorMessage(message.content), timeout=10.0)
+                censoredMessage = await asyncio.wait_for(censorMessage(message.content), timeout=1.0)
             except asyncio.TimeoutError:
                 channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
                 await channel.send(f'''```ansi
