@@ -28,7 +28,7 @@ import sqlite3
 from secret_const import TOKEN
 
 from const import CACHE_DIR_PFP, COLORS, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH, DATABASE_PATH
-from const import xpToLevel, updateXpAndCheckLevelUp, copyCard, checkDatabase, censorMessage
+from helperFunctions import xpToLevel, updateXpAndCheckLevelUp, copyCard, checkDatabase, censorMessage
 
 from adminCommands.set import set
 from adminCommands.stats import stats
@@ -44,6 +44,7 @@ from floor10_game_concept import guess_the_number_command
 from generateCardAI import genAiCard
 from cardImageMaker import makeCardFromJson
 from fight import ChallengeView
+import asyncio
 
 class MyBot(commands.Bot):
     def __init__(self):
@@ -58,8 +59,14 @@ bot = MyBot()
 
 @bot.event
 async def on_ready():
-    checkDatabase()
+    checkDatabaseStartTime = time.time()
+    await checkDatabase()
+    print(f'Check database took {time.time() - checkDatabaseStartTime} seconds')
+
+    botTreeSyncStartTime = time.time()
     await bot.tree.sync()
+    print(f'Bot tree sync took {time.time() - botTreeSyncStartTime} seconds')
+
     print(f'Bot is ready. Logged in as {bot.user}')
 
 ### ADMIN COMMANDS ###
@@ -80,6 +87,9 @@ bot.add_command(copycard)
 async def on_message(message):
     if message.author.bot:
         return
+
+    userId = message.author.id
+    username = message.author.name
 
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
@@ -102,15 +112,25 @@ async def on_message(message):
     finally:
 
         try:
-            censoredMessage = await censorMessage(message.content)
+            try:
+                censoredMessage = await asyncio.wait_for(censorMessage(message.content), timeout=10.0)
+            except asyncio.TimeoutError:
+                channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                await channel.send(f'''```ansi
+{COLORS['red']}`{username}` sent a message: ```{message.content}```Which was not censored in time!{COLORS['reset']}
+```''')
+            censoredMessage = "false"
+
         except Exception as e:
             print(f'''{COLORS['red']}Exception "{e}"{COLORS['reset']}''')
-            
+            channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+            await channel.send(f'''```ansi
+{COLORS['red']}`{username}` sent a message: ```{message.content}```Which was not censored due to an Exception ```{e}```{COLORS['reset']}
+```''')
+            censoredMessage = "false"
+
         if censoredMessage is None:
             censoredMessage = 'false'
-
-        userId = message.author.id
-        username = message.author.name
         
         if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"'] and username != '404_5971':
             channel = bot.get_channel(CENSORSHIP_CHANNEL_ID)

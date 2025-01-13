@@ -3,7 +3,7 @@ import discord
 import sqlite3
 
 from const import DATABASE_PATH, COLORS
-from const import copyCard
+from helperFunctions import copyCard
 
 @commands.command()
 async def copycard(ctx, *cardIdOrName: str, member: discord.Member = None) -> None:

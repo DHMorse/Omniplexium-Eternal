@@ -3,7 +3,7 @@ import discord
 import sqlite3
 
 from const import COLORS, DATABASE_PATH
-from const import updateXpAndCheckLevelUp
+from helperFunctions import updateXpAndCheckLevelUp
 
 @commands.command()
 async def set(ctx, stat: str = '', value: str = '', member: discord.Member = None) -> None:

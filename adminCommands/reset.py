@@ -4,7 +4,7 @@ import asyncio
 import sqlite3
 
 from const import DATABASE_PATH, COLORS
-from const import updateXpAndCheckLevelUp
+from helperFunctions import updateXpAndCheckLevelUp
 
 @commands.command()
 async def reset(ctx, stat: str = "", member: discord.Member = None) -> None:
