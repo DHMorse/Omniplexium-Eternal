@@ -80,24 +80,7 @@ bot.add_command(copycard)
 async def on_message(message):
     if message.author.bot:
         return
-    
-    try:
-        censoredMessage = await censorMessage(message.content)
-    except Exception as e:
-        print(f'''{COLORS['red']}Exception "{e}"{COLORS['reset']}''')
-        
-    if censoredMessage is None:
-        censoredMessage = 'false'
 
-    userId = message.author.id
-    username = message.author.name
-    
-    if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"'] and username != '404_5971':
-        channel = bot.get_channel(CENSORSHIP_CHANNEL_ID)
-        await channel.send(f'`{username}` sent a message: ```{message.content}```Which was censored to: ```{censoredMessage}```')
-        await message.delete()
-        await message.channel.send(f'`{username}:` {censoredMessage}')
-    
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
             cursor = conn.cursor()
@@ -117,6 +100,24 @@ async def on_message(message):
     except sqlite3.Error as e:
         print(f"Database error in on_message: {e}")
     finally:
+
+        try:
+            censoredMessage = await censorMessage(message.content)
+        except Exception as e:
+            print(f'''{COLORS['red']}Exception "{e}"{COLORS['reset']}''')
+            
+        if censoredMessage is None:
+            censoredMessage = 'false'
+
+        userId = message.author.id
+        username = message.author.name
+        
+        if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"'] and username != '404_5971':
+            channel = bot.get_channel(CENSORSHIP_CHANNEL_ID)
+            await channel.send(f'`{username}` sent a message: ```{message.content}```Which was censored to: ```{censoredMessage}```')
+            await message.delete()
+            await message.channel.send(f'`{username}:` {censoredMessage}')
+
         # Continue processing other commands regardless of database operation success
         await bot.process_commands(message)
 
