@@ -169,20 +169,21 @@ async def login(ctx, day: float = None) -> None:
         result = cursor.fetchone()
         type, amount = result
 
-        if type == "xp":
-            await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=amount, add=True)
-            await ctx.send(f"Congratulations! You have received {amount} XP for logging in {daysLoggedInInARow} days in a row!")
-        elif type == "money":
-            cursor.execute("UPDATE users SET money = money + ? WHERE userId = ?", (amount, ctx.author.id))
-            conn.commit()
-            await ctx.send(f"Congratulations! You have received ${amount} for logging in {daysLoggedInInARow} days in a row!")
-        elif type == "card":
-            copyCard(amount, ctx.author.id)
-            
-            cursor.execute("SELECT itemName FROM cards WHERE itemId = ?", (amount,))
-            cardName = cursor.fetchone()[0]
-            
-            await ctx.send(f"Congratulations! You have received {cardName} for logging in {daysLoggedInInARow} days in a row!")
+        match type:
+            case "xp":
+                await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=amount, add=True)
+                await ctx.send(f"Congratulations! You have received {amount} XP for logging in {daysLoggedInInARow} days in a row!")
+            case "money":
+                cursor.execute("UPDATE users SET money = money + ? WHERE userId = ?", (amount, ctx.author.id))
+                conn.commit()
+                await ctx.send(f"Congratulations! You have received ${amount} for logging in {daysLoggedInInARow} days in a row!")
+            case "card":
+                copyCard(amount, ctx.author.id)
+                
+                cursor.execute("SELECT itemName FROM cards WHERE itemId = ?", (amount,))
+                cardName = cursor.fetchone()[0]
+                
+                await ctx.send(f"Congratulations! You have received {cardName} for logging in {daysLoggedInInARow} days in a row!")
 
 
 @bot.event
