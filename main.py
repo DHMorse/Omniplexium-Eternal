@@ -84,9 +84,7 @@ async def on_message(message):
     try:
         censoredMessage = await censorMessage(message.content)
     except Exception as e:
-        print(f'''```ansi
-{COLORS['red']}Exception "{e}"{COLORS['reset']}
-```''')
+        print(f'''{COLORS['red']}Exception "{e}"{COLORS['reset']}''')
         
     if censoredMessage is None:
         censoredMessage = 'false'
