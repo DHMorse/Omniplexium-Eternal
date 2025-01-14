@@ -42,6 +42,8 @@ from adminCommands.copyCard import copycard
 from slashCommands.login import slashCommandLogin
 from slashCommands.setLoginReminders import slashCommandSetLoginReminders
 
+from commands.killme import killme
+
 from floor10_game_concept import guess_the_number_command
 
 from generateCardAI import genAiCard
@@ -86,6 +88,16 @@ bot.add_command(copycard)
 #bot.add_command(leveltoxp)
 
 ### ADMIN COMMANDS ###
+
+
+
+### Normal commands ###
+
+bot.add_command(killme)
+
+### Normal commands ###
+
+
 
 @bot.event
 async def on_message(message):
