@@ -40,13 +40,13 @@ from adminCommands.makeLogin import makeloginrewards
 from adminCommands.copyCard import copycard
 
 from slashCommands.login import slashCommandLogin
+from slashCommands.setLoginReminders import slashCommandSetLoginReminders
 
 from floor10_game_concept import guess_the_number_command
 
 from generateCardAI import genAiCard
 from cardImageMaker import makeCardFromJson
 from fight import ChallengeView
-import asyncio
 
 class MyBot(commands.Bot):
     def __init__(self):
@@ -56,6 +56,7 @@ class MyBot(commands.Bot):
         # Add the imported command to the bot’s command tree
         self.tree.add_command(guess_the_number_command)
         self.tree.add_command(slashCommandLogin)
+        self.tree.add_command(slashCommandSetLoginReminders)
         await self.tree.sync()  # Sync commands with Discord
 
 bot = MyBot()
