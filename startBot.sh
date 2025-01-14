@@ -8,6 +8,9 @@ fi
 
 cd "$HOME/Omniplexium-Eternal"
 
+# Pull latest changes from GitHub
+git pull
+
 rm -rf .venv
 
 python3 -m venv .venv
@@ -15,9 +18,6 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 pip install -r requirements.txt
-
-# Pull latest changes from GitHub
-git pull
 
 # Run the bot
 python3 main.py

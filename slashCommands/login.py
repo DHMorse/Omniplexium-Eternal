@@ -7,14 +7,14 @@ from const import DATABASE_PATH
 from helperFunctions import updateXpAndCheckLevelUp, copyCard
 
 async def loginFunc(interaction: discord.Interaction, day: int = None):
-    if not interaction.author.guild_permissions.administrator:
+    if not interaction.user.guild_permissions.administrator:
         day = None
 
     if day is not None:
         # everything is a string
         float(day)
 
-    authorId = interaction.author.id
+    authorId = interaction.user.id
 
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
