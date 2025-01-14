@@ -122,7 +122,7 @@ async def checkDatabase() -> None:
 
     except Exception as e:
         # red
-        print("\033[91mAn error occurred while creating the database.\033[0m")
+        print(f"\033[91mAn error occurred while creating the database. {e}\033[0m")
         return None
 
 def xpToLevel(xp: any) -> int:
