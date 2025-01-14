@@ -39,6 +39,8 @@ from adminCommands.levelToXp import create_level_to_xp_command
 from adminCommands.makeLogin import makeloginrewards
 from adminCommands.copyCard import copycard
 
+from slashCommands.login import slashCommandLogin
+
 from floor10_game_concept import guess_the_number_command
 
 from generateCardAI import genAiCard
@@ -53,6 +55,7 @@ class MyBot(commands.Bot):
     async def setup_hook(self):
         # Add the imported command to the bot’s command tree
         self.tree.add_command(guess_the_number_command)
+        self.tree.add_command(slashCommandLogin)
         await self.tree.sync()  # Sync commands with Discord
 
 bot = MyBot()
