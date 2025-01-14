@@ -251,7 +251,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                                 adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
                             except AttributeError:
                                 adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-                            await adminChannel.send(f"Role 'Level {i + 1}' does not exist.")
+                            await adminChannel.send(f"Role `Level {i + 1}` does not exist.")
                             continue
                             
                         if role in discordAuthor.roles:
@@ -260,7 +260,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                             except AttributeError:
                                 adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
                             await adminChannel.send(
-                                f"{discordAuthor.name} already has the 'Level {i+ 1}' role, "
+                                f"`{discordAuthor.name}` already has the `Level {i+ 1}` role, "
                                 "but we tried to give it to them again."
                             )
                             continue
