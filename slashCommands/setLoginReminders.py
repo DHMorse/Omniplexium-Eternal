@@ -50,7 +50,7 @@ async def setLoginRemindersFunc(interaction: discord.Interaction, boolen: bool =
                     await channel.send(f"{COLORS['red']}We tried to remove user `{authorUsername}` role `Login Reminder` of id `{LOGIN_REMINDER_ROLE_ID}` but ```{e}```{COLORS['reset']}")
 
 slashCommandSetLoginReminders = app_commands.Command(
-    name="Set Login Reminders",
+    name="SetLoginReminders",
     description="Turn your login reminders on or off.",
     callback=setLoginRemindersFunc,
 )
