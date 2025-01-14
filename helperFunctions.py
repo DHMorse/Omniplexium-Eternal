@@ -94,6 +94,7 @@ async def checkDatabase() -> None:
                     xp BIGINT,
                     lastLogin BIGINT,
                     daysLoggedInInARow INTEGER DEFAULT 0 -- int(11) is INTEGER in SQLite
+                    loginReminders BOOLEAN DEFAULT FALSE
                 )
                 ''')
 
