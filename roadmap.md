@@ -42,6 +42,7 @@ Finished Demo:
     - Optional:
         - Figure out Quest Data Type
         probably some custom json structure
+        - Inviting a friend and getting them to join gets both users a bonus
         - Skills:
             - 1. combat or (attack and speed)
                 - get this from killing stuffs
