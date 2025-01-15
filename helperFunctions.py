@@ -122,9 +122,9 @@ async def checkDatabase() -> None:
 
         with sqlite3.connect(DATABASE_PATH) as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='loginRewards'")
-            if cursor.fetchone() is None:
-                print("\033[93mLogin rewards not fun, generating them now...\033[0m")
+            cursor.execute("SELECT COUNT(*) FROM loginRewards")
+            if cursor.fetchone()[0] == 0:
+                print("\033[93mLogin rewards table is empty, generating rewards now...\033[0m")
                 await makeLoginRewards()
 
     except Exception as e:
