@@ -237,17 +237,25 @@ async def login(ctx, day: float = None) -> None:
 
 @bot.event
 async def on_member_join(member: discord.Member):
-
+    memberId = member.id
+    memberName = member.name
+    
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
-
         # see if the user is in the data base
-        cursor.execute("SELECT xp FROM users WHERE userId = ?", (member.id,))
+        cursor.execute("SELECT xp FROM users WHERE userId = ?", (memberId,))
         result = cursor.fetchone()
         if result:
             xp = result[0]
             for i in range(xpToLevel(xp)):
                 await member.add_roles(discord.utils.get(member.guild.roles, name=f"Level {i + 1}"))
+
+        if not result:
+            cursor.execute(
+                "INSERT INTO users (userId, username, xp, money, lastLogin, daysLoggedInInARow) VALUES (?, ?, ?, ?, ?, ?)",
+                (memberId, memberName, 0, 0, None, 0)
+            )
+            conn.commit()
 
 
     # Calculate account age
