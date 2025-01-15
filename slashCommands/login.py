@@ -25,6 +25,9 @@ async def loginFunc(interaction: discord.Interaction, day: int = None):
         if result is not None:
             lastLogin = result[0]
             daysLoggedInInARow = result[1]
+        else:
+            lastLogin = None
+            daysLoggedInInARow = 0
         
         if lastLogin is None:
             await interaction.response.send_message("You have made your first daily login!")

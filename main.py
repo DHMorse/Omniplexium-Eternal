@@ -186,6 +186,9 @@ async def login(ctx, day: float = None) -> None:
         if result is not None:
             lastLogin = result[0]
             daysLoggedInInARow = result[1]
+        else:
+            lastLogin = None
+            daysLoggedInInARow = 0
         
         if lastLogin is None:
             await ctx.send("You have made your first daily login!")
