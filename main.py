@@ -16,7 +16,7 @@ and the amount of points needed for each level is exponential, so even tho you h
 
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from PIL import Image, ImageDraw, ImageFont
 import os
 import requests
@@ -75,10 +75,10 @@ async def on_ready():
 
     print(f'Bot is ready. Logged in as {bot.user}')
 
-@bot.event
-async def setup_hook():
-    await bot.loop.create_task(checkLoginRemindersAndSend(bot))
-
+# Define the task outside of the bot class
+@tasks.loop(hours=1)
+async def loginReminderTask():
+    await checkLoginRemindersAndSend()
 
 
 ### ADMIN COMMANDS ###

@@ -2,8 +2,7 @@ import os
 import discord
 import sqlite3
 import numpy as np
-import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from const import HUGGING_FACE_API_KEY_CLIENT, DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS
 
@@ -174,54 +173,35 @@ def levelToXp(level: int) -> int:
 
 
 async def checkLoginRemindersAndSend(bot) -> None:
-    while True:
-        # Get current time
-        now = datetime.now()
+    try:
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT userId, lastLogin FROM users WHERE loginReminders = TRUE")
+            users = cursor.fetchall()
+            
+            for user in users:
+                userId, lastLogin = user
+                # Calculate time since last login
+                now = datetime.now()
+                last_login_time = datetime.fromtimestamp(lastLogin)
+                time_diff = now - last_login_time
 
-        # Calculate time until the next hour
-        currentHour = now.hour
-        nextHour = (currentHour + 1) % 24
-        nextHourTime = now.replace(hour=nextHour, minute=0, second=0, microsecond=0)
-
-        # Calculate the delay until the next hour
-        deltaT = (nextHourTime - now).total_seconds()
-
-        # Wait until the next hour
-        await asyncio.sleep(deltaT)
-
-        # Print statement at the top of every hour
-        print(f'It is now {nextHourTime.strftime("%H:%M:%S")} UTC. Time to print something!')
-
-        try:
-            with sqlite3.connect(DATABASE_PATH) as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT userId, lastLogin FROM users WHERE loginReminders = TRUE")
-                users = cursor.fetchall()
-                
-                for user in users:
-                    userId, lastLogin = user
-                    # Get the last login and current time
-                    now = datetime.now().timestamp()
-                    time_diff = now - lastLogin
-
-                    # Check if it's 4 hours before the login expires 
-                    if 154800 <= time_diff <= 158400:
-                        try:
-                            userObj = await bot.fetch_user(userId)
-                            await userObj.send("Hey! It's been about 24 hours since your last login. Don't forget to check in!")
-                        
-                        except discord.errors.NotFound:
-                            channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                            await channel.send(f"```ansi{COLORS['red']}User `{userId}` not found while checking login reminders.{COLORS['reset']}```")
-                        
-                        except discord.errors.Forbidden:
-                            channel = bot.get_channel(LOGIN_REMINDERS_CHANNEL_ID)
-                            await channel.send(f"""{userId.mention} It's been about 24 hours since your last login. Don't forget to check in!
-And remember to enable DMs from server members.""")
+                # Check if it's been approximately 40 hours since last login
+                if timedelta(hours=40) <= time_diff <= timedelta(hours=41):
+                    try:
+                        userObj = await bot.fetch_user(userId)
+                        await userObj.send("Hey! You have 4 hours until you lose your login streak. Don't forget to login in!")
                     
-        except sqlite3.Error as e:
-            print(f"Database error while checking login reminders: {e}")
+                    except discord.errors.NotFound:
+                        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                        await channel.send(f"```ansi\n{COLORS['red']}User `{userId}` not found while checking login reminders.{COLORS['reset']}```")
+                    
+                    except discord.errors.Forbidden:
+                        channel = bot.get_channel(LOGIN_REMINDERS_CHANNEL_ID)
+                        await channel.send(f"{userObj.mention} You have 4 hours until you lose your login streak. Don't forget to login in!")
 
+    except sqlite3.Error as e:
+        print(f"Database error while checking login reminders: {e}")
 
 
 async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
