@@ -2,6 +2,7 @@ import os
 import discord
 import sqlite3
 import numpy as np
+import asyncio
 from datetime import datetime, timezone
 
 from const import HUGGING_FACE_API_KEY_CLIENT, DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID
@@ -169,6 +170,27 @@ def levelToXp(level: int) -> int:
     # Calculate XP required for the level
     xp = XP_LEVEL_10 * (base ** (level - 10))
     return int(xp)
+
+
+
+async def checkLoginRemindersAndSend():
+    while True:
+        # Get current time
+        now = datetime.now()
+
+        # Calculate time until the next hour
+        currentHour = now.hour
+        nextHour = (currentHour + 1) % 24
+        nextHourTime = now.replace(hour=nextHour, minute=0, second=0, microsecond=0)
+
+        # Calculate the delay until the next hour
+        deltaT = (nextHourTime - now).total_seconds()
+
+        # Wait until the next hour
+        await asyncio.sleep(deltaT)
+
+        # Print statement at the top of every hour
+        print(f'It is now {nextHourTime.strftime("%H:%M:%S")} UTC. Time to print something!')
 
 
 

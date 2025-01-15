@@ -28,7 +28,7 @@ import sqlite3
 from secret_const import TOKEN
 
 from const import CACHE_DIR_PFP, COLORS, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH, DATABASE_PATH
-from helperFunctions import xpToLevel, updateXpAndCheckLevelUp, copyCard, checkDatabase, censorMessage
+from helperFunctions import xpToLevel, updateXpAndCheckLevelUp, copyCard, checkDatabase, censorMessage, checkLoginRemindersAndSend
 
 from adminCommands.set import set
 from adminCommands.stats import stats
@@ -74,6 +74,10 @@ async def on_ready():
     print(f'Bot tree sync took {round(time.time() - botTreeSyncStartTime, 2)} seconds')
 
     print(f'Bot is ready. Logged in as {bot.user}')
+
+@bot.event
+async def setup_hook():
+    await bot.setup_hook(checkLoginRemindersAndSend())
 
 ### ADMIN COMMANDS ###
 
