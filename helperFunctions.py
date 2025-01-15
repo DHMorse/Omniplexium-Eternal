@@ -5,7 +5,7 @@ import numpy as np
 import asyncio
 from datetime import datetime, timezone
 
-from const import HUGGING_FACE_API_KEY_CLIENT, DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID
+from const import HUGGING_FACE_API_KEY_CLIENT, DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS
 
 async def censorMessage(message: str) -> str:
     messages = [
@@ -173,7 +173,7 @@ def levelToXp(level: int) -> int:
 
 
 
-async def checkLoginRemindersAndSend():
+async def checkLoginRemindersAndSend(bot) -> None:
     while True:
         # Get current time
         now = datetime.now()
@@ -191,6 +191,36 @@ async def checkLoginRemindersAndSend():
 
         # Print statement at the top of every hour
         print(f'It is now {nextHourTime.strftime("%H:%M:%S")} UTC. Time to print something!')
+
+        try:
+            with sqlite3.connect(DATABASE_PATH) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT userId, lastLogin FROM users WHERE loginReminders = TRUE")
+                users = cursor.fetchall()
+                
+                for user in users:
+                    userId, lastLogin = user
+                    # Get the last login and current time
+                    now = datetime.now().timestamp()
+                    time_diff = now - lastLogin
+
+                    # Check if it's 4 hours before the login expires 
+                    if 154800 <= time_diff <= 158400:
+                        try:
+                            userObj = await bot.fetch_user(userId)
+                            await userObj.send("Hey! It's been about 24 hours since your last login. Don't forget to check in!")
+                        
+                        except discord.errors.NotFound:
+                            channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                            await channel.send(f"```ansi{COLORS['red']}User `{userId}` not found while checking login reminders.{COLORS['reset']}```")
+                        
+                        except discord.errors.Forbidden:
+                            channel = bot.get_channel(LOGIN_REMINDERS_CHANNEL_ID)
+                            await channel.send(f"""{userId.mention} It's been about 24 hours since your last login. Don't forget to check in!
+And remember to enable DMs from server members.""")
+                    
+        except sqlite3.Error as e:
+            print(f"Database error while checking login reminders: {e}")
 
 
 
