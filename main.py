@@ -77,7 +77,9 @@ async def on_ready():
 
 @bot.event
 async def setup_hook():
-    await bot.setup_hook(checkLoginRemindersAndSend())
+    await bot.loop.create_task(checkLoginRemindersAndSend())
+
+
 
 ### ADMIN COMMANDS ###
 
