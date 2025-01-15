@@ -120,10 +120,55 @@ async def checkDatabase() -> None:
                 # green 
                 print("\033[92mDatabase created successfully.\033[0m")
 
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='loginRewards'")
+            if cursor.fetchone() is None:
+                print("\033[93mLogin rewards not fun, generating them now...\033[0m")
+                await makeLoginRewards()
+
     except Exception as e:
         # red
         print(f"\033[91mAn error occurred while creating the database. {e}\033[0m")
         return None
+
+async def makeLoginRewards() -> None:
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        try:
+            cursor = conn.cursor()
+            
+            # Prepare data for insertion
+            rewards = []
+            xp_amount = 10
+            xp_increment = 20
+
+            for level in range(1, 300 + 1): # this uses a default of 300 levels and should probably be changed
+                if level == 10:
+                    rewards.append((level, "card", 6))
+                elif level % 5 == 0:  # Money reward every 5 levels
+                    rewards.append((level, "money", level * 2))
+                    xp_increment += 10  # Increase XP increment every 5 levels
+                else:
+                    if level == 1:
+                        rewards.append((level, "xp", xp_amount))
+                    else:
+                        xp_amount += xp_increment
+                        rewards.append((level, "xp", xp_amount))
+            
+            # Insert rewards into the database
+            cursor.executemany("""
+                INSERT INTO loginRewards (level, rewardType, amountOrCardId)
+                VALUES (?, ?, ?)
+                ON CONFLICT(level) DO UPDATE SET
+                    rewardType=excluded.rewardType,
+                    amountOrCardId=excluded.amountOrCardId
+            """, rewards)
+
+            conn.commit()
+        except Exception as e:
+            print(f"An error occurred while creating login rewards: {e}")
+            return None
+    return None
 
 def xpToLevel(xp: any) -> int:
     # Constants
