@@ -77,7 +77,7 @@ async def on_ready():
 
 @bot.event
 async def setup_hook():
-    await bot.loop.create_task(checkLoginRemindersAndSend())
+    await bot.loop.create_task(checkLoginRemindersAndSend(bot))
 
 
 
