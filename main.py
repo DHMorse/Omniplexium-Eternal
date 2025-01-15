@@ -183,8 +183,9 @@ async def login(ctx, day: float = None) -> None:
         cursor.execute("SELECT lastLogin, daysLoggedInInARow FROM users WHERE userId = ?", (ctx.author.id,))
         result = cursor.fetchone()
         
-        lastLogin = result[0]
-        daysLoggedInInARow = result[1]
+        if result is not None:
+            lastLogin = result[0]
+            daysLoggedInInARow = result[1]
         
         if lastLogin is None:
             await ctx.send("You have made your first daily login!")
