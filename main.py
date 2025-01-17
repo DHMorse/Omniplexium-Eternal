@@ -72,9 +72,9 @@ async def on_ready():
     await checkDatabase()
     print(f'The database check took {round(time.time() - checkDatabaseStartTime, 2)} seconds')
 
-    currentTime = datetime.fromtimestamp(time.time()).strftime('%H:%M')
-    print(f'Logged in at about {currentTime}')
-    print(f'The loginReminer task will go off at about {(int(currentTime.split(":")[0]) + 1) % 24:02d}:{currentTime.split(":")[1]}')
+    utcTime = datetime.now(timezone.utc).strftime('%H:%M')
+    print(f'Logged in at about {utcTime} UTC')
+    print(f'The loginReminer task will go off at about {(int(utcTime.split(":")[0]) + 1) % 24:02d}:{utcTime.split(":")[1]} UTC')
 
     botTreeSyncStartTime = time.time()
     await bot.tree.sync()
