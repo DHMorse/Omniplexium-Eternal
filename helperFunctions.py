@@ -224,7 +224,7 @@ async def checkLoginRemindersAndSend(bot) -> None:
             cursor.execute("SELECT userId, lastLogin FROM users WHERE loginReminders = TRUE")
             users = cursor.fetchall()
             
-            # I'm breaking one of my rules here andadding a print statement
+            # I'm breaking one of my rules here and adding a print statement
             print(users)
 
             for user in users:
