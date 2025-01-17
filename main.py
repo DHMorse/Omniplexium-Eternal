@@ -70,16 +70,13 @@ bot = MyBot()
 async def on_ready():
     checkDatabaseStartTime = time.time()
     await checkDatabase()
-    print(f'The database check took {COLORS["blue"]}{round(time.time() - checkDatabaseStartTime, 2)} seconds{COLORS["reset"]}')
-
+    print(f'The database check took {round(time.time() - checkDatabaseStartTime, 2)} seconds')
 
     botTreeSyncStartTime = time.time()
     await bot.tree.sync()
-    print(f'Bot tree sync took {COLORS["blue"]}{round(time.time() - botTreeSyncStartTime, 2)} seconds{COLORS["reset"]}')
+    print(f'Bot tree sync took {round(time.time() - botTreeSyncStartTime, 2)} seconds')
 
-    utcTime = datetime.now(timezone.utc).strftime('%H:%M')
-    print(f'Bot is ready. Logged in as {COLORS["blue"]}{bot.user}{COLORS["reset"]} at about {COLORS["blue"]}{utcTime} UTC{COLORS["reset"]}')
-    print(f'The loginReminer task will go off at about {COLORS["blue"]}{(int(utcTime.split(":")[0]) + 1) % 24:02d}:{utcTime.split(":")[1]} UTC{COLORS["reset"]}')
+    print(f'Bot is ready. Logged in as {bot.user}')
 
 # Define the task outside of the bot class
 @tasks.loop(hours=1)
