@@ -69,7 +69,7 @@ bot = MyBot()
 @bot.event
 async def on_ready():
     checkDatabaseStartTime = time.time()
-    await checkDatabase()
+    await checkDatabase(bot)
     print(f'The database check took {round(time.time() - checkDatabaseStartTime, 2)} seconds')
 
     botTreeSyncStartTime = time.time()

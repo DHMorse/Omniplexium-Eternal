@@ -77,7 +77,7 @@ DO NOT OUTPUT THE METHOD USED. ONLY OUTPUT \"false\" OR THE CENSORED MESSAGE."""
 
     return completion.choices[0].message.content
 
-async def checkDatabase() -> None:
+async def checkDatabase(bot) -> None:
     try:
         if not os.path.exists(DATABASE_PATH):
             # yellow
@@ -128,8 +128,9 @@ async def checkDatabase() -> None:
                 await makeLoginRewards()
 
     except Exception as e:
-        # red
-        print(f"\033[91mAn error occurred while creating the database. {e}\033[0m")
+        print(f"{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}")
+        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+        await channel.send(f"```ansi\n{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}```")
         return None
 
 async def makeLoginRewards() -> None:
