@@ -224,6 +224,9 @@ async def checkLoginRemindersAndSend(bot) -> None:
             cursor.execute("SELECT userId, lastLogin FROM users WHERE loginReminders = TRUE")
             users = cursor.fetchall()
             
+            # I'm breaking one of my rules here andadding a print statement
+            print(users)
+
             for user in users:
                 userId, lastLogin = user
                 # Calculate time since last login
