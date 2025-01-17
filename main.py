@@ -70,7 +70,7 @@ bot = MyBot()
 async def on_ready():
     checkDatabaseStartTime = time.time()
     await checkDatabase()
-    print(f'The database check took {round(time.time() - checkDatabaseStartTime, 2)} seconds')
+    print(f'The database check took {COLORS['blue']}{round(time.time() - checkDatabaseStartTime, 2)}{COLORS['reset']} seconds')
 
     utcTime = datetime.now(timezone.utc).strftime('%H:%M')
     print(f'Logged in at about {utcTime} UTC')
