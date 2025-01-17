@@ -41,8 +41,10 @@ from adminCommands.copyCard import copycard
 
 from slashCommands.login import slashCommandLogin
 from slashCommands.setLoginReminders import slashCommandSetLoginReminders
+from slashCommands.credits import slashCommandCredits
 
 from commands.killme import killme
+from commands.credits import credits
 
 from floor10_game_concept import guess_the_number_command
 
@@ -59,6 +61,7 @@ class MyBot(commands.Bot):
         self.tree.add_command(guess_the_number_command)
         self.tree.add_command(slashCommandLogin)
         self.tree.add_command(slashCommandSetLoginReminders)
+        self.tree.add_command(slashCommandCredits)
         await self.tree.sync()  # Sync commands with Discord
 
 bot = MyBot()
@@ -100,6 +103,7 @@ bot.add_command(copycard)
 ### Normal commands ###
 
 bot.add_command(killme)
+bot.add_command(credits)
 
 ### Normal commands ###
 
