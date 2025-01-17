@@ -70,17 +70,16 @@ bot = MyBot()
 async def on_ready():
     checkDatabaseStartTime = time.time()
     await checkDatabase()
-    print(f'The database check took {COLORS["blue"]}{round(time.time() - checkDatabaseStartTime, 2)}{COLORS["reset"]} seconds')
+    print(f'The database check took {COLORS["blue"]}{round(time.time() - checkDatabaseStartTime, 2)} seconds{COLORS["reset"]}')
 
-    utcTime = datetime.now(timezone.utc).strftime('%H:%M')
-    print(f'Logged in at about {utcTime} UTC')
-    print(f'The loginReminer task will go off at about {(int(utcTime.split(":")[0]) + 1) % 24:02d}:{utcTime.split(":")[1]} UTC')
 
     botTreeSyncStartTime = time.time()
     await bot.tree.sync()
-    print(f'Bot tree sync took {round(time.time() - botTreeSyncStartTime, 2)} seconds')
+    print(f'Bot tree sync took {COLORS["blue"]}{round(time.time() - botTreeSyncStartTime, 2)} seconds{COLORS["reset"]}')
 
-    print(f'Bot is ready. Logged in as {bot.user}')
+    utcTime = datetime.now(timezone.utc).strftime('%H:%M')
+    print(f'Bot is ready. Logged in as {COLORS["blue"]}{bot.user}{COLORS["reset"]} at about {COLORS["blue"]}{utcTime} UTC{COLORS["reset"]}')
+    print(f'The loginReminer task will go off at about {COLORS["blue"]}{(int(utcTime.split(":")[0]) + 1) % 24:02d}:{utcTime.split(":")[1]} UTC{COLORS["reset"]}')
 
 # Define the task outside of the bot class
 @tasks.loop(hours=1)
