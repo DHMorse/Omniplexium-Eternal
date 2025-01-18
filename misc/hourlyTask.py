@@ -42,6 +42,7 @@ async def hourly_task():
 @bot.event
 async def setup_hook():
     # Schedule the hourly task to start when the bot is ready
+    print('I"m doing stuff')
     bot.loop.create_task(hourly_task())
 
 # Run the bot

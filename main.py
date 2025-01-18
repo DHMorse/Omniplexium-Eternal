@@ -68,6 +68,10 @@ bot = MyBot()
 
 @bot.event
 async def on_ready():
+    if not loginReminderTask.is_running():
+        loginReminderTask.start()
+        print('Login reminder task started')
+
     checkDatabaseStartTime = time.time()
     await checkDatabase(bot)
     print(f'The database check took {round(time.time() - checkDatabaseStartTime, 2)} seconds')
