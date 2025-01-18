@@ -1,9 +1,7 @@
 import discord
 from discord import app_commands
-import json
 import os
 import sqlite3
-from typing import List
 from PIL import Image
 
 from const import DATABASE_PATH, CARD_DATA_IMAGES_PATH
@@ -14,7 +12,7 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str = "prom
     # Defer the response to allow more time for processing
     await interaction.response.defer()
     
-    cardData: List[dict, str] = await generatePlayingCardWithImage(prompt) # returns a list of the card data and the image URL
+    cardData: list = await generatePlayingCardWithImage(prompt) # returns a list of the card data and the image URL
 
     card: Image = await makeCardFromJson(cardData[0], cardData[1]) # returns a PIL Image object
 
