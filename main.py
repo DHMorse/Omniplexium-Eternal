@@ -43,6 +43,7 @@ from slashCommands.login import slashCommandLogin
 from slashCommands.setLoginReminders import slashCommandSetLoginReminders
 from slashCommands.credits import slashCommandCredits
 from slashCommands.stats import slashCommandStats
+from slashCommands.generateCard import slashCommandGenerateCard
 
 from commands.killme import killme
 from commands.credits import credits
@@ -62,6 +63,7 @@ class MyBot(commands.Bot):
         self.tree.add_command(slashCommandSetLoginReminders)
         self.tree.add_command(slashCommandCredits)
         self.tree.add_command(slashCommandStats)
+        self.tree.add_command(slashCommandGenerateCard)
         await self.tree.sync()  # Sync commands with Discord
 
 bot = MyBot()
