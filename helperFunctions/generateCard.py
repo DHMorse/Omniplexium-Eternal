@@ -8,12 +8,9 @@ import textwrap
 
 from const import COLORS
 
-from typing import List
-
 client = OpenAI(api_key=openai_key)
 
-async def generatePlayingCardWithImage(description: str, health: int=50, damage: int=20, 
-                    type: str='standard') -> List[dict, str]: # Json schema imageUrl
+async def generatePlayingCardWithImage(description: str, health: int=50, damage: int=20, type: str='standard') -> list: # Json schema imageUrl
     true = True
     false = False
 
