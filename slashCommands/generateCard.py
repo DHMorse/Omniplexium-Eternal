@@ -50,7 +50,7 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str = "prom
     await interaction.followup.send(file=file)
 
 slashCommandGenerateCard = app_commands.Command(
-    name="Generate Card", # no spaces or capitals allowed
+    name="GenerateCard", # no spaces or capitals allowed
     description="Generate a new Card based off a prompt!",
     callback=generateCardFunc,
 )
