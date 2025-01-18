@@ -1,32 +1,19 @@
-from discord.ext import commands
 import discord
+from discord import app_commands
 import json
 import datetime
-import pytz
-import json
 import io
 import sqlite3
 from typing import List, Dict, Union
 
-from const import COLORS, DATABASE_PATH
+from const import COLORS, DATABASE_PATH, ADMIN_LOG_CHANNEL_ID
 from helperFunctions import xpToLevel
 
-@commands.command()
-async def stats(ctx, member: discord.Member = None):
-    if ctx.author.guild_permissions.administrator is not True:
-        return await ctx.send(f'''```ansi
-{COLORS['red']}You do not have permission to use this command.{COLORS['reset']}
-```''')
-
-    '''
-    I should add some stuff later preventing admins from using this command in public channels
-    so that we keep the user's privacy.
-    '''
-
+async def statsFunc(interaction: discord.Interaction) -> None:
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
     
-        member = member or ctx.author
+        member = interaction.user
     
         try:
             cursor.execute("SELECT xp, money, lastLogin, daysLoggedInInARow FROM users WHERE userId = ?", (member.id,))
@@ -43,17 +30,8 @@ async def stats(ctx, member: discord.Member = None):
                     # Convert lastLogin to human-readable format
                     last_login_datetime = datetime.datetime.utcfromtimestamp(lastLogin)
                     last_login_readable = last_login_datetime.strftime("%Y-%m-%d %H:%M:%S UTC")
-                    # Convert to CST
-                    cst_tz = pytz.timezone("America/Chicago")
-                    last_login_CST = last_login_datetime.replace(tzinfo=pytz.utc).astimezone(cst_tz).strftime("%Y-%m-%d %H:%M:%S CST")
-                    
-                    # Convert to EST
-                    est_tz = pytz.timezone("America/New_York")
-                    last_login_EST = last_login_datetime.replace(tzinfo=pytz.utc).astimezone(est_tz).strftime("%Y-%m-%d %H:%M:%S EST")
                 else:
                     last_login_readable = None
-                    last_login_CST = None
-                    last_login_EST = None
 
                 # Create a list of dictionaries for the items
                 itemsList: List[Dict[str, Union[int, str]]] = []
@@ -73,7 +51,7 @@ async def stats(ctx, member: discord.Member = None):
                 items_json = json.dumps(itemsList, indent=4)
                 json_file = io.BytesIO(items_json.encode('utf-8'))
 
-                await ctx.send(
+                await interaction.response.send_message(
                                 f"{member.name}'s Stats:\n"
                                 f"```ansi\n"
                                 f"\u001b[0;34mXp: {formatedXp}\n"
@@ -81,19 +59,32 @@ async def stats(ctx, member: discord.Member = None):
                                 f"\u001b[0;36mMoney: ${formatedMoney}\n"
                                 f"\u001b[0;36mLast Login (Seconds Since Epoch): {lastLogin}\n"
                                 f"\u001b[0;34mLast Login (UTC): {last_login_readable}\n"
-                                f"\u001b[0;34mLast Login (CST): {last_login_CST}\n"
-                                f"\u001b[0;34mLast Login (EST): {last_login_EST}\n"
                                 f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
                                 f"```",
-                                file=discord.File(json_file, filename=f"{member.name}_items.json")
+                                file=discord.File(json_file, filename=f"{member.name}_items.json"), 
+                                ephemeral=True
                                 )    
             else:
-                await ctx.send(f'''```ansi
+                await interaction.response.send_message(f'''```ansi
+{COLORS['red']}{member.name} has no records in the database.{COLORS['reset']}
+```''')
+                channel = interaction.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+                await channel.send(f'''```ansi
 {COLORS['red']}{member.name} has no records in the database.{COLORS['reset']}
 ```''')
         except Exception as e:
             print(f"{COLORS['red']} {e} {COLORS['reset']}")
-            await ctx.send(f'''```ansi
-{COLORS['red']}An error occurred: {e}{COLORS['reset']}
+            await interaction.response.send_message(f'''```ansi
+{COLORS['red']}An error occurred. {COLORS['reset']}
+```''')
+            channel = interaction.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+            await channel.send(f'''```ansi
+{COLORS['red']}An error occurred: {e} {COLORS['reset']}
 ```''')
             return
+
+slashCommandStats = app_commands.Command(
+    name="stats", # no spaces or capitals allowed
+    description="Get the stats of your user!",
+    callback=statsFunc,
+)
