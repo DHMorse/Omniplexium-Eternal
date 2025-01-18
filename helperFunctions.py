@@ -79,11 +79,11 @@ DO NOT OUTPUT THE METHOD USED. ONLY OUTPUT \"false\" OR THE CENSORED MESSAGE."""
 
 async def checkDatabase(bot) -> None:
     try:
-        if not os.path.exists(DATABASE_PATH):
-            # yellow
-            print("\033[93mDatabase does not exist. Creating a new one...\033[0m")
-            with sqlite3.connect(DATABASE_PATH) as conn:
-                cursor = conn.cursor()
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
+            if not os.path.exists(DATABASE_PATH):
+                # yellow
+                print("\033[93mDatabase does not exist. Creating a new one...\033[0m")
 
                 # Create the 'users' table
                 cursor.execute('''
@@ -124,9 +124,6 @@ async def checkDatabase(bot) -> None:
                 if cursor.fetchone()[0] == 0:
                     print("\033[93mLogin rewards table is empty, generating rewards now...\033[0m")
                     await makeLoginRewards()
-
-        with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
 
             # Fetch all table names
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
