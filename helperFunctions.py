@@ -135,14 +135,19 @@ async def checkDatabase(bot) -> None:
                     )
                 ''')
 
-                # green 
-                print(f"{COLORS['green']}Database created successfully.{COLORS['reset']}")
+                print(f"{COLORS['blue']}Database created successfully.{COLORS['reset']}")
 
                 cursor.execute("SELECT COUNT(*) FROM loginRewards")
                 if cursor.fetchone()[0] == 0:
-                    print("\033[93mLogin rewards table is empty, generating rewards now...\033[0m")
-                    await makeLoginRewards()
-    
+                    print(f"{COLORS['yellow']}Login rewards table is empty, generating rewards now...{COLORS['reset']}")
+                    try:
+                        await makeLoginRewards()
+                        print(f"{COLORS['blue']}Login rewards generated successfully.{COLORS['reset']}")
+                    except Exception as e:
+                        print(f"{COLORS['red']}An error occurred while creating login rewards: {e}{COLORS['reset']}")
+                        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                        await channel.send(f"```ansi\n{COLORS['red']}An error occurred while creating login rewards: {e}{COLORS['reset']}```")
+
     except Exception as e:
         print(f"{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}")
         channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
@@ -196,7 +201,7 @@ async def checkDatabase(bot) -> None:
                             if not validateType(value, col_type):
                                 print(f"{COLORS['red']}    Error in row {row_idx + 1}: Column '{col_name}' has invalid type '{type(value).__name__}', expected '{col_type}'.{COLORS['reset']}")
             
-            print(f"{COLORS['blue']}Validation completed.{COLORS['reset']}")
+            print(f"{COLORS['green']}Validation completed.{COLORS['reset']}")
 
     except sqlite3.Error as e:
         print(f"{COLORS['red']}Error while validating database: {e}{COLORS['reset']}")
