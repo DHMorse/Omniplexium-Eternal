@@ -81,9 +81,9 @@ async def checkDatabase(bot) -> None:
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
             cursor = conn.cursor()
+            print(os.path.exists(DATABASE_PATH))
             if not os.path.exists(DATABASE_PATH):
-                # yellow
-                print("\033[93mDatabase does not exist. Creating a new one...\033[0m")
+                print(f"{COLORS['yellow']}Database does not exist. Creating a new one...{COLORS['reset']}")
 
                 # Create the 'users' table
                 cursor.execute('''
