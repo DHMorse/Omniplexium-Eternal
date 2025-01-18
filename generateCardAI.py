@@ -90,7 +90,8 @@ async def genAiCard(description: str, health: int=50, damage: int=20,
                     "description",
                     "attack_damage",
                     "attack_speed",
-                    "attack_cooldown"
+                    "attack_cooldown",
+                    "attack_hitrate"
                 ],
                 "additionalProperties": false
                 }
