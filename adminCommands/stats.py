@@ -68,7 +68,7 @@ async def stats(ctx, member: discord.Member = None):
 
                 # Send the stats with items as a JSON code block
                 if ctx.author.guild_permissions.administrator is not True:
-                    await ctx.respond(
+                    await ctx.send(
                                 f"{member.name}'s Stats:\n"
                                 f"```ansi\n"
                                 f"\u001b[0;34mXp: {formatedXp}\n"
@@ -81,7 +81,7 @@ async def stats(ctx, member: discord.Member = None):
                                 ephemeral=True
                                 )
                 else:    
-                    await ctx.respond(
+                    await ctx.send(
                                     f"{member.name}'s Stats:\n"
                                     f"```ansi\n"
                                     f"\u001b[0;34mXp: {formatedXp}\n"
