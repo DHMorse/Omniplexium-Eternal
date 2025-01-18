@@ -85,9 +85,7 @@ async def on_ready():
 # Define the task outside of the bot class
 @tasks.loop(hours=1)
 async def loginReminderTask():
-    channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-    await channel.send("Checking for login reminders...")
-    await checkLoginRemindersAndSend()
+    await checkLoginRemindersAndSend(bot)
 
 
 ### ADMIN COMMANDS ###
