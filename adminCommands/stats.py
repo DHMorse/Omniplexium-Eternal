@@ -9,7 +9,7 @@ import sqlite3
 from typing import List, Dict, Union
 
 from const import COLORS, DATABASE_PATH, PRIVATE_CHANNEL_IDS
-from helperFunctions import xpToLevel
+from helperFunctions.main import xpToLevel
 
 @commands.command()
 async def stats(ctx, member: discord.Member = None):

@@ -4,7 +4,7 @@ import random
 import sqlite3
 
 from const import ADMIN_LOG_CHANNEL_ID, DATABASE_PATH, COLORS
-from helperFunctions import updateXpAndCheckLevelUp
+from helperFunctions.main import updateXpAndCheckLevelUp
 
 async def guess_the_number(interaction: discord.Interaction, guess: app_commands.Range[int, 1, 10]):
     with sqlite3.connect(DATABASE_PATH) as conn:

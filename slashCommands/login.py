@@ -4,7 +4,7 @@ import sqlite3
 import time
 
 from const import DATABASE_PATH
-from helperFunctions import updateXpAndCheckLevelUp, copyCard
+from helperFunctions.main import updateXpAndCheckLevelUp, copyCard
 
 async def loginFunc(interaction: discord.Interaction, day: int = None):
     if not interaction.user.guild_permissions.administrator:

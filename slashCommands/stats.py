@@ -7,7 +7,7 @@ import sqlite3
 from typing import List, Dict, Union
 
 from const import COLORS, DATABASE_PATH, ADMIN_LOG_CHANNEL_ID
-from helperFunctions import xpToLevel
+from helperFunctions.main import xpToLevel
 
 async def statsFunc(interaction: discord.Interaction) -> None:
     with sqlite3.connect(DATABASE_PATH) as conn:

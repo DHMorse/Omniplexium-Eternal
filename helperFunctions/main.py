@@ -125,8 +125,8 @@ async def checkDatabase(bot) -> None:
                     CREATE TABLE IF NOT EXISTS attacks (
                         attackId INTEGER PRIMARY KEY AUTOINCREMENT,        -- Auto-incremented primary key
                         cardId INTEGER NOT NULL,                           -- Card ID of the character this attack belongs to
-                        name TEXT NOT NULL,                                -- Name of the attack
-                        description TEXT NOT NULL,                         -- Description of the attack
+                        attackName TEXT NOT NULL,                                -- Name of the attack
+                        attackDescription TEXT NOT NULL,                         -- Description of the attack
                         attackDamage INTEGER NOT NULL,                     -- Damage dealt by the attack
                         attackSpeed INTEGER NOT NULL,                      -- Speed of the attack
                         attackCooldown INTEGER NOT NULL,                   -- Cooldown time for the attack

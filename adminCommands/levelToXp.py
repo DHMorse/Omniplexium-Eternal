@@ -1,5 +1,5 @@
 from const import COLORS
-from helperFunctions import levelToXp
+from helperFunctions.main import levelToXp
 
 def create_level_to_xp_command(bot):
     @bot.command()
