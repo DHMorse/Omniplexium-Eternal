@@ -107,18 +107,38 @@ async def checkDatabase(bot) -> None:
                 )
                 ''')
 
-                # Create the 'items' table
+                # Create the 'cards' table
                 cursor.execute('''
-                CREATE TABLE IF NOT EXISTS cards (
-                    itemId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, -- auto_increment is AUTOINCREMENT in SQLite
-                    itemName TEXT,
-                    userId BIGINT,
-                    cardId INTEGER
-                )
+                    CREATE TABLE IF NOT EXISTS cards (
+                        itemId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, -- Auto-incremented primary key
+                        itemName TEXT,                                     -- Name of the card or character
+                        userId BIGINT,                                     -- User ID (big integer type)
+                        cardId INTEGER,                                    -- Card ID
+                        description TEXT,                                  -- Description of the character
+                        health INTEGER,                                    -- Health points of the character
+                        imagePrompt TEXT,                                 -- Image prompt description
+                        imageUrl TEXT                                     -- URL of the image
+                    )
                 ''')
 
+                # Create the 'attacks' table
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS attacks (
+                        attackId INTEGER PRIMARY KEY AUTOINCREMENT,        -- Auto-incremented primary key
+                        cardId INTEGER NOT NULL,                           -- Card ID of the character this attack belongs to
+                        name TEXT NOT NULL,                                -- Name of the attack
+                        description TEXT NOT NULL,                         -- Description of the attack
+                        attackDamage INTEGER NOT NULL,                     -- Damage dealt by the attack
+                        attackSpeed INTEGER NOT NULL,                      -- Speed of the attack
+                        attackCooldown INTEGER NOT NULL,                   -- Cooldown time for the attack
+                        attackHitrate INTEGER NOT NULL,                    -- Hitrate for the attack
+                        FOREIGN KEY (cardId) REFERENCES cards(itemId)     -- Reference to the 'cards' table
+                    )
+                ''')
+
+
                 # green 
-                print("\033[92mDatabase created successfully.\033[0m")
+                print(f"{COLORS['green']}Database created successfully.{COLORS['reset']}")
 
                 cursor.execute("SELECT COUNT(*) FROM loginRewards")
                 if cursor.fetchone()[0] == 0:

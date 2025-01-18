@@ -8,6 +8,7 @@ COLORS = {
     'red': '\u001b[1;31m',
     'yellow': '\u001b[1;33m',
     'blue': '\u001b[1;34m',
+    'green': '\u001b[1;32m', # Don't use this color in discord
     'reset': '\u001b[0m'
 }
 
