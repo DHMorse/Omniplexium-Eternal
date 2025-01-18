@@ -68,7 +68,7 @@ async def stats(ctx, member: discord.Member = None):
 
                 # Send the stats with items as a JSON code block
                 if ctx.author.guild_permissions.administrator is not True:
-                    await ctx.send(
+                    await ctx.respond(
                                 f"{member.name}'s Stats:\n"
                                 f"```ansi\n"
                                 f"\u001b[0;34mXp: {formatedXp}\n"
@@ -77,10 +77,11 @@ async def stats(ctx, member: discord.Member = None):
                                 f"\u001b[0;34mLast Login (UTC): {last_login_readable}\n"
                                 f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
                                 f"```",
-                                file=discord.File(json_file, filename=f"{member.name}_items.json")
+                                file=discord.File(json_file, filename=f"{member.name}_items.json"),
+                                ephemeral=True
                                 )
                 else:    
-                    await ctx.send(
+                    await ctx.respond(
                                     f"{member.name}'s Stats:\n"
                                     f"```ansi\n"
                                     f"\u001b[0;34mXp: {formatedXp}\n"
@@ -92,7 +93,8 @@ async def stats(ctx, member: discord.Member = None):
                                     f"\u001b[0;34mLast Login (EST): {last_login_EST}\n"
                                     f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
                                     f"```",
-                                    file=discord.File(json_file, filename=f"{member.name}_items.json")
+                                    file=discord.File(json_file, filename=f"{member.name}_items.json"),
+                                    ephemeral=True
                                     )    
             else:
                 await ctx.send(f'''```ansi

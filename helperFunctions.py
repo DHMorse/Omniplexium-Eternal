@@ -226,9 +226,9 @@ async def checkLoginRemindersAndSend(bot) -> None:
             users = cursor.fetchall()
             
             # I'm breaking one of my rules here and adding a print statement
-            print(users)
-            channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-            await channel.send(f"```ansi\n{COLORS['yellow']}{users}{COLORS['reset']}```")
+            #print(users)
+            #channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+            #await channel.send(f"```ansi\n{COLORS['yellow']}{users}{COLORS['reset']}```")
 
             for user in users:
                 userId, lastLogin = user
