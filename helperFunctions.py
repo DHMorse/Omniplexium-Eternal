@@ -169,7 +169,7 @@ async def checkDatabase(bot) -> None:
                             if not validateType(value, col_type):
                                 print(f"{COLORS['red']}    Error in row {row_idx + 1}: Column '{col_name}' has invalid type '{type(value).__name__}', expected '{col_type}'.{COLORS['reset']}")
             
-            print(f"\n{COLORS['blue']}Validation completed.{COLORS['reset']}")
+            print(f"{COLORS['blue']}Validation completed.{COLORS['reset']}")
 
     except Exception as e:
         print(f"{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}")
