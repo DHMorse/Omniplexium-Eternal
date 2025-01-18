@@ -79,10 +79,9 @@ DO NOT OUTPUT THE METHOD USED. ONLY OUTPUT \"false\" OR THE CENSORED MESSAGE."""
 
 async def checkDatabase(bot) -> None:
     try:
-        with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
-            print(os.path.exists(DATABASE_PATH))
-            if not os.path.exists(DATABASE_PATH):
+        if not os.path.exists(DATABASE_PATH):
+            with sqlite3.connect(DATABASE_PATH) as conn:
+                cursor = conn.cursor()
                 print(f"{COLORS['yellow']}Database does not exist. Creating a new one...{COLORS['reset']}")
 
                 # Create the 'users' table
@@ -136,7 +135,6 @@ async def checkDatabase(bot) -> None:
                     )
                 ''')
 
-
                 # green 
                 print(f"{COLORS['green']}Database created successfully.{COLORS['reset']}")
 
@@ -144,7 +142,16 @@ async def checkDatabase(bot) -> None:
                 if cursor.fetchone()[0] == 0:
                     print("\033[93mLogin rewards table is empty, generating rewards now...\033[0m")
                     await makeLoginRewards()
-
+    
+    except Exception as e:
+        print(f"{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}")
+        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+        await channel.send(f"```ansi\n{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}```")
+        return None
+    
+    try:
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
             # Fetch all table names
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
             tables = cursor.fetchall()
@@ -191,11 +198,9 @@ async def checkDatabase(bot) -> None:
             
             print(f"{COLORS['blue']}Validation completed.{COLORS['reset']}")
 
-    except Exception as e:
-        print(f"{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}")
-        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-        await channel.send(f"```ansi\n{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}```")
-        return None
+    except sqlite3.Error as e:
+        print(f"{COLORS['red']}Error while validating database: {e}{COLORS['reset']}")
+
 
 def validateType(value, expected_type):
     """
