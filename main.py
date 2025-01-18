@@ -73,9 +73,9 @@ async def on_ready():
     if not loginReminderTask.is_running():
         try:
             loginReminderTask.start()
-            print(f'{COLORS['blue']}Login reminder task started{COLORS['reset']}')
+            print(f"{COLORS['blue']}Login reminder task started{COLORS['reset']}")
         except Exception as e:
-            print(f'{COLORS['red']}Login reminder task failed to start: {e}{COLORS['reset']}')
+            print(f"{COLORS['red']}Login reminder task failed to start: {e}{COLORS['reset']}")
 
     checkDatabaseStartTime = time.time()
     await checkDatabase(bot)
