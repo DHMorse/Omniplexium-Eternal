@@ -120,18 +120,76 @@ async def checkDatabase(bot) -> None:
                 # green 
                 print("\033[92mDatabase created successfully.\033[0m")
 
-        with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM loginRewards")
-            if cursor.fetchone()[0] == 0:
-                print("\033[93mLogin rewards table is empty, generating rewards now...\033[0m")
-                await makeLoginRewards()
+                cursor.execute("SELECT COUNT(*) FROM loginRewards")
+                if cursor.fetchone()[0] == 0:
+                    print("\033[93mLogin rewards table is empty, generating rewards now...\033[0m")
+                    await makeLoginRewards()
+
+                # Fetch all table names
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+                tables = cursor.fetchall()
+                if not tables:
+                    print(f"{COLORS['red']}No tables found in the database.{COLORS['reset']}")
+                    return
+                
+                for table_name, in tables:
+                    print(f"Validating table: {table_name}")
+                    
+                    # Fetch table schema
+                    cursor.execute(f"PRAGMA table_info({table_name});")
+                    schema = cursor.fetchall()
+                    
+                    if not schema:
+                        print(f"{COLORS['yellow']}  Warning: Table '{table_name}' has no schema.{COLORS['reset']}")
+                        continue
+                    
+                    column_definitions = {col[1]: col for col in schema}  # {column_name: schema_row}
+                    
+                    # Fetch all rows from the table
+                    cursor.execute(f"SELECT * FROM {table_name};")
+                    rows = cursor.fetchall()
+                    
+                    if not rows:
+                        print(f"{COLORS['yellow']}  Info: Table '{table_name}' has no rows.{COLORS['reset']}")
+                        continue
+                    
+                    for row_idx, row in enumerate(rows):
+                        for col_idx, value in enumerate(row):
+                            col_name = schema[col_idx][1]
+                            col_type = schema[col_idx][2]
+                            not_null = schema[col_idx][3]
+                            
+                            # Validate NOT NULL constraint
+                            if not_null and value is None:
+                                print(f"{COLORS['red']}    Error in row {row_idx + 1}: Column '{col_name}' is NULL but must not be.{COLORS['reset']}")
+                                continue
+                            
+                            # Validate column type
+                            if value is not None:
+                                if not validateType(value, col_type):
+                                    print(f"{COLORS['red']}    Error in row {row_idx + 1}: Column '{col_name}' has invalid type '{type(value).__name__}', expected '{col_type}'.{COLORS['reset']}")
+                
+                print(f"\n{COLORS['blue']}Validation completed.{COLORS['reset']}")
 
     except Exception as e:
         print(f"{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}")
         channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
         await channel.send(f"```ansi\n{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}```")
         return None
+
+def validateType(value, expected_type):
+    """
+    Validate if a value matches the expected SQLite type.
+    """
+    if expected_type.upper() in ("TEXT", "CHAR", "VARCHAR"):
+        return isinstance(value, str)
+    elif expected_type.upper() in ("INTEGER", "INT"):
+        return isinstance(value, int)
+    elif expected_type.upper() in ("REAL", "FLOAT", "DOUBLE"):
+        return isinstance(value, (float, int))
+    elif expected_type.upper() == "BLOB":
+        return isinstance(value, (bytes, memoryview))
+    return True  # SQLite is lenient with type checking, so assume true if uncertain
 
 async def makeLoginRewards() -> None:
     with sqlite3.connect(DATABASE_PATH) as conn:
