@@ -1,5 +1,6 @@
 import os
 from huggingface_hub import InferenceClient
+from typing import List
 
 from secret_const import HUGGING_FACE_API_KEY
 
@@ -25,6 +26,13 @@ LOGIN_REMINDERS_CHANNEL_ID = 1328894619303542877
 
 CREDITS_CHANNEL_ID = 1329652683463852114
 
+PRIVATE_CHANNEL_IDS: List[int] = [1304244993497501716, # admin-text
+                                1304245019300986941, # admin-log
+                                1327794720407031829, # censor-log
+                                1328204580454137986, # tests-output-log
+                                1307923750666371082, # cardinal-system
+                                1304245049319493643, # Admin VC
+                                ]
 
 
 # Role IDs

@@ -8,7 +8,7 @@ import io
 import sqlite3
 from typing import List, Dict, Union
 
-from const import COLORS, DATABASE_PATH
+from const import COLORS, DATABASE_PATH, PRIVATE_CHANNEL_IDS
 from helperFunctions import xpToLevel
 
 @commands.command()
@@ -18,10 +18,12 @@ async def stats(ctx, member: discord.Member = None):
 {COLORS['red']}You do not have permission to use this command.{COLORS['reset']}
 ```''')
 
-    '''
-    I should add some stuff later preventing admins from using this command in public channels
-    so that we keep the user's privacy.
-    '''
+    if ctx.channel.id not in PRIVATE_CHANNEL_IDS:
+        return await ctx.send(f'''```ansi
+{COLORS['yellow']}You can only use this command in a private channel.{COLORS['reset']}
+```''') 
+
+    # this is to protect user privacy
 
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
