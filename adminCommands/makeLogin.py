@@ -1,61 +1,60 @@
-from discord.ext import commands
-import discord
+import sqlite3
 
-from const import pool 
+from discord.ext import commands
+from const import DATABASE_PATH, COLORS
 
 @commands.command()
-async def makeloginrewards(ctx, numberOfLevels: int):
+async def makeloginrewards(ctx, numberOfLevels: int = None) -> None:
     if ctx.author.guild_permissions.administrator != True:
-        await ctx.send("You do not have the required permissions to use this command.")
+        await ctx.send(f'''```ansi
+{COLORS['yellow']}You do not have the required permissions to use this command.{COLORS['reset']}
+```''')
         return
 
-    try:
-        # Connect to the MariaDB server
-        conn = pool.get_connection()
-        cursor = conn.cursor()
-        
-        # Create the loginRewards table if it doesn't exist
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS loginRewards (
-                level INT PRIMARY KEY,
-                rewardType VARCHAR(10) NOT NULL,
-                amountOrCardId INT NOT NULL
-            )
-        """)
-        
-        # Prepare data for insertion
-        rewards = []
-        xp_amount = 10
-        xp_increment = 20
+    if numberOfLevels is None:
+        await ctx.send(f'''```ansi
+{COLORS['red']}Please provide the number of levels for which to create login rewards.{COLORS['reset']}
+```''')
+        return
 
-        for level in range(1, numberOfLevels + 1):
-            if level == 10:
-                rewards.append((level, "card", 6))
-            elif level % 5 == 0:  # Money reward every 5 levels
-                rewards.append((level, "money", level * 2))
-                xp_increment += 10  # Increase XP increment every 5 levels
-            else:
-                if level == 1:
-                    rewards.append((level, "xp", xp_amount))
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        try:
+            cursor = conn.cursor()
+            
+            # Prepare data for insertion
+            rewards = []
+            xp_amount = 10
+            xp_increment = 20
+
+            for level in range(1, numberOfLevels + 1):
+                if level == 10:
+                    rewards.append((level, "card", 6))
+                elif level % 5 == 0:  # Money reward every 5 levels
+                    rewards.append((level, "money", level * 2))
+                    xp_increment += 10  # Increase XP increment every 5 levels
                 else:
-                    xp_amount += xp_increment
-                    rewards.append((level, "xp", xp_amount))
-        
-        # Insert rewards into the database
-        cursor.executemany("""
-            INSERT INTO loginRewards (level, rewardType, amountOrCardId)
-            VALUES (%s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-                rewardType=VALUES(rewardType),
-                amountOrCardId=VALUES(amountOrCardId)
-        """, rewards)
+                    if level == 1:
+                        rewards.append((level, "xp", xp_amount))
+                    else:
+                        xp_amount += xp_increment
+                        rewards.append((level, "xp", xp_amount))
+            
+            # Insert rewards into the database
+            cursor.executemany("""
+                INSERT INTO loginRewards (level, rewardType, amountOrCardId)
+                VALUES (?, ?, ?)
+                ON CONFLICT(level) DO UPDATE SET
+                    rewardType=excluded.rewardType,
+                    amountOrCardId=excluded.amountOrCardId
+            """, rewards)
 
-        # Commit changes
-        conn.commit()
-        await ctx.send(f"Login rewards for {numberOfLevels} levels have been successfully created.")
+            conn.commit()
+            await ctx.send(f'''```ansi
+{COLORS['blue']}Login rewards for {numberOfLevels} levels have been successfully created.{COLORS['reset']}
+```''')
 
-    except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
-    finally:
-            cursor.close()
-            conn.close()
+        except Exception as e:
+            await ctx.send(f'''```ansi
+{COLORS['red']}An error occurred: {e}\u001b[0m{COLORS['reset']}
+```''')
+            return

@@ -1,16 +1,39 @@
 import os
 import discord
 from discord.ext import commands
+from github import Github
+import requests
+from typing import Tuple
+
+from secret_const import GITHUB_TOKEN
 
 from const import ROOT_DIR
+
+g = Github(GITHUB_TOKEN)
 
 @commands.command()
 async def vanity(ctx):
     """Get the total number of lines in the project files."""
-    total_files, total_commands, total_lines = count_lines_of_code_in_python_files(ROOT_DIR)
-    total_lines = "{:,}".format(total_lines)
-    total_files = "{:,}".format(total_files)
-    total_commands = "{:,}".format(total_commands)
+    totalFiles, totalCommands, totalLines = countLinesOfCodeInPythonFiles(ROOT_DIR)
+    
+    owner = "DHMorse"  
+    repo_name = "oeTesting" 
+    oeTestingTotalFiles, oeTestingTotalLines = getRepoStats(owner, repo_name)
+    
+    repo_name = 'flaskAppOE'
+    flaskAppOETotalFiles, flaskAppOETotalLines = getRepoStats(owner, repo_name)
+    
+    owner = 'Eli-Mason'
+    repo_name = 'Omniplexium-Eternal'
+    omniEternalTotalFiles, omniEternalTotalLines = getRepoStats(owner, repo_name)
+    
+    totalFiles = oeTestingTotalFiles + flaskAppOETotalFiles + omniEternalTotalFiles
+
+    totalLines = oeTestingTotalLines + flaskAppOETotalLines + omniEternalTotalLines
+
+    totalLines = "{:,}".format(totalLines)
+    totalFiles = "{:,}".format(totalFiles)
+    totalCommands = "{:,}".format(totalCommands)
     embed = discord.Embed(
     title="📊 Bot Statistics",
     description="Here’s a breakdown of the bot’s code and commands:",
@@ -19,17 +42,17 @@ async def vanity(ctx):
 
     embed.add_field(
         name="🔢 Total Lines of Code",
-        value=f"```yaml\n{total_lines}\n```",
+        value=f"```yaml\n{totalLines}\n```",
         inline=False
     )
     embed.add_field(
         name="🛠️ Total Commands",
-        value=f"```yaml\n{total_commands}\n```",
+        value=f"```yaml\n{totalCommands}\n```",
         inline=False
     )
     embed.add_field(
         name="📁 Total Files",
-        value=f"```yaml\n{total_files}\n```",
+        value=f"```yaml\n{totalFiles}\n```",
         inline=False
     )
 
@@ -43,7 +66,7 @@ async def vanity(ctx):
 
     await ctx.send(embed=embed)
 
-def count_lines_of_code_in_python_files(root_dir):
+def countLinesOfCodeInPythonFiles(root_dir):
     total_files = 0
     total_py_files = 0
     total_lines = 0
@@ -66,3 +89,41 @@ def count_lines_of_code_in_python_files(root_dir):
                     total_lines += len(lines)
 
     return total_files, total_py_files, total_lines
+
+def getRepoStats(owner, repo_name) -> Tuple[int, int]:
+    try:
+        repo = g.get_repo(f"{owner}/{repo_name}")
+        
+        # Fetch file and line counts
+        total_files = 0
+        total_lines = 0
+
+        contents = repo.get_contents("")
+        while contents:
+            file_content = contents.pop(0)
+            if file_content.type == "file":
+                total_files += 1
+                
+                # Skip README and .gitignore files for line count
+                if file_content.name.lower().startswith("readme") or file_content.name == ".gitignore" or file_content.name == 'rewards.json': 
+                    continue
+                if file_content.name == 'requirements.txt' or file_content.name == 'Procfile' or file_content.name == 'runtime.txt':
+                    continue
+                if file_content.name.endswith('.png'):
+                    continue
+
+                # Fetching file content to count lines
+                file_url = file_content.download_url
+                response = requests.get(file_url)
+                if response.status_code == 200:
+                    # Count non-whitespace lines only
+                    lines = response.text.splitlines()
+                    non_whitespace_lines = [line for line in lines if line.strip()]
+                    total_lines += len(non_whitespace_lines)
+            elif file_content.type == "dir":
+                contents.extend(repo.get_contents(file_content.path))
+
+        return (total_files, total_lines)
+
+    except Exception as e:
+        print(f"Error: {e}")
