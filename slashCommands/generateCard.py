@@ -16,8 +16,6 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
 
     card: Image = await makeCardFromJson(cardData[0], cardData[1]) # returns a PIL Image object
 
-    print(cardData[0])
-
     # Update the user's items in the database
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
@@ -32,11 +30,13 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
             (cardData[0]['name'], interaction.user.id, currentItemId, cardData[0]['description'], cardData[0]['health'], prompt, cardData[1]))
         conn.commit()
         
-        cursor.execute(
-            "INSERT INTO attacks (cardId, attackName, attackDescription, attackDamage, attackSpeed, attackCooldown, attackHitrate) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (currentItemId, cardData[0]['attacks'][0]['name'], cardData[0]['attacks'][0]['description'], cardData[0]['attacks'][0]['attack_damage'], 
-            cardData[0]['attacks'][0]['attack_speed'], cardData[0]['attacks'][0]['attack_cooldown'], cardData[0]['attacks'][0]['attack_hitrate'])
-            )
+        for attack in cardData[0]['attacks']:
+            cursor.execute(
+                "INSERT INTO attacks (cardId, attackName, attackDescription, attackDamage, attackSpeed, attackCooldown, attackHitrate) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (currentItemId, attack['name'], attack['description'], attack['attack_damage'], attack['attack_speed'], attack['attack_cooldown'], attack['attack_hitrate'])
+                )
+
+        conn.commit()
 
         # Save the card image
         card_name = f"{currentItemId}.png"
@@ -56,3 +56,35 @@ slashCommandGenerateCard = app_commands.Command(
     description="Generate a new Card based off a prompt!",
     callback=generateCardFunc,
 )
+
+# Example data for a card
+exampleData = {'name': 'The Stalwart Squire', 
+        'description': 'A short man with a determined expression, dressed in a simple tunic and wielding a sturdy wooden sword, ready to prove his worth in battle.', 
+        'health': 50, 
+        'attacks': [
+            {
+                'name': 'Swift Slash', 
+                'description': 'A quick strike with his wooden sword, aiming for a precise tap that catches his opponent off-guard.', 
+                'attack_damage': 20, 
+                'attack_speed': 40, 
+                'attack_cooldown': 0, 
+                'attack_hitrate': 90
+                }, 
+                {
+                'name': 'Courageous Stab', 
+                'description': 'A forward lunge that utilizes all his strength, driving the tip of his sword toward the foe with unwavering confidence.', 
+                'attack_damage': 30, 
+                'attack_speed': 20, 
+                'attack_cooldown': 1, 
+                'attack_hitrate': 85
+                }, {
+                'name': 'Heroic Charge', 
+                'description': 'A powerful charge that combines speed and determination, delivering a heavier blow but requiring him a breath to regroup afterward.', 
+                'attack_damage': 40, 
+                'attack_speed': 10, 
+                'attack_cooldown': 3, 
+                'attack_hitrate': 80
+                }
+                ], 
+                'image_prompt': 'A short man dressed in a tunic wielding a wooden sword, looking determined in a classic fantasy setting.', 
+                'image_url': 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-mmJwXK6t0M8xnbz6QdLzHbqk/user-kSPgxUbWefOFLtDjBNig841G/img-VuOnjbdKVF50jKCk3qRmorZg.png?st=2025-01-19T17%3A51%3A21Z&se=2025-01-19T19%3A51%3A21Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-01-19T01%3A15%3A00Z&ske=2025-01-20T01%3A15%3A00Z&sks=b&skv=2024-08-04&sig=W7%2Bi5621T2nliWHl/MwTPWkdOxSe/bSE%2Bzk8WiESMUY%3D'}
