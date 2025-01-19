@@ -1,5 +1,6 @@
 import discord
 import sqlite3
+import traceback 
 
 from discord.ext import commands
 from pathlib import Path
@@ -50,5 +51,6 @@ async def viewcardstats(ctx, *, query: str = '') -> None:
             await ctx.send(file=discord.File(image_path))
 
         except Exception as e:
-            await ctx.send(f'''```ansi\n{COLORS['red']}An error occurred: {e}\u001b[0m{COLORS['reset']}```''')
-            return
+            traceback_str = ''.join(traceback.format_exc())
+            await ctx.send(f'''```ansi\n{COLORS['red']}An error occurred: {e}
+Traceback: {traceback_str}{COLORS['reset']}```''')
