@@ -236,13 +236,13 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                         # Handle role assignment
                         role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
                         if role is None:
-                            await logError(bot, ValueError(f"Role `Level {i + 1}` does not exist."), traceback.format_exc(), 
-                                            f'Role `Level {i + 1}` does not exist.', ctx)
+                            await logError(bot, ValueError(f"Role Level {i + 1} does not exist."), traceback.format_exc(), 
+                                            f'Role Level {i + 1} does not exist.', ctx)
                             continue                            
                             
                         if role in discordAuthor.roles:
-                            await logError(bot, ValueError(f"`{discordAuthor.name}` already has the `Level {i+ 1}` role, but we tried to give it to them again."), 
-                                            traceback.format_exc(), f"`{discordAuthor.name}` already has the `Level {i+ 1}` role, but we tried to give it to them again.", 
+                            await logError(bot, ValueError(f"{discordAuthor.name} already has the Level {i+ 1} role, but we tried to give it to them again."), 
+                                            traceback.format_exc(), f"{discordAuthor.name} already has the Level {i+ 1} role, but we tried to give it to them again.", 
                                             ctx)
                             continue
                             
@@ -282,7 +282,7 @@ async def logError(bot, error: Exception, traceback: traceback, errorMessage: st
     now = datetime.now(timezone.utc)
     embed = discord.Embed(
         title="Error Log",
-        description=f"**Error Message:**\n`{errorMessage}`\n\n"
+        description=f"**Error Message:**\n```{errorMessage}```\n\n"
                     f"**Error:**\n```{error}```\n\n"
                     f"**Traceback:**\n```{traceback}```\n"
                     f"**Context:**\n{ctx}",
