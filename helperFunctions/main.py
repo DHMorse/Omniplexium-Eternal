@@ -290,9 +290,9 @@ async def logError(bot, error: Exception, traceback: traceback, errorMessage: st
     now = datetime.now(timezone.utc)
     embed = discord.Embed(
         title="Error Log",
-        description=f"**Error Message:**\n{errorMessage}\n\n"
-                    f"**Error:**\n{error}\n\n"
-                    f"**Traceback:**\n{traceback}"
+        description=f"**Error Message:**\n`{errorMessage}`\n\n"
+                    f"**Error:**\n```{error}```\n\n"
+                    f"**Traceback:**\n```{traceback}```\n"
                     f"**Context:**\n{ctx}",
         color=discord.Color.red(),
         timestamp=now
