@@ -34,10 +34,11 @@ from adminCommands.set import set
 from adminCommands.stats import stats
 from adminCommands.reset import reset
 from adminCommands.vanity import vanity
-from adminCommands.viewCard import viewcard
 from adminCommands.levelToXp import create_level_to_xp_command
 from adminCommands.makeLogin import makeloginrewards
 from adminCommands.copyCard import copycard
+from adminCommands.viewCard import viewcard
+from adminCommands.viewCardStats import viewcardstats
 
 from slashCommands.login import slashCommandLogin
 from slashCommands.setLoginReminders import slashCommandSetLoginReminders
@@ -99,11 +100,12 @@ bot.add_command(set)
 bot.add_command(stats)
 bot.add_command(reset)
 bot.add_command(vanity)
-bot.add_command(viewcard)
 create_level_to_xp_command(bot)
 bot.add_command(makeloginrewards)
 bot.add_command(copycard)
 #bot.add_command(leveltoxp)
+bot.add_command(viewcard)
+bot.add_command(viewcardstats)
 
 ### ADMIN COMMANDS ###
 
