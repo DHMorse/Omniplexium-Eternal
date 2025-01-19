@@ -83,6 +83,7 @@ async def on_ready():
             print(f"{COLORS['blue']}Login reminder task started{COLORS['reset']}")
         except Exception as e:
             print(f"{COLORS['red']}Login reminder task failed to start: {e}{COLORS['reset']}")
+            await logError(bot, e, traceback.format_exc(), 'Login reminder task failed to start')
 
     botTreeSyncStartTime = time.time()
     await bot.tree.sync()
