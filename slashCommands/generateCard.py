@@ -8,7 +8,7 @@ from const import DATABASE_PATH, CARD_DATA_IMAGES_PATH
 
 from helperFunctions.generateCard import generatePlayingCardWithImage, makeCardFromJson
 
-async def generateCardFunc(interaction: discord.Interaction, prompt: str = "prompt") -> None:
+async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> None:
     # Defer the response to allow more time for processing
     await interaction.response.defer()
     
