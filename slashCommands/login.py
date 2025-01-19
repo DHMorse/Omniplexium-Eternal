@@ -6,14 +6,7 @@ import time
 from const import DATABASE_PATH
 from helperFunctions.main import updateXpAndCheckLevelUp, copyCard
 
-async def loginFunc(interaction: discord.Interaction, day: int = None):
-    if not interaction.user.guild_permissions.administrator:
-        day = None
-
-    if day is not None:
-        # everything is a string
-        float(day)
-
+async def loginFunc(interaction: discord.Interaction):
     authorId = interaction.user.id
 
     with sqlite3.connect(DATABASE_PATH) as conn:
@@ -35,12 +28,12 @@ async def loginFunc(interaction: discord.Interaction, day: int = None):
             cursor.execute("UPDATE users SET daysLoggedInInARow = ? WHERE userId = ?", (1, authorId))
             conn.commit()
         else:
-            if time.time() - lastLogin > 172800 or (day * 86400) > 172800:
+            if time.time() - lastLogin > 172800:
                 await interaction.response.send_message("You have lost your daily login streak!")
                 cursor.execute("UPDATE users SET daysLoggedInInARow = ? WHERE userId = ?", (1, authorId))
                 cursor.execute("UPDATE users SET lastLogin = ? WHERE userId = ?", (time.time(), authorId))
                 conn.commit()
-            elif time.time() - lastLogin > 86400 or (day * 86400) > 86400:
+            elif time.time() - lastLogin > 86400:
                 await interaction.response.send_message("You have made your daily login!")
                 cursor.execute("UPDATE users SET lastLogin = ? WHERE userId = ?", (time.time(), authorId))
                 cursor.execute("UPDATE users SET daysLoggedInInARow = ? WHERE userId = ?", (daysLoggedInInARow + 1, interaction.author.id))
