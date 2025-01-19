@@ -2,7 +2,7 @@ import os
 import sqlite3
 import traceback
 
-from const import DATABASE_PATH, COLORS, ADMIN_LOG_CHANNEL_ID
+from const import DATABASE_PATH, COLORS
 
 from helperFunctions.main import logError, logWarning
 
