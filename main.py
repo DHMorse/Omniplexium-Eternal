@@ -23,12 +23,14 @@ import requests
 from datetime import datetime, timezone
 import time
 import sqlite3
+import traceback
 
 from secret_const import TOKEN
 
 from const import CACHE_DIR_PFP, COLORS, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH, DATABASE_PATH
 
-from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, copyCard, checkDatabase, censorMessage, checkLoginRemindersAndSend
+from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, copyCard, censorMessage, checkLoginRemindersAndSend, logError
+from helperFunctions.database import checkDatabase
 
 from adminCommands.set import set
 from adminCommands.stats import stats
@@ -71,6 +73,11 @@ bot = MyBot()
 
 @bot.event
 async def on_ready():
+    try:
+        raise ValueError("This is a test error")
+    except ValueError as e:
+        await logError(bot, e, traceback.format_exc(), 'Value Error on_ready')
+
     if not loginReminderTask.is_running():
         try:
             loginReminderTask.start()

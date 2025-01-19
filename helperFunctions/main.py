@@ -1,8 +1,8 @@
-import os
 import discord
 import sqlite3
 import numpy as np
 from datetime import datetime, timezone, timedelta
+import traceback
 
 from const import HUGGING_FACE_API_KEY_CLIENT, DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS
 
@@ -76,194 +76,6 @@ DO NOT OUTPUT THE METHOD USED. ONLY OUTPUT \"false\" OR THE CENSORED MESSAGE."""
     )
 
     return completion.choices[0].message.content
-
-async def makeDatabaseTables(bot):
-    with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
-        # Create the 'users' table
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            userId BIGINT NOT NULL PRIMARY KEY, -- SQLite uses TEXT instead of varchar
-            username TEXT, -- varchar(100) translates to TEXT in SQLite
-            money DECIMAL(10, 2),
-            xp BIGINT,
-            lastLogin BIGINT,
-            daysLoggedInInARow INTEGER DEFAULT 0, -- int(11) is INTEGER in SQLite
-            loginReminders BOOLEAN DEFAULT FALSE
-        )
-        ''')
-
-        # Create the 'loginRewards' table
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS loginRewards (
-            level INTEGER NOT NULL PRIMARY KEY, -- int(11) is INTEGER in SQLite
-            rewardType TEXT NOT NULL, -- varchar(10) translates to TEXT
-            amountOrCardId INTEGER NOT NULL -- int(11) is INTEGER in SQLite
-        )
-        ''')
-
-        # Create the 'cards' table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS cards (
-                itemId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, -- Auto-incremented primary key
-                itemName TEXT,                                     -- Name of the card or character
-                userId BIGINT,                                     -- User ID (big integer type)
-                cardId INTEGER,                                    -- Card ID
-                description TEXT,                                  -- Description of the character
-                health INTEGER,                                    -- Health points of the character
-                imagePrompt TEXT,                                 -- Image prompt description
-                imageUrl TEXT                                     -- URL of the image
-            )
-        ''')
-
-        # Create the 'attacks' table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS attacks (
-                attackId INTEGER PRIMARY KEY AUTOINCREMENT,        -- Auto-incremented primary key
-                cardId INTEGER NOT NULL,                           -- Card ID of the character this attack belongs to
-                attackName TEXT NOT NULL,                                -- Name of the attack
-                attackDescription TEXT NOT NULL,                         -- Description of the attack
-                attackDamage INTEGER NOT NULL,                     -- Damage dealt by the attack
-                attackSpeed INTEGER NOT NULL,                      -- Speed of the attack
-                attackCooldown INTEGER NOT NULL,                   -- Cooldown time for the attack
-                attackHitrate INTEGER NOT NULL,                    -- Hitrate for the attack
-                FOREIGN KEY (cardId) REFERENCES cards(itemId)     -- Reference to the 'cards' table
-            )
-        ''')
-
-        cursor.execute("SELECT COUNT(*) FROM loginRewards")
-        if cursor.fetchone()[0] == 0:
-            print(f"{COLORS['yellow']}Login rewards table is empty, generating rewards now...{COLORS['reset']}")
-            try:
-                await makeLoginRewards()
-                print(f"{COLORS['blue']}Login rewards generated successfully.{COLORS['reset']}")
-            except Exception as e:
-                print(f"{COLORS['red']}An error occurred while creating login rewards: {e}{COLORS['reset']}")
-                channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                await channel.send(f"```ansi\n{COLORS['red']}An error occurred while creating login rewards: {e}{COLORS['reset']}```")
-
-async def checkDatabase(bot) -> None:
-    try:
-        if not os.path.exists(DATABASE_PATH):
-            with sqlite3.connect(DATABASE_PATH) as conn:
-                cursor = conn.cursor()
-                print(f"{COLORS['yellow']}Database does not exist. Creating a new one...{COLORS['reset']}")
-
-                await makeDatabaseTables(bot)
-
-                print(f"{COLORS['blue']}Database created successfully.{COLORS['reset']}")
-
-    except Exception as e:
-        print(f"{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}")
-        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-        await channel.send(f"```ansi\n{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}```")
-        return None
-    
-    try:
-        with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
-            # Fetch all table names
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-            tables = cursor.fetchall()
-            if not tables:
-                print(f"{COLORS['red']}No tables found in the database.{COLORS['reset']}")
-                await makeDatabaseTables(bot)
-                return await checkDatabase(bot)
-            
-            for table_name, in tables:
-                print(f"Validating table: {table_name}")
-                
-                # Fetch table schema
-                cursor.execute(f"PRAGMA table_info({table_name});")
-                schema = cursor.fetchall()
-                
-                if not schema:
-                    print(f"{COLORS['yellow']}  Warning: Table '{table_name}' has no schema.{COLORS['reset']}")
-                    continue
-                
-                column_definitions = {col[1]: col for col in schema}  # {column_name: schema_row}
-                
-                # Fetch all rows from the table
-                cursor.execute(f"SELECT * FROM {table_name};")
-                rows = cursor.fetchall()
-                
-                if not rows:
-                    print(f"{COLORS['yellow']}  Info: Table '{table_name}' has no rows.{COLORS['reset']}")
-                    continue
-                
-                for row_idx, row in enumerate(rows):
-                    for col_idx, value in enumerate(row):
-                        col_name = schema[col_idx][1]
-                        col_type = schema[col_idx][2]
-                        not_null = schema[col_idx][3]
-                        
-                        # Validate NOT NULL constraint
-                        if not_null and value is None:
-                            print(f"{COLORS['red']}    Error in row {row_idx + 1}: Column '{col_name}' is NULL but must not be.{COLORS['reset']}")
-                            continue
-                        
-                        # Validate column type
-                        if value is not None:
-                            if not validateType(value, col_type):
-                                print(f"{COLORS['red']}    Error in row {row_idx + 1}: Column '{col_name}' has invalid type '{type(value).__name__}', expected '{col_type}'.{COLORS['reset']}")
-            
-            print(f"{COLORS['blue']}Validation completed.{COLORS['reset']}")
-
-    except sqlite3.Error as e:
-        print(f"{COLORS['red']}Error while validating database: {e}{COLORS['reset']}")
-
-
-def validateType(value, expected_type):
-    """
-    Validate if a value matches the expected SQLite type.
-    """
-    if expected_type.upper() in ("TEXT", "CHAR", "VARCHAR"):
-        return isinstance(value, str)
-    elif expected_type.upper() in ("INTEGER", "INT"):
-        return isinstance(value, int)
-    elif expected_type.upper() in ("REAL", "FLOAT", "DOUBLE"):
-        return isinstance(value, (float, int))
-    elif expected_type.upper() == "BLOB":
-        return isinstance(value, (bytes, memoryview))
-    return True  # SQLite is lenient with type checking, so assume true if uncertain
-
-async def makeLoginRewards() -> None:
-    with sqlite3.connect(DATABASE_PATH) as conn:
-        try:
-            cursor = conn.cursor()
-            
-            # Prepare data for insertion
-            rewards = []
-            xp_amount = 10
-            xp_increment = 20
-
-            for level in range(1, 300 + 1): # this uses a default of 300 levels and should probably be changed
-                if level == 10:
-                    rewards.append((level, "card", 6))
-                elif level % 5 == 0:  # Money reward every 5 levels
-                    rewards.append((level, "money", level * 2))
-                    xp_increment += 10  # Increase XP increment every 5 levels
-                else:
-                    if level == 1:
-                        rewards.append((level, "xp", xp_amount))
-                    else:
-                        xp_amount += xp_increment
-                        rewards.append((level, "xp", xp_amount))
-            
-            # Insert rewards into the database
-            cursor.executemany("""
-                INSERT INTO loginRewards (level, rewardType, amountOrCardId)
-                VALUES (?, ?, ?)
-                ON CONFLICT(level) DO UPDATE SET
-                    rewardType=excluded.rewardType,
-                    amountOrCardId=excluded.amountOrCardId
-            """, rewards)
-
-            conn.commit()
-        except Exception as e:
-            print(f"An error occurred while creating login rewards: {e}")
-            return None
-    return None
 
 def xpToLevel(xp: any) -> int:
     # Constants
@@ -466,5 +278,24 @@ def copyCard(cardId: int, userId: int) -> None:
         # get the current max itemId
         cursor.execute("SELECT MAX(itemId) FROM cards")
         maxItemId = cursor.fetchone()[0]
+
+    return None
+
+async def logError(bot, error: Exception, traceback: traceback, errorMessage: str = '', ctx: discord.Message = None) -> None:
+    try:
+        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+    except AttributeError:
+        channel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+    
+    now = datetime.now(timezone.utc)
+    embed = discord.Embed(
+        title="Error Log",
+        description=f"**Error Message:**\n{errorMessage}\n\n"
+                    f"**Error:**\n{error}\n\n"
+                    f"**Traceback:**\n{traceback}"
+                    f"**Context:**\n{ctx}",
+        color=discord.Color.red(),
+        timestamp=now
+    )
 
     return None
