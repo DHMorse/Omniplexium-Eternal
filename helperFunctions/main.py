@@ -77,6 +77,60 @@ DO NOT OUTPUT THE METHOD USED. ONLY OUTPUT \"false\" OR THE CENSORED MESSAGE."""
 
     return completion.choices[0].message.content
 
+def makeDatabaseTables():
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        # Create the 'users' table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            userId BIGINT NOT NULL PRIMARY KEY, -- SQLite uses TEXT instead of varchar
+            username TEXT, -- varchar(100) translates to TEXT in SQLite
+            money DECIMAL(10, 2),
+            xp BIGINT,
+            lastLogin BIGINT,
+            daysLoggedInInARow INTEGER DEFAULT 0, -- int(11) is INTEGER in SQLite
+            loginReminders BOOLEAN DEFAULT FALSE
+        )
+        ''')
+
+        # Create the 'loginRewards' table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS loginRewards (
+            level INTEGER NOT NULL PRIMARY KEY, -- int(11) is INTEGER in SQLite
+            rewardType TEXT NOT NULL, -- varchar(10) translates to TEXT
+            amountOrCardId INTEGER NOT NULL -- int(11) is INTEGER in SQLite
+        )
+        ''')
+
+        # Create the 'cards' table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS cards (
+                itemId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, -- Auto-incremented primary key
+                itemName TEXT,                                     -- Name of the card or character
+                userId BIGINT,                                     -- User ID (big integer type)
+                cardId INTEGER,                                    -- Card ID
+                description TEXT,                                  -- Description of the character
+                health INTEGER,                                    -- Health points of the character
+                imagePrompt TEXT,                                 -- Image prompt description
+                imageUrl TEXT                                     -- URL of the image
+            )
+        ''')
+
+        # Create the 'attacks' table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS attacks (
+                attackId INTEGER PRIMARY KEY AUTOINCREMENT,        -- Auto-incremented primary key
+                cardId INTEGER NOT NULL,                           -- Card ID of the character this attack belongs to
+                attackName TEXT NOT NULL,                                -- Name of the attack
+                attackDescription TEXT NOT NULL,                         -- Description of the attack
+                attackDamage INTEGER NOT NULL,                     -- Damage dealt by the attack
+                attackSpeed INTEGER NOT NULL,                      -- Speed of the attack
+                attackCooldown INTEGER NOT NULL,                   -- Cooldown time for the attack
+                attackHitrate INTEGER NOT NULL,                    -- Hitrate for the attack
+                FOREIGN KEY (cardId) REFERENCES cards(itemId)     -- Reference to the 'cards' table
+            )
+        ''')
+
 async def checkDatabase(bot) -> None:
     try:
         if not os.path.exists(DATABASE_PATH):
@@ -84,56 +138,7 @@ async def checkDatabase(bot) -> None:
                 cursor = conn.cursor()
                 print(f"{COLORS['yellow']}Database does not exist. Creating a new one...{COLORS['reset']}")
 
-                # Create the 'users' table
-                cursor.execute('''
-                CREATE TABLE IF NOT EXISTS users (
-                    userId BIGINT NOT NULL PRIMARY KEY, -- SQLite uses TEXT instead of varchar
-                    username TEXT, -- varchar(100) translates to TEXT in SQLite
-                    money DECIMAL(10, 2),
-                    xp BIGINT,
-                    lastLogin BIGINT,
-                    daysLoggedInInARow INTEGER DEFAULT 0, -- int(11) is INTEGER in SQLite
-                    loginReminders BOOLEAN DEFAULT FALSE
-                )
-                ''')
-
-                # Create the 'loginRewards' table
-                cursor.execute('''
-                CREATE TABLE IF NOT EXISTS loginRewards (
-                    level INTEGER NOT NULL PRIMARY KEY, -- int(11) is INTEGER in SQLite
-                    rewardType TEXT NOT NULL, -- varchar(10) translates to TEXT
-                    amountOrCardId INTEGER NOT NULL -- int(11) is INTEGER in SQLite
-                )
-                ''')
-
-                # Create the 'cards' table
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS cards (
-                        itemId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, -- Auto-incremented primary key
-                        itemName TEXT,                                     -- Name of the card or character
-                        userId BIGINT,                                     -- User ID (big integer type)
-                        cardId INTEGER,                                    -- Card ID
-                        description TEXT,                                  -- Description of the character
-                        health INTEGER,                                    -- Health points of the character
-                        imagePrompt TEXT,                                 -- Image prompt description
-                        imageUrl TEXT                                     -- URL of the image
-                    )
-                ''')
-
-                # Create the 'attacks' table
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS attacks (
-                        attackId INTEGER PRIMARY KEY AUTOINCREMENT,        -- Auto-incremented primary key
-                        cardId INTEGER NOT NULL,                           -- Card ID of the character this attack belongs to
-                        attackName TEXT NOT NULL,                                -- Name of the attack
-                        attackDescription TEXT NOT NULL,                         -- Description of the attack
-                        attackDamage INTEGER NOT NULL,                     -- Damage dealt by the attack
-                        attackSpeed INTEGER NOT NULL,                      -- Speed of the attack
-                        attackCooldown INTEGER NOT NULL,                   -- Cooldown time for the attack
-                        attackHitrate INTEGER NOT NULL,                    -- Hitrate for the attack
-                        FOREIGN KEY (cardId) REFERENCES cards(itemId)     -- Reference to the 'cards' table
-                    )
-                ''')
+                makeDatabaseTables()
 
                 print(f"{COLORS['blue']}Database created successfully.{COLORS['reset']}")
 
@@ -162,7 +167,8 @@ async def checkDatabase(bot) -> None:
             tables = cursor.fetchall()
             if not tables:
                 print(f"{COLORS['red']}No tables found in the database.{COLORS['reset']}")
-                return
+                makeDatabaseTables()
+                return checkDatabase(bot)
             
             for table_name, in tables:
                 print(f"Validating table: {table_name}")

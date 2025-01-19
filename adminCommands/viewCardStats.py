@@ -23,29 +23,31 @@ async def viewcardstats(ctx, *, query: str = '') -> None:
                 await ctx.send(f'''```ansi\n{COLORS['yellow']}Please specify a valid card name or ID to view.{COLORS['reset']}```''')
                 return
 
-            cardData = None
+            cardId = None
 
             # Try to find by itemId if the query is numeric
             if query.isdigit():
-                cursor.execute("SELECT * FROM cards WHERE cardId = ?", (int(query),))
-                cardData = cursor.fetchone()
+                cursor.execute("SELECT cardId FROM cards WHERE cardId = ?", (int(query),))
+                cardId = cursor.fetchone()
             else:
                 # Otherwise, find by itemName (case-insensitive)
-                cursor.execute("SELECT * FROM cards WHERE LOWER(itemName) = LOWER(?)", (query.lower(),))
-                cardData = cursor.fetchone()
+                cursor.execute("SELECT cardId FROM cards WHERE LOWER(itemName) = LOWER(?)", (query.lower(),))
+                cardId = cursor.fetchone()
             
-            if cardData is None:
+            if cardId is None:
                 await ctx.send(f'''```ansi\n{COLORS['yellow']}No card found for '{query}'.{COLORS['reset']}```''')
                 return
 
             # Extract the itemId and construct the image path
-            itemId = cardData[0]
+            itemId = cardId[0]
             image_path = CARD_DATA_IMAGES_PATH / f"{itemId}.png"
 
             # Check if the image file exists
             if not image_path.exists():
                 await ctx.send(f'''```ansi\n{COLORS['red']}Image for card with ID {itemId} not found.{COLORS['reset']}```''')
                 return
+
+            cursor.execute("SELECT * FROM attacks WHERE cardId = ?", (itemId,))
 
             # Send the image
             await ctx.send(file=discord.File(image_path))
