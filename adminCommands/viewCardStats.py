@@ -1,7 +1,8 @@
 import discord
 import sqlite3
 import traceback 
-
+import json
+import io
 from discord.ext import commands
 from pathlib import Path
 
@@ -48,6 +49,17 @@ async def viewcardstats(ctx, *, query: str = '') -> None:
                 return
 
             cursor.execute("SELECT * FROM attacks WHERE cardId = ?", (itemId,))
+            attacks = cursor.fetchall()
+
+            card_info = cursor.execute("SELECT * FROM cards WHERE cardId = ?", (itemId,)).fetchone()
+            data = {
+                "cardData": card_info,
+                "attacks": attacks
+            }
+
+            json_str = json.dumps(data, indent=4)
+            file_obj = io.StringIO(json_str)
+            await ctx.send(file=discord.File(file_obj, "card_data.json"))
 
             # Send the image
             await ctx.send(file=discord.File(image_path))
