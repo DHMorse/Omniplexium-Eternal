@@ -160,7 +160,6 @@ async def checkLoginRemindersAndSend(bot) -> None:
     except sqlite3.Error as e:
         print(f"Database error while checking login reminders: {e}")
 
-
 async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
     # Input validation
     if isinstance(xp, float):
@@ -170,7 +169,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
             xp = int(xp)
         except ValueError:
             raise ValueError("argument 'xp' must be an int, float, or a string that can be converted to an integer.")
-    
+
     if not isinstance(add, bool):
         raise ValueError("argument 'add' must be a boolean.")
 
@@ -183,39 +182,39 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
             cursor = conn.cursor()
-            
+
             # Get current XP
             cursor.execute("SELECT xp FROM users WHERE userId = ?", (discordAuthor.id,))
             database = cursor.fetchone()
-            
+
             if not database:
                 raise ValueError(f"User {discordAuthor.id} not found in database")
-                
+
             current_xp = database[0]
             current_level = xpToLevel(current_xp)
-            
+
             # Update XP based on add flag
             new_xp = current_xp + xp if add else current_xp - xp
             cursor.execute("UPDATE users SET xp = ? WHERE userId = ?", (new_xp, discordAuthor.id))
             conn.commit()
-            
+
             # Calculate new level after XP update
             newLevel = xpToLevel(new_xp)
-            
+
             levelUp = current_level < newLevel
             levelDown = current_level > newLevel
-            
+
             if levelUp or levelDown:
                 # Get the appropriate channel
                 try:
                     channel = bot.get_channel(LOG_CHANNEL_ID)
                 except AttributeError:
                     channel = bot.client.get_channel(LOG_CHANNEL_ID)
-                
+
                 # Determine if we should mention the user
                 doMention = (newLevel == 1 or newLevel > 9) if levelUp else True
-                
-                # Handle level up messages and role assignments
+
+                # Handle level up
                 if levelUp:
                     for i in range(current_level, newLevel):
                         now = datetime.now(timezone.utc)
@@ -227,27 +226,60 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                             timestamp=now
                         )
                         embed.set_thumbnail(url=discordAuthor.display_avatar.url)
-                        
+
                         await channel.send(
                             discordAuthor.mention if doMention else '', 
                             embed=embed
                         )
-                        
+
                         # Handle role assignment
                         role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
                         if role is None:
                             await logError(bot, ValueError(f"Role Level {i + 1} does not exist."), traceback.format_exc(), 
                                             f'Role Level {i + 1} does not exist.', ctx)
-                            continue                            
-                            
+                            continue
+
                         if role in discordAuthor.roles:
-                            await logError(bot, ValueError(f"{discordAuthor.name} already has the Level {i+ 1} role, but we tried to give it to them again."), 
-                                            traceback.format_exc(), f"{discordAuthor.name} already has the Level {i+ 1} role, but we tried to give it to them again.", 
+                            await logError(bot, ValueError(f"{discordAuthor.name} already has the Level {i + 1} role, but we tried to give it to them again."), 
+                                            traceback.format_exc(), f"{discordAuthor.name} already has the Level {i + 1} role, but we tried to give it to them again.", 
                                             ctx)
                             continue
-                            
+
                         await discordAuthor.add_roles(role)
-                        
+
+                # Handle level down
+                if levelDown:
+                    for i in range(current_level, newLevel, -1):
+                        now = datetime.now(timezone.utc)
+                        embed = discord.Embed(
+                            title="Member Leveled Down",
+                            description=f"**Member:** \n{discordAuthor}\n\n"
+                                        f"**Account Level:** \n{i - 1}\n",
+                            color=discord.Color.red(),
+                            timestamp=now
+                        )
+                        embed.set_thumbnail(url=discordAuthor.display_avatar.url)
+
+                        await channel.send(
+                            discordAuthor.mention if doMention else '', 
+                            embed=embed
+                        )
+
+                        # Handle role removal
+                        role = discord.utils.get(ctx.guild.roles, name=f"Level {i}")
+                        if role is None:
+                            await logError(bot, ValueError(f"Role Level {i} does not exist."), traceback.format_exc(), 
+                                            f'Role Level {i} does not exist.', ctx)
+                            continue
+
+                        if role not in discordAuthor.roles:
+                            await logError(bot, ValueError(f"{discordAuthor.name} does not have the Level {i} role, but we tried to remove it."), 
+                                            traceback.format_exc(), f"{discordAuthor.name} does not have the Level {i} role, but we tried to remove it.", 
+                                            ctx)
+                            continue
+
+                        await discordAuthor.remove_roles(role)
+
     except sqlite3.Error as e:
         await logError(bot, e, traceback.format_exc(), f"Database error in updateXpAndCheckLevelUp", ctx)
     except Exception as e:
