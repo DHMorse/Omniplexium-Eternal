@@ -285,7 +285,7 @@ async def logError(bot, error: Exception, traceback: traceback, errorMessage: st
         description=f"**Error Message:**\n```{errorMessage}```\n\n"
                     f"**Error:**\n```{error}```\n\n"
                     f"**Traceback:**\n```{traceback}```\n"
-                    f"**Context:**\n{ctx}",
+                    f"**Context:**\n```{ctx}```",
         color=discord.Color.red(),
         timestamp=now
     )
@@ -303,8 +303,8 @@ async def logWarning(bot, warning: str, ctx: discord.Message = None) -> None:
     now = datetime.now(timezone.utc)
     embed = discord.Embed(
         title="Warning Log",
-        description=f"**Warning:**\n`{warning}`\n\n"
-                    f"**Context:**\n{ctx}",
+        description=f"**Warning:**\n```{warning}```\n\n"
+                    f"**Context:**\n```{ctx}```",
         color=discord.Color.orange(),
         timestamp=now
     )
