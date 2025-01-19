@@ -16,6 +16,8 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str = "prom
 
     card: Image = await makeCardFromJson(cardData[0], cardData[1]) # returns a PIL Image object
 
+    print(cardData[0])
+
     # Update the user's items in the database
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
