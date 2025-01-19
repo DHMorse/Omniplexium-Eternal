@@ -49,11 +49,17 @@ async def viewcardstats(ctx, *, query: str = '') -> None:
                 return
 
             cursor.execute("SELECT * FROM attacks WHERE cardId = ?", (itemId,))
-            attacks = cursor.fetchall()
+            attack_columns = [desc[0] for desc in cursor.description]
+            attack_rows = cursor.fetchall()
+            attacks = [dict(zip(attack_columns, row)) for row in attack_rows]
 
-            card_info = cursor.execute("SELECT * FROM cards WHERE cardId = ?", (itemId,)).fetchone()
+            cursor.execute("SELECT * FROM cards WHERE cardId = ?", (itemId,))
+            card_columns = [desc[0] for desc in cursor.description]
+            card_info = cursor.fetchone()
+            card_data = dict(zip(card_columns, card_info)) if card_info else {}
+
             data = {
-                "cardData": card_info,
+                "cardData": card_data,
                 "attacks": attacks
             }
 

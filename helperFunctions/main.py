@@ -77,7 +77,7 @@ DO NOT OUTPUT THE METHOD USED. ONLY OUTPUT \"false\" OR THE CENSORED MESSAGE."""
 
     return completion.choices[0].message.content
 
-async def makeDatabaseTables():
+async def makeDatabaseTables(bot):
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
         # Create the 'users' table
@@ -131,6 +131,17 @@ async def makeDatabaseTables():
             )
         ''')
 
+        cursor.execute("SELECT COUNT(*) FROM loginRewards")
+        if cursor.fetchone()[0] == 0:
+            print(f"{COLORS['yellow']}Login rewards table is empty, generating rewards now...{COLORS['reset']}")
+            try:
+                await makeLoginRewards()
+                print(f"{COLORS['blue']}Login rewards generated successfully.{COLORS['reset']}")
+            except Exception as e:
+                print(f"{COLORS['red']}An error occurred while creating login rewards: {e}{COLORS['reset']}")
+                channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                await channel.send(f"```ansi\n{COLORS['red']}An error occurred while creating login rewards: {e}{COLORS['reset']}```")
+
 async def checkDatabase(bot) -> None:
     try:
         if not os.path.exists(DATABASE_PATH):
@@ -138,20 +149,9 @@ async def checkDatabase(bot) -> None:
                 cursor = conn.cursor()
                 print(f"{COLORS['yellow']}Database does not exist. Creating a new one...{COLORS['reset']}")
 
-                await makeDatabaseTables()
+                await makeDatabaseTables(bot)
 
                 print(f"{COLORS['blue']}Database created successfully.{COLORS['reset']}")
-
-                cursor.execute("SELECT COUNT(*) FROM loginRewards")
-                if cursor.fetchone()[0] == 0:
-                    print(f"{COLORS['yellow']}Login rewards table is empty, generating rewards now...{COLORS['reset']}")
-                    try:
-                        await makeLoginRewards()
-                        print(f"{COLORS['blue']}Login rewards generated successfully.{COLORS['reset']}")
-                    except Exception as e:
-                        print(f"{COLORS['red']}An error occurred while creating login rewards: {e}{COLORS['reset']}")
-                        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                        await channel.send(f"```ansi\n{COLORS['red']}An error occurred while creating login rewards: {e}{COLORS['reset']}```")
 
     except Exception as e:
         print(f"{COLORS['red']}An error occurred while creating the database. {e}{COLORS['reset']}")
@@ -167,7 +167,7 @@ async def checkDatabase(bot) -> None:
             tables = cursor.fetchall()
             if not tables:
                 print(f"{COLORS['red']}No tables found in the database.{COLORS['reset']}")
-                await makeDatabaseTables()
+                await makeDatabaseTables(bot)
                 return await checkDatabase(bot)
             
             for table_name, in tables:
