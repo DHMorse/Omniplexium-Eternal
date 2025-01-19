@@ -39,12 +39,12 @@ async def viewcardstats(ctx, *, query: str = '') -> None:
                 return
 
             # Extract the itemId and construct the image path
-            item_id = cardData['itemId']
-            image_path = CARD_DATA_IMAGES_PATH / f"{item_id}.png"
+            itemId = cardData[0]
+            image_path = CARD_DATA_IMAGES_PATH / f"{itemId}.png"
 
             # Check if the image file exists
             if not image_path.exists():
-                await ctx.send(f'''```ansi\n{COLORS['red']}Image for card with ID {item_id} not found.{COLORS['reset']}```''')
+                await ctx.send(f'''```ansi\n{COLORS['red']}Image for card with ID {itemId} not found.{COLORS['reset']}```''')
                 return
 
             # Send the image
