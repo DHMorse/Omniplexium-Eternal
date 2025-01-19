@@ -73,16 +73,16 @@ bot = MyBot()
 
 @bot.event
 async def on_ready():
+    checkDatabaseStartTime = time.time()
+    await checkDatabase(bot)
+    print(f'The database check took {round(time.time() - checkDatabaseStartTime, 2)} seconds')
+
     if not loginReminderTask.is_running():
         try:
             loginReminderTask.start()
             print(f"{COLORS['blue']}Login reminder task started{COLORS['reset']}")
         except Exception as e:
             print(f"{COLORS['red']}Login reminder task failed to start: {e}{COLORS['reset']}")
-
-    checkDatabaseStartTime = time.time()
-    await checkDatabase(bot)
-    print(f'The database check took {round(time.time() - checkDatabaseStartTime, 2)} seconds')
 
     botTreeSyncStartTime = time.time()
     await bot.tree.sync()
