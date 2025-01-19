@@ -10,7 +10,7 @@ from const import CARD_DATA_IMAGES_PATH, COLORS, DATABASE_PATH
 CARD_DATA_IMAGES_PATH = Path(CARD_DATA_IMAGES_PATH)
 
 @commands.command()
-async def viewcardstats(ctx, *, query: str) -> None:
+async def viewcardstats(ctx, *, query: str = '') -> None:
     if not ctx.author.guild_permissions.administrator:
         await ctx.send(f'''```ansi\n{COLORS['yellow']}You do not have the required permissions to use this command.{COLORS['reset']}```''')
         return
@@ -18,7 +18,7 @@ async def viewcardstats(ctx, *, query: str) -> None:
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
         try:
-            if not query:
+            if not query or query == '':
                 await ctx.send(f'''```ansi\n{COLORS['yellow']}Please specify a valid card name or ID to view.{COLORS['reset']}```''')
                 return
 
