@@ -155,7 +155,7 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
 
         # Try multiple font options that should exist on most systems
         try:
-            title_font = ImageFont.truetype("arialbd.ttf", 48)
+            title_font = ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoMono-Regular.ttf", 48)
         except IOError:
             try:
                 title_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 48)
@@ -167,7 +167,7 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
                     print(f"{COLORS['yellow']}Warning: Using default font for title{COLORS['reset']}")
 
         try:
-            text_font = ImageFont.truetype("arial.ttf", 32)
+            text_font = ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoMono-Regular.ttf", 32)
         except IOError:
             try:
                 text_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 32)
