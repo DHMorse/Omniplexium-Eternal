@@ -236,30 +236,22 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                         # Handle role assignment
                         role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
                         if role is None:
-                            try:
-                                adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                            except AttributeError:
-                                adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-                            await adminChannel.send(f"Role `Level {i + 1}` does not exist.")
-                            continue
+                            await logError(bot, ValueError(f"Role `Level {i + 1}` does not exist."), traceback.format_exc(), 
+                                            f'Role `Level {i + 1}` does not exist.', ctx)
+                            continue                            
                             
                         if role in discordAuthor.roles:
-                            try:
-                                adminChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                            except AttributeError:
-                                adminChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-                            await adminChannel.send(
-                                f"`{discordAuthor.name}` already has the `Level {i+ 1}` role, "
-                                "but we tried to give it to them again."
-                            )
+                            await logError(bot, ValueError(f"`{discordAuthor.name}` already has the `Level {i+ 1}` role, but we tried to give it to them again."), 
+                                            traceback.format_exc(), f"`{discordAuthor.name}` already has the `Level {i+ 1}` role, but we tried to give it to them again.", 
+                                            ctx)
                             continue
                             
                         await discordAuthor.add_roles(role)
                         
     except sqlite3.Error as e:
-        print(f"Database error in updateXpAndCheckLevelUp: {e}")
+        await logError(bot, e, traceback.format_exc(), f"Database error in updateXpAndCheckLevelUp", ctx)
     except Exception as e:
-        print(f"Error in updateXpAndCheckLevelUp: {e}")
+        await logError(bot, e, traceback.format_exc(), f"Error in updateXpAndCheckLevelUp", ctx)
 
 
 def copyCard(cardId: int, userId: int) -> None:
