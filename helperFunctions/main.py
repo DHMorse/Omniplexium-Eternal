@@ -77,7 +77,7 @@ DO NOT OUTPUT THE METHOD USED. ONLY OUTPUT \"false\" OR THE CENSORED MESSAGE."""
 
     return completion.choices[0].message.content
 
-def makeDatabaseTables():
+async def makeDatabaseTables():
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
         # Create the 'users' table
@@ -138,7 +138,7 @@ async def checkDatabase(bot) -> None:
                 cursor = conn.cursor()
                 print(f"{COLORS['yellow']}Database does not exist. Creating a new one...{COLORS['reset']}")
 
-                makeDatabaseTables()
+                await makeDatabaseTables()
 
                 print(f"{COLORS['blue']}Database created successfully.{COLORS['reset']}")
 
@@ -167,8 +167,8 @@ async def checkDatabase(bot) -> None:
             tables = cursor.fetchall()
             if not tables:
                 print(f"{COLORS['red']}No tables found in the database.{COLORS['reset']}")
-                makeDatabaseTables()
-                return checkDatabase(bot)
+                await makeDatabaseTables()
+                return await checkDatabase(bot)
             
             for table_name, in tables:
                 print(f"Validating table: {table_name}")
