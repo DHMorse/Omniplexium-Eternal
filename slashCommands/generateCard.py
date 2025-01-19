@@ -27,7 +27,7 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
         
         cursor.execute(
             "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-            (cardData[0]['name'], interaction.user.id, currentItemId, cardData[0]['description'], cardData[0]['health'], prompt, cardData[1]))
+            (cardData[0]['name'], interaction.user.id, currentItemId, cardData[0]['description'], cardData[0]['health'], cardData[0]['image_prompt'], cardData[1]))
         conn.commit()
         
         for attack in cardData[0]['attacks']:
