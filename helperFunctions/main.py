@@ -4,7 +4,7 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import traceback
 
-from const import HUGGING_FACE_API_KEY_CLIENT, DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS
+from const import HUGGING_FACE_API_KEY_CLIENT, DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS, WARNING_LOG_CHANNEL_ID
 
 async def censorMessage(message: str) -> str:
     messages = [
@@ -295,6 +295,25 @@ async def logError(bot, error: Exception, traceback: traceback, errorMessage: st
                     f"**Traceback:**\n```{traceback}```\n"
                     f"**Context:**\n{ctx}",
         color=discord.Color.red(),
+        timestamp=now
+    )
+
+    await channel.send(embed=embed)
+
+    return None
+
+async def logWarning(bot, warning: str, ctx: discord.Message = None) -> None:
+    try:
+        channel = bot.get_channel(WARNING_LOG_CHANNEL_ID)
+    except AttributeError:
+        channel = bot.client.get_channel(WARNING_LOG_CHANNEL_ID)
+    
+    now = datetime.now(timezone.utc)
+    embed = discord.Embed(
+        title="Warning Log",
+        description=f"**Warning:**\n`{warning}`\n"
+                    f"**Context:**\n{ctx}",
+        color=discord.Color.orange(),
         timestamp=now
     )
 

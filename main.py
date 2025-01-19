@@ -73,11 +73,6 @@ bot = MyBot()
 
 @bot.event
 async def on_ready():
-    try:
-        raise ValueError("This is a test error")
-    except ValueError as e:
-        await logError(bot, e, traceback.format_exc(), 'Value Error on_ready')
-
     if not loginReminderTask.is_running():
         try:
             loginReminderTask.start()
