@@ -298,4 +298,6 @@ async def logError(bot, error: Exception, traceback: traceback, errorMessage: st
         timestamp=now
     )
 
+    await channel.send(embed=embed)
+
     return None
