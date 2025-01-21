@@ -179,9 +179,15 @@ async def on_message(message):
 
             except Exception as e:
                 await logError(bot, e, traceback.format_exc(), 'on_message event')
-                await logWarning(bot, f'{username} sent a message: {message}\nWhich was not censored!', 'on_message event')
+                
+                await logWarning(
+                                bot, f"""{username} sent a message: {message}
+Which was not censored using {'MAIN MODEL' if model == MAIN_CENSORSHIP_MODEL else 'BACKUP MODEL'}""", 'on_message event'
+                                )
+                
                 if model == BACKUP_CENSORSHIP_MODEL:
                     return None # if the backup model fails, we give up and use a different method
+                
                 return await tryCensorMessageWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
             
             return 'false' if censoredMessage is None else censoredMessage
