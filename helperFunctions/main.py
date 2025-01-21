@@ -45,12 +45,7 @@ async def censorMessage(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str
     presence_penalty=0
 )
 
-    print(response)
-    print(response['choices'])
-    print(response['choices'][0])
-    print(response['choices'][0]['content'])
-
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
 
 
