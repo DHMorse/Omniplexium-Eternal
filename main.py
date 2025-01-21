@@ -165,7 +165,7 @@ async def on_message(message):
             except asyncio.TimeoutError as e:
                 await logError(bot, e, traceback.format_exc(), 
                                 f'`{username}` sent a message: ```{message.content}```Which was not censored in time!', 'on_message event')
-            censoredMessage = "false"
+                censoredMessage = "false"
 
         except Exception as e:
             await logError(bot, e, traceback.format_exc(), 'on_message event')
