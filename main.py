@@ -197,7 +197,8 @@ Which was not censored using {'MAIN MODEL' if model == MAIN_CENSORSHIP_MODEL els
             
             return 'false' if censoredMessage is None else censoredMessage
 
-        censoredMessage = await tryCensorMessageWithModel(message.content)
+        if message.content is not None and message.content.strip() != '':
+            censoredMessage = await tryCensorMessageWithModel(message.content)
         
         if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"'] and username != '404_5971':
             channel = bot.get_channel(CENSORSHIP_CHANNEL_ID)
