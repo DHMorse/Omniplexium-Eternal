@@ -67,3 +67,7 @@ CARD_DATA_JSON_PATH = os.path.join(CARD_DATA_PATH, 'json')
 
 # Hugging Face API
 HUGGING_FACE_API_KEY_CLIENT = InferenceClient(api_key=HUGGING_FACE_API_KEY)
+
+MAIN_CENSORSHIP_MODEL = 'Qwen/Qwen2.5-72B-Instruct'
+
+BACKUP_CENSORSHIP_MODEL = 'meta-llama/Llama-3.2-3B-Instruct'

@@ -4,9 +4,10 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import traceback
 
-from const import HUGGING_FACE_API_KEY_CLIENT, DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS, WARNING_LOG_CHANNEL_ID
+from const import HUGGING_FACE_API_KEY_CLIENT, MAIN_CENSORSHIP_MODEL, BACKUP_CENSORSHIP_MODEL
+from const import DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS, WARNING_LOG_CHANNEL_ID
 
-async def censorMessage(message: str) -> str:
+async def censorMessage(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str:
     messages = [
         { "role": "system", "content": """You are a profanity filter. It is your goal to:
 
@@ -68,7 +69,7 @@ DO NOT OUTPUT THE METHOD USED. ONLY OUTPUT \"false\" OR THE CENSORED MESSAGE."""
     ]
 
     completion = HUGGING_FACE_API_KEY_CLIENT.chat.completions.create(
-        model="Qwen/Qwen2.5-72B-Instruct", 
+        model=model, 
         messages=messages, 
         temperature=0,
         max_tokens=128,

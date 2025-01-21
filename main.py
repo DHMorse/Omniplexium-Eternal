@@ -28,9 +28,9 @@ import asyncio
 
 from secret_const import TOKEN
 
-from const import CACHE_DIR_PFP, COLORS, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, CARD_DATA_JSON_PATH, CARD_DATA_IMAGES_PATH, DATABASE_PATH
+from const import CACHE_DIR_PFP, COLORS, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, DATABASE_PATH, BACKUP_CENSORSHIP_MODEL
 
-from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, copyCard, censorMessage, checkLoginRemindersAndSend, logError
+from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, copyCard, censorMessage, checkLoginRemindersAndSend, logError, logWarning
 from helperFunctions.database import checkDatabase
 
 from adminCommands.set import set
@@ -162,13 +162,34 @@ async def on_message(message):
         try:
             try:
                 censoredMessage = await asyncio.wait_for(censorMessage(message.content), timeout=1.0)
+
             except asyncio.TimeoutError as e:
-                await logError(bot, e, traceback.format_exc(), 
-                                f'`{username}` sent a message: ```{message.content}```Which was not censored in time!', 'on_message event')
+                await logError(bot, e, traceback.format_exc(), f'`{username}` sent a message: ```{message.content}```Which was not censored in time!', 
+                                'on_message event')
+                
+                await logWarning(bot, f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using backup censorship model!', 
+                                'on_message event')
+                try:
+                    await censoredMessage = await asyncio.wait_for(censorMessage(message.content, BACKUP_CENSORSHIP_MODEL), timeout=1.0)
+                except asyncio.TimeoutError as e:
+                    await logError(bot, e, traceback.format_exc(), 
+                                    f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using the backup model!', 
+                                    'on_message event')
+                    await logWarning(bot, f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using backup P model!', 
+                                    'on_message event')
+                
                 censoredMessage = "false"
 
         except Exception as e:
             await logError(bot, e, traceback.format_exc(), 'on_message event')
+            await logWarning(bot, f'`{username}` sent a message: ```{message.content}```Which was not censored! Using backup censorship model!', 'on_message event')
+            try:
+                await censoredMessage = await asyncio.wait_for(censorMessage(message.content, BACKUP_CENSORSHIP_MODEL), timeout=1.0)
+            except asyncio.TimeoutError as e:
+                await logError(bot, e, traceback.format_exc(), 
+                                f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using the backup model!', 'on_message event')
+                await logWarning(bot, f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using backup model!', 
+                                'on_message event')
             censoredMessage = "false"
 
         if censoredMessage is None:
