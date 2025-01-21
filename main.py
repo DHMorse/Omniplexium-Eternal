@@ -159,7 +159,6 @@ async def on_message(message):
         await bot.process_commands(message)
 
         # because of none of this error handling working this is going to wait until it gets fixed
-        '''
         try:
             try:
                 censoredMessage = await asyncio.wait_for(censorMessage(message.content), timeout=1.0)
@@ -180,7 +179,6 @@ async def on_message(message):
             await channel.send(f'`{username}` sent a message: ```{message.content}```Which was censored to: ```{censoredMessage}```')
             await message.delete()
             await message.channel.send(f'`{username}:` {censoredMessage}')
-        '''
 
 @bot.command()
 async def login(ctx, day: float = None) -> None:
