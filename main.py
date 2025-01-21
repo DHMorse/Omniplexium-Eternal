@@ -160,6 +160,7 @@ async def on_message(message):
         await bot.process_commands(message)
 
         async def tryCensorMessageWithModel(message: str) -> str:
+            censoredMessage = None
             try:
                 try:
                     censoredMessage = await asyncio.wait_for(censorMessage(message), timeout=1.0)
