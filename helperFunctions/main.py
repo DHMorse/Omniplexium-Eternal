@@ -45,9 +45,7 @@ async def censorMessage(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str
     presence_penalty=0
 )
 
-    print(response)
-
-    return response
+    return response["text"]
 
 
 
