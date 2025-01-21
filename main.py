@@ -24,6 +24,7 @@ from datetime import datetime, timezone
 import time
 import sqlite3
 import traceback
+import asyncio
 
 from secret_const import TOKEN
 
@@ -158,21 +159,17 @@ async def on_message(message):
         await bot.process_commands(message)
 
         # because of none of this error handling working this is going to wait until it gets fixed
-        """
+        '''
         try:
             try:
                 censoredMessage = await asyncio.wait_for(censorMessage(message.content), timeout=1.0)
-            except asyncio.TimeoutError:
-                channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-                await channel.send(f'''```ansi
-`{username}` sent a message: ```{message.content}```{COLORS['red']}Which was not censored in time!{COLORS['reset']}```''')
+            except asyncio.TimeoutError as e:
+                await logError(bot, e, traceback.format_exc(), 
+                                f'`{username}` sent a message: ```{message.content}```Which was not censored in time!', 'on_message event')
             censoredMessage = "false"
 
         except Exception as e:
-            print(f'''{COLORS['red']}Exception "{e}"{COLORS['reset']}''')
-            channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
-            await channel.send(f'''```ansi
-`{username}` sent a message: ```{message.content}```{COLORS['red']}Which was not censored due to an Exception ```{e}```{COLORS['reset']}```''')
+            await logError(bot, e, traceback.format_exc(), 'on_message event')
             censoredMessage = "false"
 
         if censoredMessage is None:
@@ -182,7 +179,8 @@ async def on_message(message):
             channel = bot.get_channel(CENSORSHIP_CHANNEL_ID)
             await channel.send(f'`{username}` sent a message: ```{message.content}```Which was censored to: ```{censoredMessage}```')
             await message.delete()
-            await message.channel.send(f'`{username}:` {censoredMessage}')"""
+            await message.channel.send(f'`{username}:` {censoredMessage}')
+        '''
 
 @bot.command()
 async def login(ctx, day: float = None) -> None:
