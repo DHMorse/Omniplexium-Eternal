@@ -28,9 +28,10 @@ import asyncio
 
 from secret_const import TOKEN
 
-from const import CACHE_DIR_PFP, COLORS, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, DATABASE_PATH, MAIN_CENSORSHIP_MODEL, BACKUP_CENSORSHIP_MODEL
+from const import CACHE_DIR_PFP, COLORS, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, DATABASE_PATH, MAIN_CENSORSHIP_MODEL, BACKUP_CENSORSHIP_MODEL
+from const import SERVER_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERROR_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, LOG_CHANNEL_ID
 
-from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, copyCard, censorMessage, checkLoginRemindersAndSend, logError, logWarning
+from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, copyCard, censorMessage, checkLoginRemindersAndSend, logModelError, logError, logWarning
 from helperFunctions.database import checkDatabase
 
 from adminCommands.set import set
@@ -163,12 +164,14 @@ async def on_message(message):
                 try:
                     censoredMessage = await asyncio.wait_for(censorMessage(message, model=model), timeout=1.0)
                 except asyncio.TimeoutError as e:
-                    await logError(
+                    messageId = await logModelError(
                                     bot, e, traceback.format_exc(), 
                                     f"""{username} sent a message: {message}\nWhich was not censored in time! 
 {model} ({'MAIN MODEL' if model == MAIN_CENSORSHIP_MODEL else 'BACKUP MODEL'})""", 'on_message event'
                                     )
-                
+                    channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                    await channel.send(f"https://discord.com/channels/{SERVER_ID}/{MODEL_ERROR_LOG_CHANNEL_ID}/{messageId}")
+
                     await logWarning(
                                     bot, f"""{username} sent a message: {message}\nWhich was not censored in time!
 {model} ({'MAIN MODEL' if model == MAIN_CENSORSHIP_MODEL else 'BACKUP MODEL'})""", 'on_message event'
@@ -178,7 +181,9 @@ async def on_message(message):
                     return await tryCensorMessageWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
 
             except Exception as e:
-                await logError(bot, e, traceback.format_exc(), 'on_message event')
+                messageId = await logModelError(bot, e, traceback.format_exc(), 'on_message event')
+                channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                await channel.send(f"https://discord.com/channels/{SERVER_ID}/{MODEL_ERROR_LOG_CHANNEL_ID}/{messageId}")
                 
                 await logWarning(
                                 bot, f"""{username} sent a message: {message}

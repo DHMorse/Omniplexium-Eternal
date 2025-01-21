@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 import traceback
 
 from const import HUGGING_FACE_API_KEY_CLIENT, MAIN_CENSORSHIP_MODEL, BACKUP_CENSORSHIP_MODEL
-from const import DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS, WARNING_LOG_CHANNEL_ID
+from const import DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERROR_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS, WARNING_LOG_CHANNEL_ID
 
 async def censorMessage(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str:
     messages = [
@@ -326,6 +326,27 @@ async def logError(bot, error: Exception, traceback: traceback, errorMessage: st
     await channel.send(embed=embed)
 
     return None
+
+async def logModelError(bot, error: Exception, traceback: traceback, errorMessage: str = '', ctx: discord.Message = None) -> int:
+    try:
+        channel = bot.get_channel(MODEL_ERROR_LOG_CHANNEL_ID)
+    except AttributeError:
+        channel = bot.client.get_channel(MODEL_ERROR_LOG_CHANNEL_ID)
+    
+    now = datetime.now(timezone.utc)
+    embed = discord.Embed(
+        title="Error Log",
+        description=f"**Error Message:**\n```{errorMessage}```\n\n"
+                    f"**Error:**\n```{error}```\n\n"
+                    f"**Traceback:**\n```{traceback}```\n"
+                    f"**Context:**\n```{ctx}```",
+        color=discord.Color.red(),
+        timestamp=now
+    )
+
+    sentMessage = await channel.send(embed=embed)
+
+    return sentMessage.id
 
 async def logWarning(bot, warning: str, ctx: discord.Message = None) -> None:
     try:
