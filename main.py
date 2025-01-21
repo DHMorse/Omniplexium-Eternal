@@ -183,7 +183,7 @@ async def on_message(message):
             
             return 'false' if censoredMessage is None else censoredMessage
 
-        censoredMessage = await tryCentorshipWithModel(message.content)
+        censoredMessage = await tryCentorshipWithModel(message.content, BACKUP_CENSORSHIP_MODEL)
         
         if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"'] and username != '404_5971':
             channel = bot.get_channel(CENSORSHIP_CHANNEL_ID)
