@@ -357,7 +357,7 @@ async def logWarning(bot, warning: str, ctx: discord.Message = None) -> None:
     now = datetime.now(timezone.utc)
     embed = discord.Embed(
         title="Warning Log",
-        description=f"**Warning:**\n```{warning}```\n\n"
+        description=f"**\nWarning:**\n```{warning}```\n\n"
                     f"**Context:**\n```{ctx}```",
         color=discord.Color.orange(),
         timestamp=now
