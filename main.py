@@ -161,7 +161,7 @@ async def on_message(message):
         async def tryCensorMessageWithModel(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str:
             try:
                 try:
-                    censoredMessage = await asyncio.wait_for(censorMessage(message), model=model, timeout=1.0)
+                    censoredMessage = await asyncio.wait_for(censorMessage(message, model=model), timeout=1.0)
                 except asyncio.TimeoutError as e:
                     await logError(
                                     bot, e, traceback.format_exc(), 
