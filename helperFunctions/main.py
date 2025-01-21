@@ -12,7 +12,6 @@ from const import DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERR
 client = OpenAI(api_key=OPENAI_KEY)
 
 async def censorMessage(message: str) -> str:
-
     response = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[
@@ -46,7 +45,7 @@ async def censorMessage(message: str) -> str:
 )
 
     #return response.choices[0].message.content
-    return response.choices
+    return response.choices[0]
 
 
 
