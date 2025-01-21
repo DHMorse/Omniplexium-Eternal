@@ -3,61 +3,49 @@ import sqlite3
 import numpy as np
 from datetime import datetime, timezone, timedelta
 import traceback
+from openai import OpenAI
+client = OpenAI()
 
 from const import HUGGING_FACE_API_KEY_CLIENT, MAIN_CENSORSHIP_MODEL, BACKUP_CENSORSHIP_MODEL
 from const import DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERROR_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS, WARNING_LOG_CHANNEL_ID
 
 async def censorMessage(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str:
-    messages = [
-        { "role": "system", "content": """You are a profanity filter bot that processes messages to detect and replace profane language with humorous alternatives. Your goal is to maintain the original meaning of the message as much as possible. If a message contains no profanity, output "false." Below are examples illustrating how to transform profane messages while preserving their intent.
 
-# Steps
-1. Analyze the message to identify any profane language.
-2. Replace profane words with humorous alternatives that fit the context.
-3. Ensure the message conveys the same overall meaning or intention.
-4. If no profanity is detected, respond with "false."
+    response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {
+        "role": "system",
+        "content": [
+            {
+            "type": "text",
+            "text": "You are a profanity filter bot that processes messages to detect and replace profane language with humorous alternatives. Your goal is to maintain the original meaning of the message as much as possible. If a message contains no profanity, output \"false.\" Below are examples illustrating how to transform profane messages while preserving their intent.\n\n# Steps\n1. Analyze the message to identify any profane language.\n2. Replace profane words with humorous alternatives that fit the context.\n3. Ensure the message conveys the same overall meaning or intention.\n4. If no profanity is detected, respond with \"false.\"\n\n# Output Format\n- Output the transformed message with humorous replacements.\n- Respond with \"false\" if no profanity is detected in the input message.\n\n# Examples\n\n**Example 1:**\n- **Input:** \"yo guys, what's up, wanna do a quest?\"\n- **Output:** \"false\"\n\n**Example 2:**\n- **Input:** \"kys nigger\"\n- **Output:** \"i love you black person\"\n\n**Example 3:**\n- **Input:** \"bro wtf is this shit, kys\"\n- **Output:** \"bro wtf is this crap, slap yourself\"\n\n**Example 4:**\n- **Input:** \"did you know whales are the biggest animal? i think we should use a freaking whale as a topic for a quest. that'd be fun\"\n- **Output:** \"false\"\n\n**Example 5:**\n- **Input:** \"i wanna fuck you in the ass and cum in you daddy. i love sex.\"\n- **Output:** \"i want to respectfully hug you father. i love cuddles.\"\n\n# Notes\n- Pay attention to context when substituting words to avoid altering the intended message significantly.\n- Ensure the replacements are humorous and non-offensive."
+            }
+        ]
+        },
+        {
+        "role": "user",
+        "content": [
+            {
+            "type": "text",
+            "text": message
+            }
+        ]
+        }
+    ],
+    response_format={
+        "type": "text"
+    },
+    temperature=1,
+    max_completion_tokens=2048,
+    top_p=1,
+    frequency_penalty=0,
+    presence_penalty=0
+)
 
-# Output Format
-- Output the transformed message with humorous replacements.
-- Respond with "false" if no profanity is detected in the input message.
+    return response
 
-# Examples
 
-**Example 1:**
-- **Input:** "yo guys, what's up, wanna do a quest?"
-- **Output:** "false"
-
-**Example 2:**
-- **Input:** "kys nigger"
-- **Output:** "i love you black person"
-
-**Example 3:**
-- **Input:** "bro wtf is this shit, kys"
-- **Output:** "bro wtf is this crap, slap yourself"
-
-**Example 4:**
-- **Input:** "did you know whales are the biggest animal? i think we should use a freaking whale as a topic for a quest. that'd be fun"
-- **Output:** "false"
-
-**Example 5:**
-- **Input:** "i wanna fuck you in the ass and cum in you daddy. i love sex."
-- **Output:** "i want to respectfully hug you father. i love cuddles."
-
-# Notes
-- Pay attention to context when substituting words to avoid altering the intended message significantly.
-- Ensure the replacements are humorous and non-offensive.""" },
-        { "role": "user", "content": message }
-    ]
-
-    completion = HUGGING_FACE_API_KEY_CLIENT.chat.completions.create(
-        model=model, 
-        messages=messages, 
-        temperature=0,
-        max_tokens=128,
-        top_p=0.7
-    )
-
-    return completion.choices[0].message.content
 
 def xpToLevel(xp: any) -> int:
     # Constants
