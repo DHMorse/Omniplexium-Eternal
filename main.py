@@ -178,7 +178,7 @@ async def on_message(message):
                     await logWarning(bot, f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using backup P model!', 
                                     'on_message event')
                 
-                censoredMessage = "false"
+                    censoredMessage = "false"
 
         except Exception as e:
             await logError(bot, e, traceback.format_exc(), 'on_message event')
@@ -190,7 +190,7 @@ async def on_message(message):
                                 f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using the backup model!','on_message event')
                 await logWarning(bot, f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using backup model!', 
                                 'on_message event')
-            censoredMessage = "false"
+                censoredMessage = "false"
 
         if censoredMessage is None:
             censoredMessage = 'false'
