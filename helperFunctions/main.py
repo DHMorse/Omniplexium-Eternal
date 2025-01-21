@@ -4,10 +4,12 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import traceback
 from openai import OpenAI
-client = OpenAI()
 
-from const import HUGGING_FACE_API_KEY_CLIENT, MAIN_CENSORSHIP_MODEL, BACKUP_CENSORSHIP_MODEL
+from secret_const import OPENAI_KEY
+from const import MAIN_CENSORSHIP_MODEL
 from const import DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERROR_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS, WARNING_LOG_CHANNEL_ID
+
+client = OpenAI(api_key=OPENAI_KEY)
 
 async def censorMessage(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str:
 

@@ -1,5 +1,5 @@
 from openai import OpenAI
-from secret_const import openai_key
+from secret_const import OPENAI_KEY
 import json
 import requests
 from PIL import Image, ImageDraw, ImageFont
@@ -8,7 +8,7 @@ import textwrap
 
 from const import COLORS
 
-client = OpenAI(api_key=openai_key)
+client = OpenAI(api_key=OPENAI_KEY)
 
 async def generatePlayingCardWithImage(description: str, health: int=50, damage: int=20, type: str='standard') -> list: # Json schema imageUrl
     true = True
