@@ -6,7 +6,6 @@ import traceback
 from openai import OpenAI
 
 from secret_const import OPENAI_KEY
-from const import MAIN_CENSORSHIP_MODEL
 from const import DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERROR_LOG_CHANNEL_ID, LOGIN_REMINDERS_CHANNEL_ID, COLORS, WARNING_LOG_CHANNEL_ID
 
 client = OpenAI(api_key=OPENAI_KEY)
@@ -45,7 +44,7 @@ async def censorMessage(message: str) -> str:
 )
 
     #return response.choices[0].message.content
-    return response.choices[0]
+    return response.choices[0].message.content
 
 
 
