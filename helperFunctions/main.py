@@ -11,7 +11,7 @@ from const import DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERR
 
 client = OpenAI(api_key=OPENAI_KEY)
 
-async def censorMessage(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str:
+async def censorMessage(message: str) -> str:
 
     response = client.chat.completions.create(
     model="gpt-4o-mini",

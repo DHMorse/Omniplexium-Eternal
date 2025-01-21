@@ -159,26 +159,22 @@ async def on_message(message):
         # Continue processing other commands regardless of database operation success
         await bot.process_commands(message)
 
-        async def tryCensorMessageWithModel(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str:
+        async def tryCensorMessageWithModel(message: str) -> str:
             try:
                 try:
-                    censoredMessage = await asyncio.wait_for(censorMessage(message, model=model), timeout=1.0)
+                    censoredMessage = await asyncio.wait_for(censorMessage(message), timeout=1.0)
                 except asyncio.TimeoutError as e:
                     messageId = await logModelError(
                                     bot, e, traceback.format_exc(), 
-                                    f"""{username} sent a message: {message}\nWhich was not censored in time! 
-{model} ({'MAIN MODEL' if model == MAIN_CENSORSHIP_MODEL else 'BACKUP MODEL'})""", 'on_message event'
+                                    f"""{username} sent a message: {message}\nWhich was not censored in time!""", 'on_message event'
                                     )
                     channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
                     await channel.send(f"https://discord.com/channels/{SERVER_ID}/{MODEL_ERROR_LOG_CHANNEL_ID}/{messageId}")
 
                     await logWarning(
-                                    bot, f"""{username} sent a message: {message}\nWhich was not censored in time!
-{model} ({'MAIN MODEL' if model == MAIN_CENSORSHIP_MODEL else 'BACKUP MODEL'})""", 'on_message event'
+                                    bot, f"""{username} sent a message: {message}\nWhich was not censored in time!""", 'on_message event'
                                     )
-                    if model == BACKUP_CENSORSHIP_MODEL:
-                        return None # if the backup model fails, we give up and use a different method
-                    return await tryCensorMessageWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
+                    #return await tryCensorMessageWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
 
             except Exception as e:
                 messageId = await logModelError(bot, e, traceback.format_exc(), 'on_message event')
@@ -186,14 +182,9 @@ async def on_message(message):
                 await channel.send(f"https://discord.com/channels/{SERVER_ID}/{MODEL_ERROR_LOG_CHANNEL_ID}/{messageId}")
                 
                 await logWarning(
-                                bot, f"""{username} sent a message: {message}
-Which was not censored using {'MAIN MODEL' if model == MAIN_CENSORSHIP_MODEL else 'BACKUP MODEL'}""", 'on_message event'
+                                bot, f"""{username} sent a message: {message} Which was not censored.""", 'on_message event'
                                 )
-                
-                if model == BACKUP_CENSORSHIP_MODEL:
-                    return None # if the backup model fails, we give up and use a different method
-                
-                return await tryCensorMessageWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
+                #return await tryCensorMessageWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
             
             return 'false' if censoredMessage is None else censoredMessage
 
