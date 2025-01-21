@@ -170,7 +170,7 @@ async def on_message(message):
                 await logWarning(bot, f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using backup censorship model!', 
                                 'on_message event')
                 try:
-                    await censoredMessage = await asyncio.wait_for(censorMessage(message.content, BACKUP_CENSORSHIP_MODEL), timeout=1.0)
+                    censoredMessage = await asyncio.wait_for(censorMessage(message.content, BACKUP_CENSORSHIP_MODEL), timeout=1.0)
                 except asyncio.TimeoutError as e:
                     await logError(bot, e, traceback.format_exc(), 
                                     f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using the backup model!', 
@@ -184,10 +184,10 @@ async def on_message(message):
             await logError(bot, e, traceback.format_exc(), 'on_message event')
             await logWarning(bot, f'`{username}` sent a message: ```{message.content}```Which was not censored! Using backup censorship model!', 'on_message event')
             try:
-                await censoredMessage = await asyncio.wait_for(censorMessage(message.content, BACKUP_CENSORSHIP_MODEL), timeout=1.0)
+                censoredMessage = await asyncio.wait_for(censorMessage(message.content, BACKUP_CENSORSHIP_MODEL), timeout=1.0)
             except asyncio.TimeoutError as e:
                 await logError(bot, e, traceback.format_exc(), 
-                                f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using the backup model!', 'on_message event')
+                                f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using the backup model!','on_message event')
                 await logWarning(bot, f'`{username}` sent a message: ```{message.content}```Which was not censored in time! Using backup model!', 
                                 'on_message event')
             censoredMessage = "false"
