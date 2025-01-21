@@ -45,6 +45,7 @@ async def censorMessage(message: str) -> str:
     presence_penalty=0
 )
 
+    #return response.choices[0].message.content
     return response.choices[0].message.content
 
 
