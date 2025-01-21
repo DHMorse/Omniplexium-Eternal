@@ -158,7 +158,7 @@ async def on_message(message):
         # Continue processing other commands regardless of database operation success
         await bot.process_commands(message)
 
-        async def tryCentorshipWithModel(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str:
+        async def tryCensorMessageWithModel(message: str, model: str = MAIN_CENSORSHIP_MODEL) -> str:
             try:
                 try:
                     censoredMessage = await asyncio.wait_for(censorMessage(message), model=model, timeout=1.0)
@@ -174,16 +174,16 @@ async def on_message(message):
 {model} ({'MAIN MODEL' if model == MAIN_CENSORSHIP_MODEL else 'BACKUP MODEL'})""", 'on_message event'
                                     )
 
-                    return await tryCentorshipWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
+                    return await tryCensorMessageWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
 
             except Exception as e:
                 await logError(bot, e, traceback.format_exc(), 'on_message event')
                 await logWarning(bot, f'{username} sent a message: {message}\nWhich was not censored!', 'on_message event')
-                return await tryCentorshipWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
+                return await tryCensorMessageWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
             
             return 'false' if censoredMessage is None else censoredMessage
 
-        censoredMessage = await tryCentorshipWithModel(message.content)
+        censoredMessage = await tryCensorMessageWithModel(message.content)
         
         if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"'] and username != '404_5971':
             channel = bot.get_channel(CENSORSHIP_CHANNEL_ID)
