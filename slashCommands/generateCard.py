@@ -1,4 +1,4 @@
-import discord
+'''import discord
 from discord import app_commands
 import os
 import sqlite3
@@ -89,3 +89,4 @@ exampleData = {'name': 'The Stalwart Squire',
                 ], 
                 'image_prompt': 'A short man dressed in a tunic wielding a wooden sword, looking determined in a classic fantasy setting.', 
                 'image_url': 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-mmJwXK6t0M8xnbz6QdLzHbqk/user-kSPgxUbWefOFLtDjBNig841G/img-VuOnjbdKVF50jKCk3qRmorZg.png?st=2025-01-19T17%3A51%3A21Z&se=2025-01-19T19%3A51%3A21Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-01-19T01%3A15%3A00Z&ske=2025-01-20T01%3A15%3A00Z&sks=b&skv=2024-08-04&sig=W7%2Bi5621T2nliWHl/MwTPWkdOxSe/bSE%2Bzk8WiESMUY%3D'}
+                '''
