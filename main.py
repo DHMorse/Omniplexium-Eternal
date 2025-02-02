@@ -44,7 +44,7 @@ from adminCommands.copyCard import copycard
 from adminCommands.viewCard import viewcard
 from adminCommands.viewCardStats import viewcardstats
 
-from adminSlashCommands.test import admin_command
+from adminSlashCommands.test import adminSlashCommandTest
 
 from slashCommands.login import slashCommandLogin
 from slashCommands.setLoginReminders import slashCommandSetLoginReminders
@@ -72,7 +72,7 @@ class MyBot(commands.Bot):
         self.tree.add_command(slashCommandStats)
         #self.tree.add_command(slashCommandGenerateCard)
 
-        self.tree.add_command(admin_command)
+        self.tree.add_command(adminSlashCommandTest)
 
         await self.tree.sync()  # Sync commands with Discord
 

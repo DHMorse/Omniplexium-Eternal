@@ -5,7 +5,7 @@ from discord import app_commands
 async def admin_command(interaction: discord.Interaction):
     await interaction.response.send_message("You are an admin!", ephemeral=True)
 
-slashCommandCredits = app_commands.Command(
+adminSlashCommandTest = app_commands.Command(
     name="admin_command", 
     description="This command is only for admins",
     callback=admin_command,
