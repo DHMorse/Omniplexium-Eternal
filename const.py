@@ -71,7 +71,7 @@ CACHE_DIR_PFP = os.path.join(ROOT_DIR, CACHE_PATH, 'pfps')
 FILE_PATHS.append(CACHE_DIR_PFP)
 
 LEADERBOARD_PIC = os.path.join(ROOT_DIR, 'leaderboard.png')
-#FILE_PATHS.append(LEADERBOARD_PIC)
+FILE_PATHS.append(LEADERBOARD_PIC)
 
 DEFUALT_PROFILE_PIC = os.path.join(IMG_PATH, 'defualt.png')
 FILE_PATHS.append(DEFUALT_PROFILE_PIC)
