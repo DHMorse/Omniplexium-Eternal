@@ -59,9 +59,6 @@ FILE_PATHS.append(ROOT_DIR)
 DATABASE_PATH = os.path.join(ROOT_DIR, 'discorddb.db')
 FILE_PATHS.append(DATABASE_PATH)
 
-CURRENT_ITEM_ID_PATH = os.path.join(ROOT_DIR, 'currentItemID.txt')
-FILE_PATHS.append(CURRENT_ITEM_ID_PATH)
-
 IMG_PATH = os.path.join(ROOT_DIR, 'img')
 FILE_PATHS.append(IMG_PATH)
 
@@ -74,7 +71,7 @@ CACHE_DIR_PFP = os.path.join(ROOT_DIR, CACHE_PATH, 'pfps')
 FILE_PATHS.append(CACHE_DIR_PFP)
 
 LEADERBOARD_PIC = os.path.join(ROOT_DIR, 'leaderboard.png')
-FILE_PATHS.append(LEADERBOARD_PIC)
+#FILE_PATHS.append(LEADERBOARD_PIC)
 
 DEFUALT_PROFILE_PIC = os.path.join(IMG_PATH, 'defualt.png')
 FILE_PATHS.append(DEFUALT_PROFILE_PIC)
