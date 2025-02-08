@@ -31,15 +31,21 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
         
         if not os.path.exists(CACHE_PATH):
             os.makedirs(CACHE_PATH)
-        cardFilePath = f'{CACHE_PATH}/{card_name}'
+        cardPfpPath = f'{CACHE_PATH}/{card_name}'
 
         cardImage = requests.get(cardData[1])
-        with open(cardFilePath, 'wb') as card:
+        with open(cardPfpPath, 'wb') as card:
             card.write(cardImage.content)
+        
+        card: Image = await generateCardImageFromItemId(currentItemId)
+
+        cardPath = f'{CARD_IMG_PATH}/{card_name}'
+
+        card.save(cardPath)
         
         cursor.execute(
             "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
-            (cardData[0]['name'], interaction.user.id, currentItemId, cardData[0]['description'], cardData[0]['health'], cardData[0]['image_prompt'], cardData[1]), cardFilePath)
+            (cardData[0]['name'], interaction.user.id, currentItemId, cardData[0]['description'], cardData[0]['health'], cardData[0]['image_prompt'], cardData[1]), cardPath)
         conn.commit()
         
         for attack in cardData[0]['attacks']:
@@ -51,11 +57,8 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
 
         conn.commit()
 
-    card: Image = await generateCardImageFromItemId(currentItemId)
 
-    card.save(f'{CARD_IMG_PATH}/{card_name}')
-
-    file = discord.File(cardFilePath, filename="card.png")
+    file = discord.File(cardPfpPath, filename="card.png")
 
     # Edit the initial deferred response to include the embed with the image file
     await interaction.followup.send(file=file)
