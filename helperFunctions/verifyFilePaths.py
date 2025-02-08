@@ -8,6 +8,6 @@ async def verifyFilePaths(bot):
         if not os.path.exists(filePath):
             os.makedirs(filePath)
             print(f"{COLORS['yellow']}Created {filePath}{COLORS['reset']}")
-            logWarning(bot, f"File path {filePath} did not exist, so it was created.")
+            await logWarning(bot, f"File path {filePath} did not exist, so it was created.")
         else:
             print(f"{COLORS['blue']}Verified {filePath}{COLORS['reset']}")
