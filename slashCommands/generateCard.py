@@ -69,7 +69,7 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
 
             card.save(cardPath)
 
-        file = discord.File(cardPfpPath, filename="card.png")
+        file = discord.File(cardPath, filename="card.png")
 
         # Edit the initial deferred response to include the embed with the image file
         await interaction.followup.send(file=file)
