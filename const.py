@@ -71,7 +71,9 @@ CARD_TEMPLATE_PATH = os.path.join(IMG_PATH, 'cardTemplate.png')
 
 CARD_IMG_PATH = os.path.join(IMG_PATH, 'cards')
 
-CARD_TEMPLATE_PATH = os.path.join(IMG_PATH, 'cardTemplate.png')
+CARD_IMG_PFP_PATH = os.path.join(CARD_IMG_PATH, 'pfp')
+
+CARD_IMG_CARD_PATH = os.path.join(CARD_IMG_PATH, 'card')
 
 
 

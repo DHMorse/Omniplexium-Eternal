@@ -8,7 +8,7 @@ import traceback
 
 from typing import Tuple
 
-from const import DATABASE_PATH, CARD_IMG_PATH, CACHE_PATH
+from const import DATABASE_PATH, CARD_IMG_PFP_PATH, CARD_IMG_CARD_PATH
 
 from helperFunctions.generateCard import generatePlayingCardWithImage, generateCardImageFromItemId
 from helperFunctions.main import logError
@@ -32,15 +32,15 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
             # Save the card image
             card_name = f"{currentItemId}.png"
             
-            if not os.path.exists(CACHE_PATH):
-                os.makedirs(CACHE_PATH)
-            cardPfpPath = f'{CACHE_PATH}/{card_name}'
+            if not os.path.exists(CARD_IMG_PFP_PATH):
+                os.makedirs(CARD_IMG_PFP_PATH)
+            cardPfpPath = f'{CARD_IMG_PFP_PATH}/{card_name}'
 
             cardImage = requests.get(cardData[1])
             with open(cardPfpPath, 'wb') as card:
                 card.write(cardImage.content)
             
-            cardPath = f'{CARD_IMG_PATH}/{card_name}'
+            cardPath = f'{CARD_IMG_CARD_PATH}/{card_name}'
 
             cursor.execute(
                 "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl, imagePfpPath, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
