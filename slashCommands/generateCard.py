@@ -65,7 +65,7 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
                     )
             conn.commit()
 
-            card: Image = await generateCardImageFromItemId(currentItemId)
+            card: Image = generateCardImageFromItemId(currentItemId)
 
             card.save(cardPath)
 
