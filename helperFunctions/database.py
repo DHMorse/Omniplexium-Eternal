@@ -62,7 +62,7 @@ async def createCardTables(bot) -> None:
                     description TEXT,                                  -- Description of the character
                     health INTEGER,                                    -- Health points of the character
                     imagePrompt TEXT,                                 -- Image prompt description
-                    imageUrl TEXT                                     -- URL of the image
+                    imageUrl TEXT,                                     -- URL of the image
                     imagePath TEXT                                    -- Path to the image
                 )
             ''')
