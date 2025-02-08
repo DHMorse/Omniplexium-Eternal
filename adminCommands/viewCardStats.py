@@ -6,10 +6,10 @@ import io
 from discord.ext import commands
 from pathlib import Path
 
-from const import CARD_DATA_IMAGES_PATH, COLORS, DATABASE_PATH
+from const import  COLORS, DATABASE_PATH
 
 # Ensure CARD_DATA_IMAGES_PATH is a Path object
-CARD_DATA_IMAGES_PATH = Path(CARD_DATA_IMAGES_PATH)
+CARD_DATA_IMAGES_PATH = ''#Path(CARD_DATA_IMAGES_PATH)
 
 @commands.command()
 async def viewcardstats(ctx, *, query: str = '') -> None:
