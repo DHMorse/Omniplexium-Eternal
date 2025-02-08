@@ -37,12 +37,8 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
         with open(cardPfpPath, 'wb') as card:
             card.write(cardImage.content)
         
-        card: Image = await generateCardImageFromItemId(currentItemId)
-
         cardPath = f'{CARD_IMG_PATH}/{card_name}'
 
-        card.save(cardPath)
-        
         cursor.execute(
             "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
             (cardData[0]['name'], interaction.user.id, currentItemId, cardData[0]['description'], cardData[0]['health'], cardData[0]['image_prompt'], cardData[1]), cardPath)
@@ -54,9 +50,11 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
                 (currentItemId, attack['name'], attack['description'], attack['attack_damage'], attack['attack_speed'], attack['attack_cooldown'], 
                 attack['attack_hitrate'])
                 )
-
         conn.commit()
 
+        card: Image = await generateCardImageFromItemId(currentItemId)
+
+        card.save(cardPath)
 
     file = discord.File(cardPfpPath, filename="card.png")
 
