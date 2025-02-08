@@ -160,12 +160,12 @@ def generateCardImageFromItemId(cardId: str) -> Image:
         attackDescriptions = [attack[3] for attack in attackData]
         attackStats = [(attack[4], attack[5], attack[6], attack[7]) for attack in attackData]
 
-    cardImgPath = cardData[8]
+    cardPfpPath = cardData[8]
     itemName = cardData[1]
     health = cardData[5]
 
     try:
-        card_image = Image.open(cardImgPath)
+        card_image = Image.open(cardPfpPath)
         template = Image.open(CARD_TEMPLATE_PATH)
 
         card_image = card_image.convert('RGBA')

@@ -43,7 +43,7 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
             cardPath = f'{CARD_IMG_PATH}/{card_name}'
 
             cursor.execute(
-                "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+                "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl, imagePfpPath, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
                 (
                     cardData[0]['name'], 
                     interaction.user.id, 
@@ -51,7 +51,8 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
                     cardData[0]['description'], 
                     cardData[0]['health'], 
                     cardData[0]['image_prompt'],
-                    cardData[1], 
+                    cardData[1],
+                    cardPfpPath, 
                     cardPath),
                 )
             conn.commit()

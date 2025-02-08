@@ -63,6 +63,7 @@ async def createCardTables(bot) -> None:
                     health INTEGER,                                    -- Health points of the character
                     imagePrompt TEXT,                                 -- Image prompt description
                     imageUrl TEXT,                                     -- URL of the image
+                    imagePfpPath TEXT,                                 -- Path to the profile picture
                     imagePath TEXT                                    -- Path to the image
                 )
             ''')
@@ -173,6 +174,7 @@ async def checkDatabase(bot) -> None:
                 print(f"{COLORS['red']}No tables found in the database.{COLORS['reset']}")
                 await logError(bot, None, None, "No tables found in the database.")
                 await createAllTables(bot)
+                print(f"{COLORS['blue']}Database created successfully.{COLORS['reset']}")
             
             for table_name, in tables:
                 print(f"Validating table: {table_name}")
