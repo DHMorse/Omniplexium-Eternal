@@ -56,9 +56,11 @@ CURRENT_ITEM_ID_PATH = os.path.join(ROOT_DIR, 'currentItemID.txt')
 
 IMG_PATH = os.path.join(ROOT_DIR, 'img')
 
+CACHE_PATH = os.path.join(ROOT_DIR, 'cache')
+
 # Pics
 
-CACHE_DIR_PFP = os.path.join(ROOT_DIR, 'cache', 'pfps')
+CACHE_DIR_PFP = os.path.join(ROOT_DIR, CACHE_PATH, 'pfps')
 
 LEADERBOARD_PIC = os.path.join(ROOT_DIR, 'leaderboard.png')
 
@@ -66,6 +68,9 @@ DEFUALT_PROFILE_PIC = os.path.join(IMG_PATH, 'defualt.png')
 
 CARD_TEMPLATE_PATH = os.path.join(IMG_PATH, 'cardTemplate.png')
 
+CARD_IMG_PATH = os.path.join(IMG_PATH, 'cards')
+
+CARD_TEMPLATE_PATH = os.path.join(IMG_PATH, 'cardTemplate.png')
 
 # Hugging Face API
 HUGGING_FACE_API_KEY_CLIENT = InferenceClient(api_key=HUGGING_FACE_API_KEY)

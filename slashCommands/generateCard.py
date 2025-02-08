@@ -3,18 +3,19 @@ from discord import app_commands
 import os
 import sqlite3
 from PIL import Image
+import requests
 
-from const import DATABASE_PATH, CARD_DATA_IMAGES_PATH
+from typing import Tuple
 
-from helperFunctions.generateCard import generatePlayingCardWithImage, makeCardFromJson
+from const import DATABASE_PATH, CARD_IMG_PATH, CACHE_PATH
+
+from helperFunctions.generateCard import generatePlayingCardWithImage, generateCardImageFromItemId
 
 async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> None:
     # Defer the response to allow more time for processing
     await interaction.response.defer()
     
-    cardData: list = await generatePlayingCardWithImage(prompt) # returns a list of the card data and the image URL
-
-    card: Image = await makeCardFromJson(cardData[0], cardData[1]) # returns a PIL Image object
+    cardData: Tuple[dict, str] = await generatePlayingCardWithImage(prompt) # returns a list of the card data and the image URL
 
     # Update the user's items in the database
     with sqlite3.connect(DATABASE_PATH) as conn:
@@ -25,9 +26,20 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
         result = cursor.fetchone()
         currentItemId = result[0] + 1 if result[0] is not None else 1
         
+        # Save the card image
+        card_name = f"{currentItemId}.png"
+        
+        if not os.path.exists(CACHE_PATH):
+            os.makedirs(CACHE_PATH)
+        cardFilePath = f'{CACHE_PATH}/{card_name}'
+
+        cardImage = requests.get(cardData[1])
+        with open(cardFilePath, 'wb') as card:
+            card.write(cardImage.content)
+        
         cursor.execute(
-            "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-            (cardData[0]['name'], interaction.user.id, currentItemId, cardData[0]['description'], cardData[0]['health'], cardData[0]['image_prompt'], cardData[1]))
+            "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+            (cardData[0]['name'], interaction.user.id, currentItemId, cardData[0]['description'], cardData[0]['health'], cardData[0]['image_prompt'], cardData[1]), cardFilePath)
         conn.commit()
         
         for attack in cardData[0]['attacks']:
@@ -39,16 +51,12 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
 
         conn.commit()
 
-        # Save the card image
-        card_name = f"{currentItemId}.png"
-        
-        if not os.path.exists(CARD_DATA_IMAGES_PATH):
-            os.makedirs(CARD_DATA_IMAGES_PATH)
-        cardFilePath = f'{CARD_DATA_IMAGES_PATH}/{card_name}'
-        
-        card.save(cardFilePath)
+    card: Image = await generateCardImageFromItemId(currentItemId)
+
+    card.save(f'{CARD_IMG_PATH}/{card_name}')
 
     file = discord.File(cardFilePath, filename="card.png")
+
     # Edit the initial deferred response to include the embed with the image file
     await interaction.followup.send(file=file)
 
