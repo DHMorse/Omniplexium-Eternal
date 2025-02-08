@@ -241,7 +241,8 @@ async def makeCardFromJson(data: dict, url: str) -> Image:
 
 def generateCardImageFromItemId(cardId: str) -> Image:
     # Connect to database and fetch card data
-    with sqlite3.connect('/home/daniel/Documents/myCode/Omniplexium-Eternal/discorddb.db') as conn:
+   #with sqlite3.connect('/home/daniel/Documents/myCode/Omniplexium-Eternal/discorddb.db') as conn:
+    with sqlite3.connect('./discorddb.db') as conn:
         cursor = conn.cursor()
         
         cursor.execute("SELECT * FROM cards WHERE cardId = ?", (cardId,))
@@ -268,10 +269,12 @@ def generateCardImageFromItemId(cardId: str) -> Image:
         #response = requests.get(imageUrl)
         #response.raise_for_status() # Raise an exception for bad status codes
         # response.content is the image data in bytes
-        card_image = Image.open('/home/daniel/Documents/myCode/Omniplexium-Eternal/img-BXjQYa1Nh2znIoEbFT9t7HQq.png')
+        #card_image = Image.open('/home/daniel/Documents/myCode/Omniplexium-Eternal/img-BXjQYa1Nh2znIoEbFT9t7HQq.png')
+        card_image = Image.open('./img-BXjQYa1Nh2znIoEbFT9t7HQq.png')
 
         # Open the card template
-        template = Image.open('/home/daniel/Documents/myCode/Omniplexium-Eternal/cardTemplate.png')
+        #template = Image.open('/home/daniel/Documents/myCode/Omniplexium-Eternal/cardTemplate.png')
+        template = Image.open('./cacheDir/cardTemplate.png')
 
         # Ensure both images are in RGBA mode for proper overlay
         card_image = card_image.convert('RGBA')

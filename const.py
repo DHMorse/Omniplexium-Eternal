@@ -54,19 +54,17 @@ DATABASE_PATH = os.path.join(ROOT_DIR, 'discorddb.db')
 
 CURRENT_ITEM_ID_PATH = os.path.join(ROOT_DIR, 'currentItemID.txt')
 
+IMG_PATH = os.path.join(ROOT_DIR, 'img')
+
 # Pics
 
-CACHE_DIR_PFP = os.path.join(ROOT_DIR, 'cacheDir', 'pfps')
+CACHE_DIR_PFP = os.path.join(ROOT_DIR, 'cache', 'pfps')
 
 LEADERBOARD_PIC = os.path.join(ROOT_DIR, 'leaderboard.png')
 
-DEFUALT_PROFILE_PIC = os.path.join(CACHE_DIR_PFP, 'defualt.png')
+DEFUALT_PROFILE_PIC = os.path.join(IMG_PATH, 'defualt.png')
 
-CARD_DATA_PATH = os.path.join(ROOT_DIR, 'cardData')
-
-CARD_DATA_IMAGES_PATH = os.path.join(CARD_DATA_PATH, 'images')
-
-CARD_TEMPLATE_PATH = os.path.join(ROOT_DIR, 'cardTemplate.png')
+CARD_TEMPLATE_PATH = os.path.join(IMG_PATH, 'cardTemplate.png')
 
 
 # Hugging Face API
