@@ -33,6 +33,7 @@ from const import SERVER_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERROR_LOG_CHANNEL_ID, C
 
 from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, copyCard, censorMessage, checkLoginRemindersAndSend, logModelError, logError, logWarning
 from helperFunctions.database import checkDatabase
+from helperFunctions.verifyFilePaths import verifyFilePaths
 
 from adminCommands.set import set
 from adminCommands.stats import stats
@@ -79,6 +80,10 @@ async def on_ready():
     checkDatabaseStartTime = time.time()
     await checkDatabase(bot)
     print(f'The database check took {round(time.time() - checkDatabaseStartTime, 2)} seconds')
+
+    verifyFilePathsStartTime = time.time()
+    await verifyFilePaths(bot)
+    print(f'The file path verification took {round(time.time() - verifyFilePathsStartTime, 2)} seconds')
 
     if not loginReminderTask.is_running():
         try:

@@ -47,33 +47,49 @@ LOGIN_REMINDER_ROLE_ID = 1328548080555130911
 
 
 
+# File paths list
+FILE_PATHS = []
+
+
+
 # Paths
 ROOT_DIR = os.path.expanduser('~/Omniplexium-Eternal')
+FILE_PATHS.append(ROOT_DIR)
 
 DATABASE_PATH = os.path.join(ROOT_DIR, 'discorddb.db')
+FILE_PATHS.append(DATABASE_PATH)
 
 CURRENT_ITEM_ID_PATH = os.path.join(ROOT_DIR, 'currentItemID.txt')
+FILE_PATHS.append(CURRENT_ITEM_ID_PATH)
 
 IMG_PATH = os.path.join(ROOT_DIR, 'img')
+FILE_PATHS.append(IMG_PATH)
 
 CACHE_PATH = os.path.join(ROOT_DIR, 'cache')
-
+FILE_PATHS.append(CACHE_PATH)
 
 
 # Pics
 CACHE_DIR_PFP = os.path.join(ROOT_DIR, CACHE_PATH, 'pfps')
+FILE_PATHS.append(CACHE_DIR_PFP)
 
 LEADERBOARD_PIC = os.path.join(ROOT_DIR, 'leaderboard.png')
+FILE_PATHS.append(LEADERBOARD_PIC)
 
 DEFUALT_PROFILE_PIC = os.path.join(IMG_PATH, 'defualt.png')
+FILE_PATHS.append(DEFUALT_PROFILE_PIC)
 
 CARD_TEMPLATE_PATH = os.path.join(IMG_PATH, 'cardTemplate.png')
+FILE_PATHS.append(CARD_TEMPLATE_PATH)
 
 CARD_IMG_PATH = os.path.join(IMG_PATH, 'cards')
+FILE_PATHS.append(CARD_IMG_PATH)
 
 CARD_IMG_PFP_PATH = os.path.join(CARD_IMG_PATH, 'pfp')
+FILE_PATHS.append(CARD_IMG_PFP_PATH)
 
 CARD_IMG_CARD_PATH = os.path.join(CARD_IMG_PATH, 'card')
+FILE_PATHS.append(CARD_IMG_CARD_PATH)
 
 
 
