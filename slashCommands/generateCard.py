@@ -4,62 +4,76 @@ import os
 import sqlite3
 from PIL import Image
 import requests
+import traceback
 
 from typing import Tuple
 
 from const import DATABASE_PATH, CARD_IMG_PATH, CACHE_PATH
 
 from helperFunctions.generateCard import generatePlayingCardWithImage, generateCardImageFromItemId
+from helperFunctions.main import logError
 
 async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> None:
-    # Defer the response to allow more time for processing
-    await interaction.response.defer()
-    
-    cardData: Tuple[dict, str] = await generatePlayingCardWithImage(prompt) # returns a list of the card data and the image URL
-
-    # Update the user's items in the database
-    with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
-
-        # Fetch the current highest itemID
-        cursor.execute("SELECT MAX(itemId) FROM cards")
-        result = cursor.fetchone()
-        currentItemId = result[0] + 1 if result[0] is not None else 1
+    try:
+        # Defer the response to allow more time for processing
+        await interaction.response.defer()
         
-        # Save the card image
-        card_name = f"{currentItemId}.png"
-        
-        if not os.path.exists(CACHE_PATH):
-            os.makedirs(CACHE_PATH)
-        cardPfpPath = f'{CACHE_PATH}/{card_name}'
+        cardData: Tuple[dict, str] = await generatePlayingCardWithImage(prompt) # returns a list of the card data and the image URL
 
-        cardImage = requests.get(cardData[1])
-        with open(cardPfpPath, 'wb') as card:
-            card.write(cardImage.content)
-        
-        cardPath = f'{CARD_IMG_PATH}/{card_name}'
+        # Update the user's items in the database
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
 
-        cursor.execute(
-            "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
-            (cardData[0]['name'], interaction.user.id, currentItemId, cardData[0]['description'], cardData[0]['health'], cardData[0]['image_prompt'], cardData[1]), cardPath)
-        conn.commit()
-        
-        for attack in cardData[0]['attacks']:
+            # Fetch the current highest itemID
+            cursor.execute("SELECT MAX(itemId) FROM cards")
+            result = cursor.fetchone()
+            currentItemId = result[0] + 1 if result[0] is not None else 1
+            
+            # Save the card image
+            card_name = f"{currentItemId}.png"
+            
+            if not os.path.exists(CACHE_PATH):
+                os.makedirs(CACHE_PATH)
+            cardPfpPath = f'{CACHE_PATH}/{card_name}'
+
+            cardImage = requests.get(cardData[1])
+            with open(cardPfpPath, 'wb') as card:
+                card.write(cardImage.content)
+            
+            cardPath = f'{CARD_IMG_PATH}/{card_name}'
+
             cursor.execute(
-                "INSERT INTO attacks (cardId, attackName, attackDescription, attackDamage, attackSpeed, attackCooldown, attackHitrate) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (currentItemId, attack['name'], attack['description'], attack['attack_damage'], attack['attack_speed'], attack['attack_cooldown'], 
-                attack['attack_hitrate'])
+                "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+                (
+                    cardData[0]['name'], 
+                    interaction.user.id, 
+                    currentItemId, 
+                    cardData[0]['description'], 
+                    cardData[0]['health'], 
+                    cardData[0]['image_prompt'],
+                    cardData[1], 
+                    cardPath),
                 )
-        conn.commit()
+            conn.commit()
+            
+            for attack in cardData[0]['attacks']:
+                cursor.execute(
+                    "INSERT INTO attacks (cardId, attackName, attackDescription, attackDamage, attackSpeed, attackCooldown, attackHitrate) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (currentItemId, attack['name'], attack['description'], attack['attack_damage'], attack['attack_speed'], attack['attack_cooldown'], 
+                    attack['attack_hitrate'])
+                    )
+            conn.commit()
 
-        card: Image = await generateCardImageFromItemId(currentItemId)
+            card: Image = await generateCardImageFromItemId(currentItemId)
 
-        card.save(cardPath)
+            card.save(cardPath)
 
-    file = discord.File(cardPfpPath, filename="card.png")
+        file = discord.File(cardPfpPath, filename="card.png")
 
-    # Edit the initial deferred response to include the embed with the image file
-    await interaction.followup.send(file=file)
+        # Edit the initial deferred response to include the embed with the image file
+        await interaction.followup.send(file=file)
+    except Exception as e:
+        await logError(interaction, e, traceback.format_exc(), "generateCardFunc")
 
 slashCommandGenerateCard = app_commands.Command(
     name="generate-card", # no spaces or capitals allowed
