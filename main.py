@@ -272,7 +272,7 @@ async def on_member_join(member: discord.Member):
                         cursor.execute("SELECT userId FROM users WHERE userId = ?", (invite.inviter.id,))
                         result = cursor.fetchone()
                         if result:
-                            await updateXpAndCheckLevelUp(ctx=member, bot=bot, xp=rewardAmount, add=True)
+                            await updateXpAndCheckLevelUp(ctx=invite.inviter, bot=bot, xp=rewardAmount, add=True)
                 return
 
 
