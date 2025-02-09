@@ -13,7 +13,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
         )
         return
 
-    async def checkMember(member: str) -> tuple:
+    async def checkMember(member: str) -> int:
         if member is None:
             return (None, )
         with sqlite3.connect(DATABASE_PATH) as conn:
@@ -38,26 +38,26 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                     )
                     return
             
-        return memberData
+        return memberData[0]
 
-    member1Data: tuple = await checkMember(member1)
-    if not member1Data:
+    member1itemId: int = await checkMember(member1)
+    if not member1itemId:
         interaction.response.send_message("No card with that ID was found!", ephemeral=True)
         return
-    member2Data: tuple = await checkMember(member2)
-    member3Data: tuple = await checkMember(member3)
-    member4Data: tuple = await checkMember(member4)
-    member5Data: tuple = await checkMember(member5)
-    member6Data: tuple = await checkMember(member6)
+    member2itemId: int = await checkMember(member2)
+    member3itemId: int = await checkMember(member3)
+    member4itemId: int = await checkMember(member4)
+    member5itemId: int = await checkMember(member5)
+    member6itemId: int = await checkMember(member6)
     
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute("UPDATE party SET member1=?, member2=?, member3=?, member4=?, member5=?, member6=? WHERE userId=?", 
-                        (member1Data[0], member2Data[0], member3Data[0], member4Data[0], member5Data[0], member6Data[0], interaction.user.id)
+                        (member1itemId, member2itemId, member3itemId, member4itemId, member5itemId, member6itemId, interaction.user.id)
                     )
         if cursor.rowcount == 0:  # If no row was updated, insert a new one
             cursor.execute("INSERT INTO party (userId, member1, member2, member3, member4, member5, member6) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                        (interaction.user.id, member1Data[0], member2Data[0], member3Data[0], member4Data[0], member5Data[0], member6Data[0])
+                        (interaction.user.id, member1itemId, member2itemId, member3itemId, member4itemId, member5itemId, member6itemId)
                     )
         conn.commit()
 
