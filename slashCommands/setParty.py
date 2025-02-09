@@ -13,7 +13,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
         )
         return
 
-    async def checkMember(member: str) -> int | None:
+    async def checkMember(userId: int, member: str) -> int | None:
         if member is None:
             return None
         
@@ -21,9 +21,37 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
             cursor = conn.cursor()
             if member.isdigit():
                 member = int(member)
+                cursor.execute("SELECT userId FROM cards WHERE itemId = ?", (member,))
+                memberData = cursor.fetchone()
+                if memberData and memberData[0] != userId:
+                    try:
+                        await interaction.response.send_message(
+                            f"You can only set party members that you own!",
+                            ephemeral=True
+                        )
+                    except:
+                        await interaction.followup.send(
+                            f"You can only set party members that you own!",
+                            ephemeral=True
+                        )
+                    return None
                 cursor.execute("SELECT itemId FROM cards WHERE itemId = ?", (member,))
                 memberData = cursor.fetchone()
             else:
+                cursor.execute("SELECT userId FROM cards WHERE LOWER(itemName) = ?", (member.lower(),))
+                memberData = cursor.fetchone()
+                if memberData and memberData[0] != userId:
+                    try:
+                        await interaction.response.send_message(
+                            f"You can only set party members that you own!",
+                            ephemeral=True
+                        )
+                    except:
+                        await interaction.followup.send(
+                            f"You can only set party members that you own!",
+                            ephemeral=True
+                        )
+                    return None
                 cursor.execute("SELECT itemId FROM cards WHERE LOWER(itemName) = ?", (member.lower(),))
                 memberData = cursor.fetchone()
         
@@ -44,7 +72,6 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
 
     member1itemId: int = await checkMember(member1)
     if not member1itemId:
-        await interaction.response.send_message("No card with that ID was found!", ephemeral=True)
         return
     member2itemId: int = await checkMember(member2)
     member3itemId: int = await checkMember(member3)
