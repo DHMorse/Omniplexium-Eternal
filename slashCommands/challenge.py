@@ -71,10 +71,12 @@ class DuelButtons(discord.ui.View):
                         return
 
                     party: list = []
+                    
                     for memberId in partyIds:
                         if memberId:
                             pokemon = cursor.execute("SELECT * FROM cards WHERE itemId = ?",(memberId,)).fetchone()
                             party.append(pokemon[1] if pokemon else None)
+                        
                         else:
                             party.append(None)
 
