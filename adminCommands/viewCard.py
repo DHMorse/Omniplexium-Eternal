@@ -17,29 +17,37 @@ async def viewcard(ctx, *, query: str = "") -> None:
         cursor = conn.cursor()
         
         if query.isdigit():
-            cursor.execute("SELECT * FROM cards WHERE itemId = ?", (int(query),))
+            cursor.execute("SELECT cardId, ImagePath, itemId, userId FROM cards WHERE itemId = ?", (int(query),))
             cardData = cursor.fetchone()
 
             if not cardData:
                 await ctx.send(f'''```ansi\n{COLORS['red']}No card with that ID was found.{COLORS['reset']}\n```''')
                 return
             
-            cardPath = cardData[9]
+            cardId = cardData[0]
+            cardPath = cardData[1]
+            itemId = cardData[2]
+            ownerUserId = cardData[3]
 
             file = discord.File(cardPath, filename="card.png")
 
             await ctx.send(file=file)
+            await ctx.send(f'Card ID: {cardId}\nItem ID: {itemId}\nOwner ID: {ownerUserId}')
 
         else:
-            cursor.execute("SELECT * FROM cards WHERE itemName = ?", (query,))
+            cursor.execute("SELECT cardId, ImagePath, itemId, userId FROM cards WHERE itemName = ?", (query,))
             cardData = cursor.fetchone()
 
             if not cardData:
                 await ctx.send(f'''```ansi\n{COLORS['red']}No card with that name was found.{COLORS['reset']}\n```''')
                 return
             
-            cardPath = cardData[9]
+            cardId = cardData[0]
+            cardPath = cardData[1]
+            itemId = cardData[2]
+            ownerUserId = cardData[3]
 
             file = discord.File(cardPath, filename="card.png")
 
             await ctx.send(file=file)
+            await ctx.send(f'Card ID: {cardId}\nItem ID: {itemId}\nOwner ID: {ownerUserId}')
