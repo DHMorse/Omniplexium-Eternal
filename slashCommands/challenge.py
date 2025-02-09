@@ -93,15 +93,15 @@ async def challengeFunc(interaction: discord.Interaction, member: discord.Member
 
     if not userParty:
         await interaction.response.send_message(
-            "You must set your party before challenging another player! Use the `/setparty` command.",
+            "You must set your party before challenging another player! Use the `/set-party` command.",
             ephemeral=True
         )
         return
 
     if not targetParty:
         await interaction.response.send_message(
-            f"{member.mention} hasn't set their party yet! They need to use the `/setparty` command.",
-            ephemeral=True
+            f"{member.mention} hasn't set their party yet! They need to use the `/set-party` command.",
+            ephemeral=False
         )
         return
 
