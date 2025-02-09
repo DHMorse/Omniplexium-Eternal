@@ -24,7 +24,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                 cursor.execute("SELECT itemId FROM cards WHERE itemId = ?", (member,))
                 memberData = cursor.fetchone()
             else:
-                cursor.execute("SELECT itemId FROM cards WHERE itemName = ?", (member,))
+                cursor.execute("SELECT itemId FROM cards WHERE LOWER(itemName) = ?", (member.lower(),))
                 memberData = cursor.fetchone()
         
         if not memberData:
