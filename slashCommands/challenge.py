@@ -16,7 +16,6 @@ class DuelButtons(discord.ui.View):
         # Disable all buttons
         for button in self.children:
             button.disabled = True
-        
         # Edit the original message to show timeout
         if self.message:
             await self.message.edit(
@@ -49,10 +48,49 @@ class DuelButtons(discord.ui.View):
         await interaction.response.send_message(
             f"Duel accepted! Moving to thread {thread.mention}"
         )
-        
-        # Create a view with a blue button
+
+        class PartyViewButton(discord.ui.Button):
+            def __init__(self, challenger, target):
+                super().__init__(label="View Party", style=discord.ButtonStyle.blurple)
+                self.challenger = challenger
+                self.target = target
+
+            async def callback(self, interaction: discord.Interaction):
+                with sqlite3.connect(DATABASE_PATH) as conn:
+                    cursor = conn.cursor()
+                    # Get the party of the user who clicked
+                    party_ids = cursor.execute(
+                        "SELECT member1, member2, member3, member4, member5, member6 FROM party WHERE userId = ?", 
+                        (interaction.user.id,)
+                    ).fetchone()
+                    
+                    if not party_ids:
+                        await interaction.response.send_message(
+                            "You don't have a party set up!",
+                            ephemeral=True
+                        )
+                        return
+
+                    party = []
+                    for member_id in party_ids:
+                        if member_id:
+                            pokemon = cursor.execute(
+                                "SELECT * FROM cards WHERE itemId = ?", 
+                                (member_id,)
+                            ).fetchone()
+                            party.append(pokemon[1] if pokemon else None)
+                        else:
+                            party.append(None)
+
+                    party_text = "\n".join(f"{i+1}. {pokemon}" for i, pokemon in enumerate(party))
+                    await interaction.response.send_message(
+                        f"Your party:\n{party_text}",
+                        ephemeral=True
+                    )
+
+        # Create view with the custom button
         view = discord.ui.View()
-        view.add_item(discord.ui.Button(label="View Party", style=discord.ButtonStyle.blurple))
+        view.add_item(PartyViewButton(self.challenger, self.target))
 
         # Send initial message in the thread with the button
         await thread.send(
@@ -60,36 +98,12 @@ class DuelButtons(discord.ui.View):
             "You can now start your Pokemon battle here.",
             view=view
         )
-        
-        await interaction.followup.send("Alright! A thread has been created for the battle!", ephemeral=True)
-
-        with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
-            userPartyId = cursor.execute("SELECT member1, member2, member3, member4, member5, member6 FROM party WHERE userId = ?", (self.challenger.id,)).fetchone() # userId, pokemon1, pokemon2, pokemon3, pokemon4, pokemon5, pokemon6
-            targetPartyId = cursor.execute("SELECT member1, member2, member3, member4, member5, member6 FROM party WHERE userId = ?", (self.target.id,)).fetchone()
-            userParty: list = [None] * 6
-            targetParty: list = [None] * 6
-
-            for i in range(5):
-                userParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (userPartyId[i],)).fetchone()
-                targetParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (targetPartyId[i],)).fetchone()
 
         goesFirst = random.choice([self.challenger, self.target])
-
+        
         # Send the initial message
         await thread.send(
             f"{goesFirst.mention} goes first!"
-        )
-
-        # Send the party information
-        await thread.send(
-            f"{self.challenger.mention} party:\n"
-            f"1. {userParty[0][1] if userParty[0] is not None else None}\n"
-            f"2. {userParty[1][1] if userParty[1] is not None else None}\n"
-            f"3. {userParty[2][1] if userParty[2] is not None else None}\n"
-            f"4. {userParty[3][1] if userParty[3] is not None else None}\n"
-            f"5. {userParty[4][1] if userParty[4] is not None else None}\n"
-            f"6. {userParty[5][1] if userParty[5] is not None else None}\n"
         )
 
         self.stop()
