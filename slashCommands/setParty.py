@@ -23,20 +23,20 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                 cursor.execute("SELECT itemId FROM cards WHERE itemId = ?", (member,))
                 memberData = cursor.fetchone()
                 if not memberData:
-                    await interaction.response.send_message(
-                        "No card with that ID was found!",
+                    await interaction.followup.send(
+                        f"No card with that ID was found for the member with the id or name {member}!",
                         ephemeral=True
                     )
-                    return
+                    return None
             else:
                 cursor.execute("SELECT itemId FROM cards WHERE itemName = ?", (member,))
                 memberData = cursor.fetchone()
                 if not memberData:
-                    await interaction.response.send_message(
-                        "No card with that name was found!",
+                    await interaction.followup.send(
+                        f"No card with that ID was found for the member with the id or name {member}!",
                         ephemeral=True
                     )
-                    return
+                    return None
             
         return memberData[0]
 

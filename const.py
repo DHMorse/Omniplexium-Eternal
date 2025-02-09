@@ -65,6 +65,13 @@ FILE_PATHS.append(IMG_PATH)
 CACHE_PATH = os.path.join(ROOT_DIR, 'cache')
 FILE_PATHS.append(CACHE_PATH)
 
+CARD_IMG_PATH = os.path.join(IMG_PATH, 'cards')
+FILE_PATHS.append(CARD_IMG_PATH)
+
+IMG_CARDS_STATIC_PATH = os.path.join(CARD_IMG_PATH, 'static')
+FILE_PATHS.append(IMG_CARDS_STATIC_PATH)
+
+
 
 # Pics
 CACHE_DIR_PFP = os.path.join(CACHE_PATH, 'pfps')
@@ -76,11 +83,8 @@ FILE_PATHS.append(LEADERBOARD_PIC)
 DEFUALT_PROFILE_PIC = os.path.join(IMG_PATH, 'defualt.png')
 FILE_PATHS.append(DEFUALT_PROFILE_PIC)
 
-CARD_TEMPLATE_PATH = os.path.join(IMG_PATH, 'cardTemplate.png')
+CARD_TEMPLATE_PATH = os.path.join(IMG_CARDS_STATIC_PATH, 'cardTemplate.png')
 FILE_PATHS.append(CARD_TEMPLATE_PATH)
-
-CARD_IMG_PATH = os.path.join(IMG_PATH, 'cards')
-FILE_PATHS.append(CARD_IMG_PATH)
 
 CARD_IMG_PFP_PATH = os.path.join(CARD_IMG_PATH, 'pfp')
 FILE_PATHS.append(CARD_IMG_PFP_PATH)
