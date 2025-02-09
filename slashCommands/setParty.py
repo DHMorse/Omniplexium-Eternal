@@ -23,19 +23,31 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                 cursor.execute("SELECT itemId FROM cards WHERE itemId = ?", (member,))
                 memberData = cursor.fetchone()
                 if not memberData:
-                    await interaction.followup.send(
-                        f"No card with that ID was found for the member with the id or name {member}!",
-                        ephemeral=True
-                    )
+                    try:
+                        await interaction.response.send_message(
+                            f"No card with that ID was found for the member with the id or name {member}!",
+                            ephemeral=True
+                        )
+                    except:
+                        await interaction.followup.send(
+                            f"No card with that ID was found for the member with the id or name {member}!",
+                            ephemeral=True
+                        )
                     return None
             else:
                 cursor.execute("SELECT itemId FROM cards WHERE itemName = ?", (member,))
                 memberData = cursor.fetchone()
                 if not memberData:
-                    await interaction.followup.send(
-                        f"No card with that ID was found for the member with the id or name {member}!",
-                        ephemeral=True
-                    )
+                    try:
+                        await interaction.response.send_message(
+                            f"No card with that ID was found for the member with the id or name {member}!",
+                            ephemeral=True
+                        )
+                    except:
+                        await interaction.followup.send(
+                            f"No card with that ID was found for the member with the id or name {member}!",
+                            ephemeral=True
+                        )
                     return None
             
         return memberData[0]
@@ -61,7 +73,10 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                     )
         conn.commit()
 
-    await interaction.response.send_message("Party members set successfully!")
+    try:
+        await interaction.response.send_message("Party members set successfully!")
+    except:
+        await interaction.followup.send("Party members set successfully!")
 
 slashCommandSetParty = app_commands.Command(
     name="set-party", # no spaces or capitals allowed
