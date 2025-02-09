@@ -227,6 +227,7 @@ async def on_message(message):
             await channel.send(f'`{username}` sent a message: ```{message.content}```Which was censored to: ```{censoredMessage}```')
             await message.delete()
             await message.channel.send(f'`{username}:` {censoredMessage}')
+
 @bot.event
 async def on_member_join(member: discord.Member):
     # Connect to database and handle user data
@@ -249,18 +250,26 @@ async def on_member_join(member: discord.Member):
 
     # Track invite usage and get inviter info
     async def get_invite_info():
-        invites_before = invite_counts.get(member.guild.id, {})
-        current_invites = await member.guild.invites()
-        
-        for invite in current_invites:
-            if invite.code in invites_before and invite.uses > invites_before[invite.code]:
-                invite_counts[member.guild.id] = {i.code: i.uses for i in current_invites}
-                return {
-                    'code': invite.code,
-                    'inviter': invite.inviter,
-                    'reward': random.randint(100, 500)
-                }
-        return None
+        try:
+            invites_before = invite_counts.get(member.guild.id, {})
+            current_invites = await member.guild.invites()
+            
+            # Update the current invite counts
+            invite_counts[member.guild.id] = {invite.code: invite.uses for invite in current_invites}
+            
+            # Find which invite was used
+            for invite in current_invites:
+                if invite.code in invites_before:
+                    if invite.uses > invites_before[invite.code]:
+                        return {
+                            'code': invite.code,
+                            'inviter': invite.inviter,
+                            'reward': random.randint(100, 500)
+                        }
+            return None
+        except Exception as e:
+            print(f"Error tracking invite: {e}")
+            return None
 
     # Calculate account age and determine status
     def get_account_age():
@@ -278,41 +287,50 @@ async def on_member_join(member: discord.Member):
         return 'normal', discord.Color.green(), years, months, days
 
     # Main execution
-    await handle_user_data()
-    invite_info = await get_invite_info()
-    status, color, years, months, days = get_account_age()
-    
-    # Create embed
-    now = datetime.now(timezone.utc)
-    description = f"**Member:** \n{member.name}\n\n"
-    description += f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n"
-    
-    if invite_info:
-        description += f"\n**Invited By:** {invite_info['inviter'].name}\n"
-        description += f"**Invite Code:** {invite_info['code']}\n"
-        description += f"**Inviter Reward:** {invite_info['reward']} XP"
+    try:
+        await handle_user_data()
+        invite_info = await get_invite_info()
+        status, color, years, months, days = get_account_age()
         
-        # Update inviter's XP
-        with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT userId FROM users WHERE userId = ?", (invite_info['inviter'].id,))
-            if cursor.fetchone():
-                channel = bot.get_channel(LOG_CHANNEL_ID)
-                if channel:
-                    await updateXpAndCheckLevelUp(ctx=channel, bot=bot, xp=invite_info['reward'], add=True)
+        # Create embed
+        now = datetime.now(timezone.utc)
+        description = f"**Member:** \n{member.name}\n\n"
+        description += f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n"
+        
+        if invite_info:
+            description += f"\n**Invited By:** {invite_info['inviter'].name}\n"
+            description += f"**Invite Code:** {invite_info['code']}\n"
+            description += f"**Inviter Reward:** {invite_info['reward']} XP"
+            
+            # Update inviter's XP
+            channel = bot.get_channel(LOG_CHANNEL_ID)
+            if channel:
+                await updateXpAndCheckLevelUp(
+                    ctx=channel, 
+                    bot=bot, 
+                    userId=invite_info['inviter'].id,  # Make sure your function accepts userId
+                    xp=invite_info['reward'], 
+                    add=True
+                )
 
-    embed = discord.Embed(
-        title="Member Joined",
-        description=description,
-        color=color,
-        timestamp=now
-    )
-    embed.set_thumbnail(url=member.display_avatar.url)
+        embed = discord.Embed(
+            title="Member Joined",
+            description=description,
+            color=color,
+            timestamp=now
+        )
+        embed.set_thumbnail(url=member.display_avatar.url)
 
-    # Send embed
-    channel = bot.get_channel(LOG_CHANNEL_ID)
-    if channel:
-        await channel.send(embed=embed)
+        # Send embed
+        channel = bot.get_channel(LOG_CHANNEL_ID)
+        if channel:
+            await channel.send(embed=embed)
+            
+    except Exception as e:
+        print(f"Error in on_member_join: {e}")
+        channel = bot.get_channel(LOG_CHANNEL_ID)
+        if channel:
+            await channel.send(f"Error processing new member join for {member.name}: {e}")
 
 @bot.event
 async def on_member_remove(member: discord.Member):
