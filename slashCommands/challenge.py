@@ -15,7 +15,7 @@ async def challengeFunc(interaction: discord.Interaction, member: discord.Member
             if interaction.user.id != self.target.id:
                 await interaction.response.send_message("Only the challenged player can accept!", ephemeral=True)
                 return
-            await interaction.response.send_message(f"Duel accepted! {self.challenger.mention} vs {self.target.mention}")
+            await interaction.response.send_message(f"Duel accepted! {self.challenger.name} vs {self.target.name}")
             self.stop()
 
         @discord.ui.button(label="Decline", style=discord.ButtonStyle.red)
@@ -23,7 +23,7 @@ async def challengeFunc(interaction: discord.Interaction, member: discord.Member
             if interaction.user.id != self.target.id:
                 await interaction.response.send_message("Only the challenged player can decline!", ephemeral=True)
                 return
-            await interaction.response.send_message(f"{self.target.mention} declined the duel!")
+            await interaction.response.send_message(f"{self.target.name} declined the duel!")
             self.stop()
 
     if member == interaction.user:
@@ -31,7 +31,7 @@ async def challengeFunc(interaction: discord.Interaction, member: discord.Member
         return
 
     view = DuelButtons(interaction.user, member)
-    await interaction.response.send_message(f"{member.mention}, you've been challenged to a Pokemon battle by {interaction.user.mention}!", view=view)
+    await interaction.response.send_message(f"{member.mention}, you've been challenged to a Pokemon battle by {interaction.user.name}!", view=view)
 
 slashCommandChallenge = app_commands.Command(
     name="challenge", # no spaces or capitals allowed
