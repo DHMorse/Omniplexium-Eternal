@@ -63,16 +63,9 @@ class DuelButtons(discord.ui.View):
             userParty: list = [None] * 6
             targetParty: list = [None] * 6
 
-            print(userPartyId)
-            print('---')
-            print(userParty)
-
             for i in range(5):
                 userParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (userPartyId[i],)).fetchone()
                 targetParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (targetPartyId[i],)).fetchone()
-
-            print('---')
-            print(userParty)
 
         goesFirst = random.choice([self.challenger, self.target])
 
@@ -84,12 +77,12 @@ class DuelButtons(discord.ui.View):
         # Send the party information
         await thread.send(
             f"{self.challenger.mention} party:\n"
-            f"1. {userParty[0][1] if not None else None}\n"
-            f"2. {userParty[1][1] if not None else None}\n"
-            f"3. {userParty[2][1] if not None else None}\n"
-            f"4. {userParty[3][1] if not None else None}\n"
-            f"5. {userParty[4][1] if not None else None}\n"
-            f"6. {userParty[5][1] if not None else None}\n"
+            f"1. {userParty[0][1] if userParty[0] is not None else None}\n"
+            f"2. {userParty[1][1] if userParty[1] is not None else None}\n"
+            f"3. {userParty[2][1] if userParty[2] is not None else None}\n"
+            f"4. {userParty[3][1] if userParty[3] is not None else None}\n"
+            f"5. {userParty[4][1] if userParty[4] is not None else None}\n"
+            f"6. {userParty[5][1] if userParty[5] is not None else None}\n"
         )
 
         self.stop()
