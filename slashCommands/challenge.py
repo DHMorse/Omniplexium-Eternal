@@ -80,12 +80,12 @@ class DuelButtons(discord.ui.View):
         # Send the party information
         await thread.send(
             f"{self.challenger.mention} party:\n"
-            f"1. {userParty[0][1]}\n"
-            f"2. {userParty[1][1]}\n"
-            f"3. {userParty[2][1]}\n"
-            f"4. {userParty[3][1]}\n"
-            f"5. {userParty[4][1]}\n"
-            f"6. {userParty[5][1]}\n"
+            f"1. {userParty[0][1] if not None else None}\n"
+            f"2. {userParty[1][1] if not None else None}\n"
+            f"3. {userParty[2][1] if not None else None}\n"
+            f"4. {userParty[3][1] if not None else None}\n"
+            f"5. {userParty[4][1] if not None else None}\n"
+            f"6. {userParty[5][1] if not None else None}\n"
         )
 
         self.stop()
