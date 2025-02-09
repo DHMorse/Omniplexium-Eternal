@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 import sqlite3
+import random
 
 from const import DATABASE_PATH
 
@@ -55,6 +56,29 @@ class DuelButtons(discord.ui.View):
             "You can now start your Pokemon battle here."
         )
         
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
+            userParty = cursor.execute("SELECT * FROM party WHERE userId = ?", (self.challenger.id,)).fetchone()
+            targetParty = cursor.execute("SELECT * FROM party WHERE userId = ?", (self.target.id,)).fetchone()
+
+        goesFirst = random.choice([self.challenger, self.target])
+
+        # Send the initial message
+        await thread.send(
+            f"{goesFirst.mention} goes first!"
+        )
+
+        # Send the party information
+        await thread.send(
+            f"{self.challenger.mention}'s party: {userParty[1]}, {userParty[2]}, {userParty[3]}\, {userParty[4]}, {userParty[5]}, {userParty[6]}\n",
+            ephermeral=True
+        )
+
+        await thread.send(
+            f"{self.target.mention}'s party: {targetParty[1]}, {targetParty[2]}, {targetParty[3]}\, {targetParty[4]}, {targetParty[5]}, {targetParty[6]}\n",
+            ephermeral=True
+        )
+
         self.stop()
 
     @discord.ui.button(label="Decline", style=discord.ButtonStyle.red)
