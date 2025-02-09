@@ -20,7 +20,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
             cursor = conn.cursor()
             if member.isdigit():
                 member = int(member1)
-                cursor.execute("SELECT * FROM cards WHERE cardId = ?", (member,))
+                cursor.execute("SELECT itemId FROM cards WHERE itemId = ?", (member,))
                 memberData = cursor.fetchone()
                 if not memberData:
                     await interaction.response.send_message(
@@ -29,7 +29,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                     )
                     return
             else:
-                cursor.execute("SELECT * FROM cards WHERE itemName = ?", (member,))
+                cursor.execute("SELECT itemId FROM cards WHERE itemName = ?", (member,))
                 memberData = cursor.fetchone()
                 if not memberData:
                     await interaction.response.send_message(
@@ -38,7 +38,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                     )
                     return
             
-            return memberData
+            return memberData[0]
 
     member1Data: tuple = await checkMember(member1)
     if not member1Data:
