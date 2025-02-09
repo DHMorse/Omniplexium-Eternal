@@ -39,17 +39,9 @@ async def statsFunc(interaction: discord.Interaction) -> None:
                 cursor.execute("SELECT * FROM cards WHERE userId = ?", (member.id,))
                 cards = cursor.fetchall()
 
-                for card in cards:
-                    item = {
-                        "cardId": card[3],
-                        "itemId": card[0],
-                        "itemName": card[1],
-                        "userId": card[2]
-                    }
-                    itemsList.append(item)
-
-                items_json = json.dumps(itemsList, indent=4)
-                json_file = io.BytesIO(items_json.encode('utf-8'))
+                # Create a list of card names
+                card_names = [card[1] for card in cards]  # card[1] is itemName
+                cards_text = "\n".join(card_names) if card_names else "No cards"
 
                 await interaction.response.send_message(
                                 f"{member.name}'s Stats:\n"
@@ -59,27 +51,22 @@ async def statsFunc(interaction: discord.Interaction) -> None:
                                 f"\u001b[0;36mMoney: ${formatedMoney}\n"
                                 f"\u001b[0;34mLast Login (UTC): {last_login_readable}\n"
                                 f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
+                                f"\u001b[0;32mCards:\n{cards_text}\n"
                                 f"```",
-                                file=discord.File(json_file, filename=f"{member.name}_items.json"), 
                                 ephemeral=True
-                                )    
+                                )
             else:
-                await interaction.response.send_message(f'''```ansi
-{COLORS['red']}{member.name} has no records in the database.{COLORS['reset']}
-```''')
+                await interaction.response.send_message(f'''```ansi\n{COLORS['red']}{member.name} has no records in the database.{COLORS['reset']}\n```''')
+                
                 channel = interaction.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-                await channel.send(f'''```ansi
-{COLORS['red']}{member.name} has no records in the database.{COLORS['reset']}
-```''')
+                await channel.send(f'''```ansi\n{COLORS['red']}{member.name} has no records in the database.{COLORS['reset']}\n```''')
+        
         except Exception as e:
             print(f"{COLORS['red']} {e} {COLORS['reset']}")
-            await interaction.response.send_message(f'''```ansi
-{COLORS['red']}An error occurred. {COLORS['reset']}
-```''')
+            await interaction.response.send_message(f'''```ansi\n{COLORS['red']}An error occurred. {COLORS['reset']}\n```''')
+            
             channel = interaction.client.get_channel(ADMIN_LOG_CHANNEL_ID)
-            await channel.send(f'''```ansi
-{COLORS['red']}An error occurred: {e} {COLORS['reset']}
-```''')
+            await channel.send(f'''```ansi\n{COLORS['red']}An error occurred: {e} {COLORS['reset']}\n```''')
             return
 
 slashCommandStats = app_commands.Command(
