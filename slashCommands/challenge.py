@@ -58,8 +58,8 @@ class DuelButtons(discord.ui.View):
         
         with sqlite3.connect(DATABASE_PATH) as conn:
             cursor = conn.cursor()
-            userPartyId = cursor.execute("SELECT * FROM party WHERE userId = ?", (self.challenger.id,)).fetchone() # userId, pokemon1, pokemon2, pokemon3, pokemon4, pokemon5, pokemon6
-            targetPartyId = cursor.execute("SELECT * FROM party WHERE userId = ?", (self.target.id,)).fetchone()
+            userPartyId = cursor.execute("SELECT member1, member2, member3, member4, member5, member6 FROM party WHERE userId = ?", (self.challenger.id,)).fetchone() # userId, pokemon1, pokemon2, pokemon3, pokemon4, pokemon5, pokemon6
+            targetPartyId = cursor.execute("SELECT member1, member2, member3, member4, member5, member6 FROM party WHERE userId = ?", (self.target.id,)).fetchone()
             userParty: tuple = ()
             targetParty: tuple = ()
 
