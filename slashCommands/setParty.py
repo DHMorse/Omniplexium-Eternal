@@ -44,7 +44,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
 
     member1itemId: int = await checkMember(member1)
     if not member1itemId:
-        interaction.response.send_message("No card with that ID was found!", ephemeral=True)
+        await interaction.response.send_message("No card with that ID was found!", ephemeral=True)
         return
     member2itemId: int = await checkMember(member2)
     member3itemId: int = await checkMember(member3)
