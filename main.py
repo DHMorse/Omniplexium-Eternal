@@ -60,7 +60,6 @@ from commands.login import login
 
 from floor10_game_concept import guess_the_number_command
 
-from fight import ChallengeView
 
 class MyBot(commands.Bot):
     def __init__(self):
@@ -273,7 +272,7 @@ async def on_member_join(member: discord.Member):
                         cursor.execute("SELECT userId FROM users WHERE userId = ?", (invite.inviter.id,))
                         result = cursor.fetchone()
                         if result:
-                            await updateXpAndCheckLevelUp(ctx=channel, bot=bot, xp=rewardAmount, add=True, userId=invite.inviter.id)
+                            await updateXpAndCheckLevelUp(ctx=channel, bot=bot, xp=rewardAmount, add=True)
                 return
 
 
