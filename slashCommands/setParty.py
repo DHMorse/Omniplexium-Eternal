@@ -59,10 +59,12 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
         member5Data: tuple = await checkMember(member5)
         member6Data: tuple = await checkMember(member6)
         
-        cursor.execute("INSERT INTO party (userId, member1, member2, member3, member4, member5, member6) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-                        (interaction.user.id, member1Data[0], member2Data[0], member3Data[0], member4Data[0], member5Data[0], member6Data[0])
-                    )
-        conn.commit()
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO party (userId, member1, member2, member3, member4, member5, member6) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                            (interaction.user.id, member1Data[0], member2Data[0], member3Data[0], member4Data[0], member5Data[0], member6Data[0])
+                        )
+            conn.commit()
 
         await interaction.response.send_message("Party members set successfully!")
 
