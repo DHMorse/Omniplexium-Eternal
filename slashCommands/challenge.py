@@ -1,6 +1,8 @@
 import discord
 from discord import app_commands
-from const import SERVER_ID, CREDITS_CHANNEL_ID
+import sqlite3
+
+from const import DATABASE_PATH
 
 class DuelButtons(discord.ui.View):
     def __init__(self, challenger: discord.Member, target: discord.Member):
@@ -78,6 +80,27 @@ async def challengeFunc(interaction: discord.Interaction, member: discord.Member
     if member == interaction.user:
         await interaction.response.send_message(
             "You can't challenge yourself!",
+            ephemeral=True
+        )
+        return
+
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM party WHERE userId = ?", (interaction.user.id,))
+        userParty = cursor.fetchone()
+        cursor.execute("SELECT * FROM party WHERE userId = ?", (member.id,))
+        targetParty = cursor.fetchone()
+
+    if not userParty:
+        await interaction.response.send_message(
+            "You must set your party before challenging another player! Use the `/setparty` command.",
+            ephemeral=True
+        )
+        return
+
+    if not targetParty:
+        await interaction.response.send_message(
+            f"{member.mention} hasn't set their party yet! They need to use the `/setparty` command.",
             ephemeral=True
         )
         return
