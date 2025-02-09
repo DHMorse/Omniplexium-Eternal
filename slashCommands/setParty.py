@@ -52,7 +52,11 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
     
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO party (userId, member1, member2, member3, member4, member5, member6) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+        cursor.execute("UPDATE party SET member1=?, member2=?, member3=?, member4=?, member5=?, member6=? WHERE userId=?", 
+                        (member1Data[0], member2Data[0], member3Data[0], member4Data[0], member5Data[0], member6Data[0], interaction.user.id)
+                    )
+        if cursor.rowcount == 0:  # If no row was updated, insert a new one
+            cursor.execute("INSERT INTO party (userId, member1, member2, member3, member4, member5, member6) VALUES (?, ?, ?, ?, ?, ?, ?)",
                         (interaction.user.id, member1Data[0], member2Data[0], member3Data[0], member4Data[0], member5Data[0], member6Data[0])
                     )
         conn.commit()
