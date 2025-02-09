@@ -13,9 +13,9 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
         )
         return
 
-    async def checkMember(member: str) -> int:
+    async def checkMember(member: str) -> int | None:
         if member is None:
-            return (None, )
+            return None
         with sqlite3.connect(DATABASE_PATH) as conn:
             cursor = conn.cursor()
             if member.isdigit():
