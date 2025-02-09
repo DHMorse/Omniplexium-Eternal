@@ -68,8 +68,8 @@ class DuelButtons(discord.ui.View):
             print(userParty)
 
             for i in range(5):
-                userParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (userPartyId[i+1],)).fetchone()
-                targetParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (targetPartyId[i+1],)).fetchone()
+                userParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (userPartyId[i],)).fetchone()
+                targetParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (targetPartyId[i],)).fetchone()
 
             print('---')
             print(userParty)
