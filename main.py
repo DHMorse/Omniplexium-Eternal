@@ -15,9 +15,8 @@ and the amount of points needed for each level is exponential, so even tho you h
 '''
 
 import discord
-from discord import app_commands
 from discord.ext import commands, tasks
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 import os
 import requests
 from datetime import datetime, timezone
@@ -28,7 +27,7 @@ import asyncio
 
 from secret_const import TOKEN
 
-from const import CACHE_DIR_PFP, COLORS, LEADERBOARD_PIC, DEFUALT_PROFILE_PIC, DATABASE_PATH, MAIN_CENSORSHIP_MODEL, BACKUP_CENSORSHIP_MODEL
+from const import CACHE_DIR_PFP, COLORS, DEFUALT_PROFILE_PIC, DATABASE_PATH
 from const import SERVER_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERROR_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, LOG_CHANNEL_ID
 
 from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, copyCard, censorMessage, checkLoginRemindersAndSend, logModelError, logError, logWarning
@@ -52,9 +51,11 @@ from slashCommands.stats import slashCommandStats
 from slashCommands.generateCard import slashCommandGenerateCard
 from slashCommands.challenge import slashCommandChallenge
 from slashCommands.setParty import slashCommandSetParty
+from slashCommands.leaderboard import slashCommandLeaderboard
 
 from commands.killme import killme
 from commands.credits import credits
+from commands.login import login
 
 from floor10_game_concept import guess_the_number_command
 
@@ -74,6 +75,7 @@ class MyBot(commands.Bot):
         self.tree.add_command(slashCommandGenerateCard)
         self.tree.add_command(slashCommandChallenge)
         self.tree.add_command(slashCommandSetParty)
+        self.tree.add_command(slashCommandLeaderboard)
 
         await self.tree.sync()  # Sync commands with Discord
 
@@ -131,6 +133,7 @@ bot.add_command(viewcardstats)
 
 bot.add_command(killme)
 bot.add_command(credits)
+bot.add_command(login)
 
 ### Normal commands ###
 
@@ -209,76 +212,6 @@ async def on_message(message):
             await channel.send(f'`{username}` sent a message: ```{message.content}```Which was censored to: ```{censoredMessage}```')
             await message.delete()
             await message.channel.send(f'`{username}:` {censoredMessage}')
-
-@bot.command()
-async def login(ctx, day: float = None) -> None:
-    if not ctx.author.guild_permissions.administrator:
-        day = 0
-
-    if day is not None:
-        # everything is a string
-        float(day)
-
-    if day is None:
-        day = 0
-
-    with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT lastLogin, daysLoggedInInARow FROM users WHERE userId = ?", (ctx.author.id,))
-        result = cursor.fetchone()
-        
-        if result is not None:
-            lastLogin = result[0]
-            daysLoggedInInARow = result[1]
-        else:
-            lastLogin = None
-            daysLoggedInInARow = 0
-        
-        if lastLogin is None:
-            await ctx.send("You have made your first daily login!")
-            cursor.execute("UPDATE users SET lastLogin = ? WHERE userId = ?", (time.time(), ctx.author.id))
-            cursor.execute("UPDATE users SET daysLoggedInInARow = ? WHERE userId = ?", (1, ctx.author.id))
-            conn.commit()
-        else:
-            if time.time() - lastLogin > 172800 or (day * 86400) > 172800:
-                await ctx.send("You have lost your daily login streak!")
-                cursor.execute("UPDATE users SET daysLoggedInInARow = ? WHERE userId = ?", (1, ctx.author.id))
-                cursor.execute("UPDATE users SET lastLogin = ? WHERE userId = ?", (time.time(), ctx.author.id))
-                conn.commit()
-            elif time.time() - lastLogin > 86400 or (day * 86400) > 86400:
-                await ctx.send("You have made your daily login!")
-                cursor.execute("UPDATE users SET lastLogin = ? WHERE userId = ?", (time.time(), ctx.author.id))
-                cursor.execute("UPDATE users SET daysLoggedInInARow = ? WHERE userId = ?", (daysLoggedInInARow + 1, ctx.author.id))
-                conn.commit()
-            else:
-                await ctx.send("You have already logged in today!")
-                return
-        
-        cursor.execute("SELECT daysLoggedInInARow FROM users WHERE userId = ?", (ctx.author.id,))
-        result = cursor.fetchone()
-        daysLoggedInInARow = result[0]
-
-        cursor.execute("SELECT rewardType, amountOrCardId FROM loginRewards WHERE level = ?", (daysLoggedInInARow,))
-        result = cursor.fetchone()
-        type, amount = result
-
-        match type:
-            case "xp":
-                await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=amount, add=True)
-                await ctx.send(f"Congratulations! You have received {amount} XP for logging in {daysLoggedInInARow} days in a row!")
-            case "money":
-                cursor.execute("UPDATE users SET money = money + ? WHERE userId = ?", (amount, ctx.author.id))
-                conn.commit()
-                await ctx.send(f"Congratulations! You have received ${amount} for logging in {daysLoggedInInARow} days in a row!")
-            case "card":
-                copyCard(amount, ctx.author.id)
-                
-                cursor.execute("SELECT itemName FROM cards WHERE itemId = ?", (amount,))
-                cardName = cursor.fetchone()[0]
-                
-                await ctx.send(f"Congratulations! You have received {cardName} for logging in {daysLoggedInInARow} days in a row!")
-
 
 @bot.event
 async def on_member_join(member: discord.Member):
@@ -403,151 +336,4 @@ async def on_user_update(before: discord.Member, after: discord.Member):
             # Save profile picture to cache
         profile_picture.save(profile_picture_path)
 
-@bot.tree.command(name="leaderboard", description="Display the leaderboard based on level or money.")
-@app_commands.describe(type="Choose between 'level' or 'money' for the leaderboard type.")
-async def leaderboard(interaction: discord.Interaction, type: str = "level"):
-    with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
-        # Determine the query based on the selected type
-        if type == "money":
-            cursor.execute("SELECT userId, username, money FROM users ORDER BY money DESC, xp DESC LIMIT 10")
-            leaderboard_data = cursor.fetchall()
-        else:  # Default to "level"
-            type = 'level' # handles edge case where the user types something other than 'money' or 'level'
-            cursor.execute("SELECT userId, username, xp FROM users ORDER BY xp DESC, xp DESC LIMIT 10")
-            leaderboard_data = cursor.fetchall()
-
-    # Create an image for the leaderboard
-    image_width = 600
-    image_height = 770
-    background_color = (54, 57, 62)  # Dark grey background
-    image = Image.new("RGB", (image_width, image_height), background_color)
-
-    # Load font for text
-    font_size = 30
-    font = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", font_size)
-
-    # Initialize drawing context
-    draw = ImageDraw.Draw(image)
-
-    # Set up leaderboard rendering variables
-    count = 0
-    y_offset = 10
-    for user_id, username, value in leaderboard_data:
-        if user_id == 1175890644191957013:
-            continue
-
-        user = await bot.fetch_user(user_id)
-        count += 1
-
-        # Ensure the directory exists
-        profile_picture_dir = os.path.join(os.path.expanduser(CACHE_DIR_PFP))
-        if not os.path.exists(profile_picture_dir):
-            os.makedirs(profile_picture_dir)
-
-        # Check if profile picture is in cache
-        profile_picture_path = os.path.join(profile_picture_dir, f"{user_id}.png")
-
-        if os.path.exists(profile_picture_path):
-            profile_picture = Image.open(profile_picture_path)
-        else:
-            if user and user.avatar:
-                profile_picture_response = requests.get(user.avatar.url, stream=True)
-                profile_picture_response.raise_for_status()
-                profile_picture = Image.open(profile_picture_response.raw)
-            else:
-                profile_picture = Image.open(DEFUALT_PROFILE_PIC)
-
-            # Save profile picture to cache
-            profile_picture.save(profile_picture_path)
-
-        # Resize profile picture and draw on the image
-        profile_picture = profile_picture.resize((70, 70))
-        image.paste(profile_picture, (10, y_offset))
-
-        # Determine color based on rank
-        if count == 1:
-            rank_color = (255, 215, 0)  # Gold
-        elif count == 2:
-            rank_color = (192, 192, 192)  # Silver
-        elif count == 3:
-            rank_color = (205, 127, 50)  # Bronze
-        else:
-            rank_color = (255, 255, 255)  # White
-
-
-        # what the fuck is value?
-
-        value = xpToLevel(value) if type == "level" else value
-
-        # Draw rank, username, and value (level or money)
-        display_value = f"Level {value}" if type == "level" else f"${value:,}"
-        draw.text((100, y_offset + 10), f"•  #{count} • {username}", fill=rank_color, font=font)
-        draw.text((390, y_offset + 10), display_value, fill=(255, 255, 255), font=font)  # Value in white
-
-        # Increment y_offset for next user
-        y_offset += 75
-        if count == 10:
-            break
-
-    # Save the leaderboard image
-    image.save(LEADERBOARD_PIC)
-
-    # Create an embed for the leaderboard
-    embed = discord.Embed(title=f"{type.capitalize()} Leaderboard", color=0x282b30)
-    embed.set_image(url="attachment://leaderboard.png")
-
-    # Send the embed with the leaderboard image
-    await interaction.response.send_message(embed=embed, file=discord.File(LEADERBOARD_PIC))
-
-'''
-@bot.tree.command(name="challenge", description="Send a challenge to a user with accept or decline options.")
-@app_commands.describe(member="The member to challenge")
-async def challenge(interaction: discord.Interaction, member: discord.Member):
-    if member.id == interaction.user.id:
-        await interaction.response.send_message("You can't challenge yourself to a duel!", ephemeral=True)
-        return
-
-    with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor(dictionary=True)
-
-        userId = interaction.user.id  # The ID of the user who used the command
-        opponent_id = member.id  # The ID of the opponent
-
-        # Query to count the number of cards for the user
-        cursor.execute("SELECT COUNT(*) as card_count FROM cards WHERE userId = ?", (userId,))
-        user_card_count = cursor.fetchone()["card_count"]
-
-        # Check if the user has at least three cards
-        if user_card_count < 3:
-            await interaction.response.send_message("You need at least 3 cards to send a challenge.", ephemeral=True)
-            return
-
-        # Query to count the number of cards for the opponent
-        cursor.execute("SELECT COUNT(*) as card_count FROM cards WHERE userId = ?", (opponent_id,))
-        opponent_card_count = cursor.fetchone()["card_count"]
-
-        # Check if the opponent has at least three cards
-        if opponent_card_count < 3:
-            await interaction.response.send_message(f"{member.mention} needs at least 3 cards to accept a challenge.", ephemeral=True)
-            return
-
-        # If both players have enough cards, send the challenge with buttons
-        await interaction.response.send_message(
-            f"{member.mention}, {interaction.user.mention} has challenged you to a duel! Do you accept?",
-            ephemeral=False
-        )
-
-        # Use followup to get the message object for editing
-        challenge_message = await interaction.followup.send(
-            f"{member.mention}, you have been challenged to a duel by {interaction.user.mention}!",
-            view=ChallengeView(challenger=interaction.user, challenged=member, timeout_message=None),
-            ephemeral=False,
-        )
-
-        # Attach the challenge message to the view for timeout handling
-        challenge_view = ChallengeView(challenger=interaction.user, challenged=member, timeout_message=challenge_message)
-        challenge_view.timeout_message = challenge_message
-        await challenge_message.edit(view=challenge_view)
-'''
 bot.run(TOKEN)
