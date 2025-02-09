@@ -70,14 +70,16 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
 
         return memberData[0]
 
-    member1itemId: int = await checkMember(member1)
+    userId = interaction.user.id
+
+    member1itemId: int = await checkMember(userId, member1)
     if not member1itemId:
         return
-    member2itemId: int = await checkMember(member2)
-    member3itemId: int = await checkMember(member3)
-    member4itemId: int = await checkMember(member4)
-    member5itemId: int = await checkMember(member5)
-    member6itemId: int = await checkMember(member6)
+    member2itemId: int = await checkMember(userId, member2)
+    member3itemId: int = await checkMember(userId, member3)
+    member4itemId: int = await checkMember(userId, member4)
+    member5itemId: int = await checkMember(userId, member5)
+    member6itemId: int = await checkMember(userId, member6)
     
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
