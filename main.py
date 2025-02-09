@@ -271,9 +271,8 @@ async def on_member_join(member: discord.Member):
                         cursor = conn.cursor()
                         cursor.execute("SELECT userId FROM users WHERE userId = ?", (invite.inviter.id,))
                         result = cursor.fetchone()
-                        ctx = await bot.get_context(await channel.fetch_message(channel.last_message_id))
                         if result:
-                            await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=rewardAmount, add=True)
+                            await updateXpAndCheckLevelUp(ctx=member, bot=bot, xp=rewardAmount, add=True)
                 return
 
 
