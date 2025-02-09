@@ -92,9 +92,39 @@ async def createAttacksTable(bot) -> None:
                     FOREIGN KEY (cardId) REFERENCES cards(itemId)     -- Reference to the 'cards' table
                 )
             ''')
-
     except Exception as e:
         await logError(bot, e, traceback.format_exc(), "createAttacksTable")
+        return None
+    
+    return None
+
+async def createPartyTable(bot) -> None:
+    try:
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS party (
+                    partyId INTEGER PRIMARY KEY AUTOINCREMENT,        -- Auto-incremented primary key
+                    userId BIGINT NOT NULL,                            -- User ID of the party owner
+                    member1 INTEGER,                                   -- Card ID of the first party member
+                    member2 INTEGER,                                   -- Card ID of the second party member
+                    member3 INTEGER,                                   -- Card ID of the third party member
+                    member4 INTEGER,                                   -- Card ID of the fourth party member
+                    member5 INTEGER,                                   -- Card ID of the fifth party member
+                    member6 INTEGER,                                   -- Card ID of the sixth party member
+                    FOREIGN KEY (userId) REFERENCES users(userId),     -- Reference to the 'users' table
+                    FOREIGN KEY (member1) REFERENCES cards(itemId),    -- Reference to the 'cards' table
+                    FOREIGN KEY (member2) REFERENCES cards(itemId),    -- Reference to the 'cards' table
+                    FOREIGN KEY (member3) REFERENCES cards(itemId),    -- Reference to the 'cards' table
+                    FOREIGN KEY (member4) REFERENCES cards(itemId),    -- Reference to the 'cards' table
+                    FOREIGN KEY (member5) REFERENCES cards(itemId),    -- Reference to the 'cards' table
+                    FOREIGN KEY (member6) REFERENCES cards(itemId)     -- Reference to the 'cards' table
+                    )
+                ''')
+    
+    except Exception as e:
+        await logError(bot, e, traceback.format_exc(), "createPartyTable")
         return None
     
     return None
@@ -143,6 +173,7 @@ async def createAllTables(bot) -> None:
     await createLoginRewardsTable(bot)
     await createCardTables(bot)
     await createAttacksTable(bot)
+    await createPartyTable(bot)
     await makeLoginRewardsTable(bot)
 
 async def checkDatabase(bot) -> None:
