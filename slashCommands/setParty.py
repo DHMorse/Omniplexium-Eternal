@@ -38,7 +38,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                     )
                     return
             
-            return memberData[0]
+            return memberData
 
     member1Data: tuple = await checkMember(member1)
     if not member1Data:
