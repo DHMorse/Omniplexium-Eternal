@@ -74,6 +74,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                     )
         conn.commit()
 
+        await interaction.response.send_message("Party members set successfully!")
 
 slashCommandSetParty = app_commands.Command(
     name="set-party", # no spaces or capitals allowed
