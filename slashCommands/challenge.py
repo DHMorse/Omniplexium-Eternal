@@ -60,8 +60,8 @@ class DuelButtons(discord.ui.View):
             cursor = conn.cursor()
             userPartyId = cursor.execute("SELECT member1, member2, member3, member4, member5, member6 FROM party WHERE userId = ?", (self.challenger.id,)).fetchone() # userId, pokemon1, pokemon2, pokemon3, pokemon4, pokemon5, pokemon6
             targetPartyId = cursor.execute("SELECT member1, member2, member3, member4, member5, member6 FROM party WHERE userId = ?", (self.target.id,)).fetchone()
-            userParty: tuple = ()
-            targetParty: tuple = ()
+            userParty: list = [None] * 6
+            targetParty: list = [None] * 6
 
             for i in range(5):
                 userParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (userPartyId[i+1],)).fetchone()
