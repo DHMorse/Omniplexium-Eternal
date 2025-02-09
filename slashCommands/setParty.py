@@ -54,20 +54,10 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
         if not member1Data:
             return
         member2Data: tuple = await checkMember(member2)
-        if not member2Data:
-            return
         member3Data: tuple = await checkMember(member3)
-        if not member3Data:
-            return
         member4Data: tuple = await checkMember(member4)
-        if not member4Data:
-            return
         member5Data: tuple = await checkMember(member5)
-        if not member5Data:
-            return
         member6Data: tuple = await checkMember(member6)
-        if not member6Data:
-            return
         
         cursor.execute("INSERT INTO party (userId, member1, member2, member3, member4, member5, member6) VALUES (?, ?, ?, ?, ?, ?, ?)", 
                         (interaction.user.id, member1Data[0], member2Data[0], member3Data[0], member4Data[0], member5Data[0], member6Data[0])
