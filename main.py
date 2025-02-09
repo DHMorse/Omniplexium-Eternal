@@ -229,7 +229,7 @@ async def on_message(message):
             await message.channel.send(f'`{username}:` {censoredMessage}')
 
 @bot.event
-async def on_member_join(member: discord.Member):
+async def on_member_join(ctx, member: discord.Member):
     memberId = member.id
     memberName = member.name
     
@@ -272,7 +272,7 @@ async def on_member_join(member: discord.Member):
                         cursor.execute("SELECT userId FROM users WHERE userId = ?", (invite.inviter.id,))
                         result = cursor.fetchone()
                         if result:
-                            await updateXpAndCheckLevelUp(ctx=channel, bot=bot, xp=rewardAmount, add=True)
+                            await updateXpAndCheckLevelUp(ctx=ctx, bot=bot, xp=rewardAmount, add=True)
                 return
 
 
