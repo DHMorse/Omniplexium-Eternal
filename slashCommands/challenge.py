@@ -50,12 +50,19 @@ class DuelButtons(discord.ui.View):
             f"Duel accepted! Moving to thread {thread.mention}"
         )
         
-        # Send initial message in the thread
+        # Create a view with a blue button
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(label="View Party", style=discord.ButtonStyle.blurple))
+
+        # Send initial message in the thread with the button
         await thread.send(
             f"Battle thread created for {self.challenger.mention} vs {self.target.mention}!\n"
-            "You can now start your Pokemon battle here."
+            "You can now start your Pokemon battle here.",
+            view=view
         )
         
+        await interaction.followup.send("Alright! A thread has been created for the battle!", ephemeral=True)
+
         with sqlite3.connect(DATABASE_PATH) as conn:
             cursor = conn.cursor()
             userPartyId = cursor.execute("SELECT member1, member2, member3, member4, member5, member6 FROM party WHERE userId = ?", (self.challenger.id,)).fetchone() # userId, pokemon1, pokemon2, pokemon3, pokemon4, pokemon5, pokemon6
