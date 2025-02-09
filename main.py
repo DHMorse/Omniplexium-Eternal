@@ -50,6 +50,7 @@ from slashCommands.setLoginReminders import slashCommandSetLoginReminders
 from slashCommands.credits import slashCommandCredits
 from slashCommands.stats import slashCommandStats
 from slashCommands.generateCard import slashCommandGenerateCard
+from slashCommands.challenge import slashCommandChallenge
 
 from commands.killme import killme
 from commands.credits import credits
@@ -70,6 +71,7 @@ class MyBot(commands.Bot):
         self.tree.add_command(slashCommandCredits)
         self.tree.add_command(slashCommandStats)
         self.tree.add_command(slashCommandGenerateCard)
+        self.tree.add_command(slashCommandChallenge)
 
         await self.tree.sync()  # Sync commands with Discord
 
@@ -496,7 +498,7 @@ async def leaderboard(interaction: discord.Interaction, type: str = "level"):
     # Send the embed with the leaderboard image
     await interaction.response.send_message(embed=embed, file=discord.File(LEADERBOARD_PIC))
 
-
+'''
 @bot.tree.command(name="challenge", description="Send a challenge to a user with accept or decline options.")
 @app_commands.describe(member="The member to challenge")
 async def challenge(interaction: discord.Interaction, member: discord.Member):
@@ -545,5 +547,5 @@ async def challenge(interaction: discord.Interaction, member: discord.Member):
         challenge_view = ChallengeView(challenger=interaction.user, challenged=member, timeout_message=challenge_message)
         challenge_view.timeout_message = challenge_message
         await challenge_message.edit(view=challenge_view)
-
+'''
 bot.run(TOKEN)
