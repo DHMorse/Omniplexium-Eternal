@@ -16,40 +16,30 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
     async def checkMember(member: str) -> int | None:
         if member is None:
             return None
+        
         with sqlite3.connect(DATABASE_PATH) as conn:
             cursor = conn.cursor()
             if member.isdigit():
                 member = int(member)
                 cursor.execute("SELECT itemId FROM cards WHERE itemId = ?", (member,))
                 memberData = cursor.fetchone()
-                if not memberData:
-                    try:
-                        await interaction.response.send_message(
-                            f"No card with that ID was found for the member with the id or name {member}!",
-                            ephemeral=True
-                        )
-                    except:
-                        await interaction.followup.send(
-                            f"No card with that ID was found for the member with the id or name {member}!",
-                            ephemeral=True
-                        )
-                    return None
             else:
                 cursor.execute("SELECT itemId FROM cards WHERE itemName = ?", (member,))
                 memberData = cursor.fetchone()
-                if not memberData:
-                    try:
-                        await interaction.response.send_message(
-                            f"No card with that ID was found for the member with the id or name {member}!",
-                            ephemeral=True
-                        )
-                    except:
-                        await interaction.followup.send(
-                            f"No card with that ID was found for the member with the id or name {member}!",
-                            ephemeral=True
-                        )
-                    return None
-            
+        
+        if not memberData:
+            try:
+                await interaction.response.send_message(
+                    f"No card with that ID was found for the member with the id or name {member}!",
+                    ephemeral=True
+                )
+            except:
+                await interaction.followup.send(
+                    f"No card with that ID was found for the member with the id or name {member}!",
+                    ephemeral=True
+                )
+            return None
+
         return memberData[0]
 
     member1itemId: int = await checkMember(member1)
