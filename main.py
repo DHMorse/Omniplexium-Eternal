@@ -230,106 +230,99 @@ async def on_message(message):
 
 @bot.event
 async def on_member_join(member: discord.Member):
-    # Connect to database and handle user data
-    async def handle_user_data():
-        with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT xp FROM users WHERE userId = ?", (member.id,))
-            result = cursor.fetchone()
-            
-            if result:
-                xp = result[0]
-                for i in range(xpToLevel(xp)):
-                    await member.add_roles(discord.utils.get(member.guild.roles, name=f"Level {i + 1}"))
-            else:
-                cursor.execute(
-                    "INSERT INTO users (userId, username, xp, money, lastLogin, daysLoggedInInARow) VALUES (?, ?, ?, ?, ?, ?)",
-                    (member.id, member.name, 0, 0, None, 0)
-                )
-                conn.commit()
+    memberId = member.id
+    memberName = member.name
+    
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        # see if the user is in the data base
+        cursor.execute("SELECT xp FROM users WHERE userId = ?", (memberId,))
+        result = cursor.fetchone()
+        if result:
+            xp = result[0]
+            for i in range(xpToLevel(xp)):
+                await member.add_roles(discord.utils.get(member.guild.roles, name=f"Level {i + 1}"))
 
-    # Track invite usage and get inviter info
-    async def get_invite_info():
-        try:
-            invites_before = invite_counts.get(member.guild.id, {})
-            current_invites = await member.guild.invites()
-            
-            # Update the current invite counts
-            invite_counts[member.guild.id] = {invite.code: invite.uses for invite in current_invites}
-            
-            # Find which invite was used
-            for invite in current_invites:
-                if invite.code in invites_before:
-                    if invite.uses > invites_before[invite.code]:
-                        return {
-                            'code': invite.code,
-                            'inviter': invite.inviter,
-                            'reward': random.randint(100, 500)
-                        }
-            return None
-        except Exception as e:
-            print(f"Error tracking invite: {e}")
-            return None
+        if not result:
+            cursor.execute(
+                "INSERT INTO users (userId, username, xp, money, lastLogin, daysLoggedInInARow) VALUES (?, ?, ?, ?, ?, ?)",
+                (memberId, memberName, 0, 0, None, 0)
+            )
+            conn.commit()
 
-    # Calculate account age and determine status
-    def get_account_age():
-        now = datetime.now(timezone.utc)
-        account_age = now - member.created_at
-        
-        years = account_age.days // 365
-        months = (account_age.days % 365) // 30
-        days = (account_age.days % 365) % 30
-        
-        if years < 1:
-            if months < 1:
-                return 'brand new', discord.Color.dark_orange(), years, months, days
-            return 'new', discord.Color.yellow(), years, months, days
-        return 'normal', discord.Color.green(), years, months, days
+    # Get fresh invite data
+    invites_before = invite_counts.get(member.guild.id, {})
+    current_invites = await member.guild.invites()
+    
+    # Find used invite
+    for invite in current_invites:
+        if invite.code in invites_before:
+            if invite.uses > invites_before[invite.code]:
+                # Update invite counts
+                invite_counts[member.guild.id] = {i.code: i.uses for i in current_invites}
+                
+                # Send notification
+                channel = bot.get_channel(LOG_CHANNEL_ID)
+                if channel:
+                    rewardAmount = random.randint(100, 500)
+                    await channel.send(f'{member.name} joined using invite code {invite.code} created by {invite.inviter.name} they will be rewarded with {rewardAmount} xp!')
+                    
+                    with sqlite3.connect(DATABASE_PATH) as conn:
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT userId FROM users WHERE userId = ?", (invite.inviter.id,))
+                        result = cursor.fetchone()
+                        if result:
+                            await updateXpAndCheckLevelUp(ctx=channel, bot=bot, xp=rewardAmount, add=True, userId=invite.inviter.id)
+                return
 
-    # Main execution
-    try:
-        await handle_user_data()
-        invite_info = await get_invite_info()
-        status, color, years, months, days = get_account_age()
-        
-        # Create embed
-        now = datetime.now(timezone.utc)
-        description = f"**Member:** \n{member.name}\n\n"
-        description += f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n"
-        
-        if invite_info:
-            description += f"\n**Invited By:** {invite_info['inviter'].name}\n"
-            description += f"**Invite Code:** {invite_info['code']}\n"
-            description += f"**Inviter Reward:** {invite_info['reward']} XP"
-            
-            # Update inviter's XP
-            channel = bot.get_channel(LOG_CHANNEL_ID)
-            if channel:
-                await updateXpAndCheckLevelUp(
-                    ctx=channel, 
-                    bot=bot,
-                    xp=invite_info['reward'], 
-                    add=True
-                )
 
-        embed = discord.Embed(
+    # Calculate account age
+    now = datetime.now(timezone.utc)
+    account_creation_date = member.created_at
+    account_age = now - account_creation_date
+    years = account_age.days // 365
+    months = (account_age.days % 365) // 30
+    days = (account_age.days % 365) % 30
+
+    accountAgeStatus = 'normal'
+    
+    if years < 1:
+        if months < 1:
+            # account is brand new
+            accountAgeStatus = 'brand new'
+        else:
+            # account is older than a month
+            # and is new, but proably not dangerous
+            accountAgeStatus = 'new'
+        # account is older than a year old
+
+    # test case for my alt
+    #if member.id == 1000422804585451640:
+    #    accountAgeStatus = 'brand new'
+
+    # Embed setup
+    match accountAgeStatus:
+        case 'normal':
+            discordColor = discord.Color.green()
+        case 'new':
+            discordColor = discord.Color.yellow()
+        case 'brand new':
+            discordColor = discord.Color.dark_orange()
+
+    embed = discord.Embed(
             title="Member Joined",
-            description=description,
-            color=color,
-            timestamp=now
+            description=f"**Member:** \n{member.name}\n\n"
+                        f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
+            color=discordColor,
+            timestamp=now  # Automatically add the timestamp to the footer
         )
-        embed.set_thumbnail(url=member.display_avatar.url)
+    embed.set_thumbnail(url=member.display_avatar.url)
 
-        # Send embed
-        channel = bot.get_channel(LOG_CHANNEL_ID)
-        if channel:
-            await channel.send(embed=embed)
-            
-    except Exception as e:
-        print(f"Error in on_member_join: {e}")
-        channel = bot.get_channel(LOG_CHANNEL_ID)
-        if channel:
-            await channel.send(f"Error processing new member join for {member.name}: {e}")
+    channel = bot.get_channel(LOG_CHANNEL_ID)
+
+    # Send the embed to the server's system channel (or any specific channel)
+    if channel:
+        await channel.send(embed=embed)
 
 @bot.event
 async def on_member_remove(member: discord.Member):
