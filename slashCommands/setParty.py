@@ -12,18 +12,6 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
             ephemeral=True
         )
         return
-    
-    with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
-        
-        cursor.execute("SELECT * FROM cards WHERE userId = ?", (interaction.user.id,))
-        userCards = cursor.fetchall()
-        if not userCards:
-            await interaction.response.send_message(
-                "You don't have any cards to set as your party members!",
-                ephemeral=True
-            )
-            return
 
     async def checkMember(member: str) -> tuple:
         with sqlite3.connect(DATABASE_PATH) as conn:
@@ -47,6 +35,8 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                         ephemeral=True
                     )
                     return
+            
+            return memberData
 
     member1Data: tuple = await checkMember(member1)
     if not member1Data:
