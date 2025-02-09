@@ -9,7 +9,7 @@ async def viewcard(ctx, *, query: str = "") -> None:
     if not ctx.author.guild_permissions.administrator:
         await ctx.send(f'''```ansi\n{COLORS['yellow']}You do not have the required permissions to use this command.{COLORS['reset']}\n```''')
 
-    if not query:
+    if query == "":
         await ctx.send(f'''```ansi\n{COLORS['red']}Please specify a valid card name or ID to view.{COLORS['reset']}\n```''')
         return
 
@@ -24,7 +24,7 @@ async def viewcard(ctx, *, query: str = "") -> None:
                 await ctx.send(f'''```ansi\n{COLORS['red']}No card with that ID was found.{COLORS['reset']}\n```''')
                 return
             
-            cardPath = cardData[7]
+            cardPath = cardData[9]
 
             file = discord.File(cardPath, filename="card.png")
 
@@ -38,7 +38,7 @@ async def viewcard(ctx, *, query: str = "") -> None:
                 await ctx.send(f'''```ansi\n{COLORS['red']}No card with that name was found.{COLORS['reset']}\n```''')
                 return
             
-            cardPath = cardData[7]
+            cardPath = cardData[9]
 
             file = discord.File(cardPath, filename="card.png")
 
