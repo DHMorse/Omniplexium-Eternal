@@ -90,7 +90,7 @@ async def on_invite_create(invite):
     guild_invites = invite_counts.get(invite.guild.id, {})
     guild_invites[invite.code] = invite.uses
     invite_counts[invite.guild.id] = guild_invites
-    #print(f'New invite created by {invite.inviter}: {invite.code}')
+    print(f'New invite created by {invite.inviter}: {invite.code}')
 
 
 @bot.event
