@@ -59,32 +59,28 @@ class DuelButtons(discord.ui.View):
                 with sqlite3.connect(DATABASE_PATH) as conn:
                     cursor = conn.cursor()
                     # Get the party of the user who clicked
-                    party_ids = cursor.execute(
-                        "SELECT member1, member2, member3, member4, member5, member6 FROM party WHERE userId = ?", 
-                        (interaction.user.id,)
-                    ).fetchone()
+                    partyIds = cursor.execute("SELECT member1, member2, member3, member4, member5, member6 FROM party WHERE userId = ?", 
+                                            (interaction.user.id,)).fetchone()
                     
-                    if not party_ids:
+                    # this error handling is really not needed as we do the same check earlier but why not keep it lmao
+                    if not partyIds:
                         await interaction.response.send_message(
                             "You don't have a party set up!",
                             ephemeral=True
                         )
                         return
 
-                    party = []
-                    for member_id in party_ids:
-                        if member_id:
-                            pokemon = cursor.execute(
-                                "SELECT * FROM cards WHERE itemId = ?", 
-                                (member_id,)
-                            ).fetchone()
+                    party: list = []
+                    for memberId in partyIds:
+                        if memberId:
+                            pokemon = cursor.execute("SELECT * FROM cards WHERE itemId = ?",(memberId,)).fetchone()
                             party.append(pokemon[1] if pokemon else None)
                         else:
                             party.append(None)
 
-                    party_text = "\n".join(f"{i+1}. {pokemon}" for i, pokemon in enumerate(party))
+                    partyText = "\n".join(f"{i+1}. {pokemon}" for i, pokemon in enumerate(party))
                     await interaction.response.send_message(
-                        f"Your party:\n{party_text}",
+                        f"Your party:\n{partyText}",
                         ephemeral=True
                     )
 
