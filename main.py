@@ -307,8 +307,7 @@ async def on_member_join(member: discord.Member):
             if channel:
                 await updateXpAndCheckLevelUp(
                     ctx=channel, 
-                    bot=bot, 
-                    userId=invite_info['inviter'].id,  # Make sure your function accepts userId
+                    bot=bot,
                     xp=invite_info['reward'], 
                     add=True
                 )
