@@ -58,8 +58,16 @@ class DuelButtons(discord.ui.View):
         
         with sqlite3.connect(DATABASE_PATH) as conn:
             cursor = conn.cursor()
-            userParty = cursor.execute("SELECT * FROM party WHERE userId = ?", (self.challenger.id,)).fetchone()
-            targetParty = cursor.execute("SELECT * FROM party WHERE userId = ?", (self.target.id,)).fetchone()
+            userPartyId = cursor.execute("SELECT * FROM party WHERE userId = ?", (self.challenger.id,)).fetchone() # userId, pokemon1, pokemon2, pokemon3, pokemon4, pokemon5, pokemon6
+            targetPartyId = cursor.execute("SELECT * FROM party WHERE userId = ?", (self.target.id,)).fetchone()
+            userParty = userPartyId
+            targetParty = targetPartyId
+            for i in range(1, 7):
+                userParty = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (userPartyId[i],)).fetchone()
+                targetParty = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (targetPartyId[i],)).fetchone()
+
+            print(userParty)
+            print(targetParty)
 
         goesFirst = random.choice([self.challenger, self.target])
 
@@ -70,12 +78,12 @@ class DuelButtons(discord.ui.View):
 
         # Send the party information
         await thread.send(
-            f"{self.challenger.mention}'s party: {userParty[1]}, {userParty[2]}, {userParty[3]}\, {userParty[4]}, {userParty[5]}, {userParty[6]}\n",
+            f"{self.challenger.mention}'s party: {userParty[0]}, {userParty[1]}, {userParty[2]}\, {userParty[3]}, {userParty[4]}, {userParty[5]}\n",
             ephermeral=True
         )
 
         await thread.send(
-            f"{self.target.mention}'s party: {targetParty[1]}, {targetParty[2]}, {targetParty[3]}\, {targetParty[4]}, {targetParty[5]}, {targetParty[6]}\n",
+            f"{self.target.mention}'s party: {targetParty[0]}, {targetParty[1]}, {targetParty[2]}\, {targetParty[3]}, {targetParty[4]}, {targetParty[5]}\n",
             ephermeral=True
         )
 
