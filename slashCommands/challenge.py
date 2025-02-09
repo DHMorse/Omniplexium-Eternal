@@ -67,8 +67,7 @@ class DuelButtons(discord.ui.View):
                 userParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (userPartyId[i+1],)).fetchone()
                 targetParty[i] = cursor.execute("SELECT * FROM cards WHERE itemId = ?", (targetPartyId[i+1],)).fetchone()
 
-            print(userParty)
-            print(targetParty)
+            print(userParty[0][1], userParty[1][1], userParty[2][1], userParty[3][1], userParty[4][1], userParty[5][1])
 
         goesFirst = random.choice([self.challenger, self.target])
 
