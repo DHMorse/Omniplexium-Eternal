@@ -24,13 +24,14 @@ import time
 import sqlite3
 import traceback
 import asyncio
+import random
 
 from secret_const import TOKEN
 
 from const import CACHE_DIR_PFP, COLORS, DEFUALT_PROFILE_PIC, DATABASE_PATH
 from const import SERVER_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERROR_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, LOG_CHANNEL_ID
 
-from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, copyCard, censorMessage, checkLoginRemindersAndSend, logModelError, logError, logWarning
+from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, censorMessage, checkLoginRemindersAndSend, logModelError, logError, logWarning
 from helperFunctions.database import checkDatabase
 from helperFunctions.verifyFilePaths import verifyFilePaths
 
@@ -81,6 +82,17 @@ class MyBot(commands.Bot):
 
 bot = MyBot()
 
+# Store invite counts
+invite_counts = {}
+
+@bot.event
+async def on_invite_create(invite):
+    guild_invites = invite_counts.get(invite.guild.id, {})
+    guild_invites[invite.code] = invite.uses
+    invite_counts[invite.guild.id] = guild_invites
+    #print(f'New invite created by {invite.inviter}: {invite.code}')
+
+
 @bot.event
 async def on_ready():
     checkDatabaseStartTime = time.time()
@@ -103,6 +115,10 @@ async def on_ready():
     botTreeSyncStartTime = time.time()
     await bot.tree.sync()
     print(f'Bot tree sync took {round(time.time() - botTreeSyncStartTime, 2)} seconds')
+
+    for guild in bot.guilds:
+        invites = await guild.invites()
+        invite_counts[guild.id] = {invite.code: invite.uses for invite in invites}
 
     print(f'Bot is ready. Logged in as {bot.user}')
 
@@ -234,6 +250,31 @@ async def on_member_join(member: discord.Member):
                 (memberId, memberName, 0, 0, None, 0)
             )
             conn.commit()
+
+    # Get fresh invite data
+    invites_before = invite_counts.get(member.guild.id, {})
+    current_invites = await member.guild.invites()
+    
+    # Find used invite
+    for invite in current_invites:
+        if invite.code in invites_before:
+            if invite.uses > invites_before[invite.code]:
+                # Update invite counts
+                invite_counts[member.guild.id] = {i.code: i.uses for i in current_invites}
+                
+                # Send notification
+                channel = bot.get_channel(LOG_CHANNEL_ID)
+                if channel:
+                    rewardAmount = random.randint(100, 500)
+                    await channel.send(f'{member.name} joined using invite code {invite.code} created by {invite.inviter.name} they will be rewarded with {rewardAmount} xp!')
+                    
+                    with sqlite3.connect(DATABASE_PATH) as conn:
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT userId FROM users WHERE userId = ?", (invite.inviter.id,))
+                        result = cursor.fetchone()
+                        if result:
+                            await updateXpAndCheckLevelUp(ctx=channel, bot=bot, xp=rewardAmount, add=True, userId=invite.inviter.id)
+                return
 
 
     # Calculate account age
