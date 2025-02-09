@@ -39,8 +39,8 @@ async def statsFunc(interaction: discord.Interaction) -> None:
                 cursor.execute("SELECT * FROM cards WHERE userId = ?", (member.id,))
                 cards = cursor.fetchall()
 
-                # Create a list of card names
-                card_names = [card[1] for card in cards]  # card[1] is itemName
+                # Create a numbered list of card names
+                card_names = [f"{i+1}. {card[1]}" for i, card in enumerate(cards)]  # card[1] is itemName
                 cards_text = "\n".join(card_names) if card_names else "No cards"
 
                 await interaction.response.send_message(
@@ -51,7 +51,7 @@ async def statsFunc(interaction: discord.Interaction) -> None:
                                 f"\u001b[0;36mMoney: ${formatedMoney}\n"
                                 f"\u001b[0;34mLast Login (UTC): {last_login_readable}\n"
                                 f"\u001b[0;36mDays Logged In In A Row: {daysLoggedInInARow}\n"
-                                f"\u001b[0;32mCards:\n{cards_text}\n"
+                                f"\u001b[0;34mCards:\n{cards_text}\n"
                                 f"```",
                                 ephemeral=True
                                 )
