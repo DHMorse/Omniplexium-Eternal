@@ -1,40 +1,98 @@
 import discord
 from discord import app_commands
-
 from const import SERVER_ID, CREDITS_CHANNEL_ID
 
+class DuelButtons(discord.ui.View):
+    def __init__(self, challenger: discord.Member, target: discord.Member):
+        super().__init__(timeout=60)
+        self.challenger = challenger
+        self.target = target
+        self.message = None
+
+    async def on_timeout(self):
+        # Disable all buttons
+        for button in self.children:
+            button.disabled = True
+        
+        # Edit the original message to show timeout
+        if self.message:
+            await self.message.edit(
+                content=f"Challenge timed out! {self.target.name} didn't respond in time.",
+                view=self
+            )
+
+    @discord.ui.button(label="Accept", style=discord.ButtonStyle.green)
+    async def accept_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.target.id:
+            await interaction.response.send_message(
+                "Only the challenged player can accept!",
+                ephemeral=True
+            )
+            return
+
+        # Create a new thread for the battle
+        thread = await interaction.channel.create_thread(
+            name=f"Battle: {self.challenger.name} vs {self.target.name}",
+            type=discord.ChannelType.public_thread,
+            auto_archive_duration=60
+        )
+
+        # Disable the buttons
+        for button in self.children:
+            button.disabled = True
+        await self.message.edit(view=self)
+
+        # Send confirmation messages
+        await interaction.response.send_message(
+            f"Duel accepted! Moving to thread {thread.mention}"
+        )
+        
+        # Send initial message in the thread
+        await thread.send(
+            f"Battle thread created for {self.challenger.mention} vs {self.target.mention}!\n"
+            "You can now start your Pokemon battle here."
+        )
+        
+        self.stop()
+
+    @discord.ui.button(label="Decline", style=discord.ButtonStyle.red)
+    async def decline_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.target.id:
+            await interaction.response.send_message(
+                "Only the challenged player can decline!",
+                ephemeral=True
+            )
+            return
+
+        # Disable the buttons
+        for button in self.children:
+            button.disabled = True
+        await self.message.edit(view=self)
+
+        await interaction.response.send_message(
+            f"{self.target.name} declined the duel!"
+        )
+        self.stop()
+
 async def challengeFunc(interaction: discord.Interaction, member: discord.Member) -> None:
-    class DuelButtons(discord.ui.View):
-        def __init__(self, challenger: discord.Member, target: discord.Member):
-            super().__init__(timeout=60)
-            self.challenger = challenger
-            self.target = target
-
-        @discord.ui.button(label="Accept", style=discord.ButtonStyle.green)
-        async def accept_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-            if interaction.user.id != self.target.id:
-                await interaction.response.send_message("Only the challenged player can accept!", ephemeral=True)
-                return
-            await interaction.response.send_message(f"Duel accepted! {self.challenger.name} vs {self.target.name}")
-            self.stop()
-
-        @discord.ui.button(label="Decline", style=discord.ButtonStyle.red)
-        async def decline_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-            if interaction.user.id != self.target.id:
-                await interaction.response.send_message("Only the challenged player can decline!", ephemeral=True)
-                return
-            await interaction.response.send_message(f"{self.target.name} declined the duel!")
-            self.stop()
-
     if member == interaction.user:
-        await interaction.response.send_message("You can't challenge yourself!", ephemeral=True)
+        await interaction.response.send_message(
+            "You can't challenge yourself!",
+            ephemeral=True
+        )
         return
 
     view = DuelButtons(interaction.user, member)
-    await interaction.response.send_message(f"{member.mention}, you've been challenged to a Pokemon battle by {interaction.user.name}!", view=view)
+    response = await interaction.response.send_message(
+        f"{member.mention}, you've been challenged to a Pokemon battle by {interaction.user.name}!",
+        view=view
+    )
+    
+    # Store the message for timeout handling
+    view.message = await interaction.original_response()
 
 slashCommandChallenge = app_commands.Command(
-    name="challenge", # no spaces or capitals allowed
+    name="challenge",
     description="Challenge another player to a pokemon type battle!",
     callback=challengeFunc,
 )
