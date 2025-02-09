@@ -19,7 +19,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
         with sqlite3.connect(DATABASE_PATH) as conn:
             cursor = conn.cursor()
             if member.isdigit():
-                member = int(member1)
+                member = int(member)
                 cursor.execute("SELECT itemId FROM cards WHERE itemId = ?", (member,))
                 memberData = cursor.fetchone()
                 if not memberData:
@@ -38,7 +38,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                     )
                     return
             
-            return memberData
+        return memberData
 
     member1Data: tuple = await checkMember(member1)
     if not member1Data:
