@@ -148,7 +148,13 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
     try:
         discordAuthor = ctx.author
     except AttributeError:
-        discordAuthor = ctx.user
+        try:
+            discordAuthor = ctx.user
+        except AttributeError:
+            try:
+                discordAuthor = ctx
+            except AttributeError:
+                raise ValueError("Unable to obtain Discord author/user from context.")
 
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
