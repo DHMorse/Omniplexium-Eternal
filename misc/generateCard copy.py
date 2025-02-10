@@ -29,7 +29,8 @@ def wrap_text(text, font, max_width):
         lines.append(' '.join(current_line))
     
     return lines
-def generateCardImageFromItemId(cardId: str, title_left_offset: int = 70) -> Image:
+
+def generateCardImageFromItemId(cardId: str, titleLeftOffset: int = 70) -> Image:
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
 
@@ -85,7 +86,7 @@ def generateCardImageFromItemId(cardId: str, title_left_offset: int = 70) -> Ima
 
         health_x = template.width - 200
         health_y = 150
-        name_x = title_left_offset
+        name_x = titleLeftOffset
         name_y = 120
 
         outline_color = "black"

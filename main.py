@@ -53,6 +53,7 @@ from slashCommands.generateCard import slashCommandGenerateCard
 from slashCommands.challenge import slashCommandChallenge
 from slashCommands.setParty import slashCommandSetParty
 from slashCommands.leaderboard import slashCommandLeaderboard
+from slashCommands.startQuest import slashCommandStartQuest
 
 from commands.killme import killme
 from commands.credits import credits
@@ -76,6 +77,7 @@ class MyBot(commands.Bot):
         self.tree.add_command(slashCommandChallenge)
         self.tree.add_command(slashCommandSetParty)
         self.tree.add_command(slashCommandLeaderboard)
+        self.tree.add_command(slashCommandStartQuest)
 
         await self.tree.sync()  # Sync commands with Discord
 
