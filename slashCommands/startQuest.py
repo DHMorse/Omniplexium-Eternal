@@ -4,6 +4,7 @@ from discord import app_commands
 from adventureStoryTime import *
 
 async def startQuestFunc(interaction: discord.Interaction) -> None:
+    hi = StoryMaker()
     await interaction.response.send_message(hi.startStory('You are a bear looking at the eclipse.', 169))
 
 slashCommandStartQuest = app_commands.Command(
