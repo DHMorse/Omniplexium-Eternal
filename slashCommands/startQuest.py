@@ -4,10 +4,16 @@ import asyncio
 from adventureStoryTime import *
 
 async def startQuestFunc(interaction: discord.Interaction) -> None:
+    thread = await interaction.channel.create_thread(
+        name=f"Quest with {interaction.user.display_name}",
+        type=discord.ChannelType.private_thread,
+        invitable=False
+    )
+    await thread.add_user(interaction.user)
     await interaction.response.defer()
     hi = StoryMaker()
     var = await hi.startStory('You are a bear looking at the eclipse.', 169)
-    await interaction.followup.send(var)
+    await thread.send(var)
 
 slashCommandStartQuest = app_commands.Command(
     name="start-quest", # no spaces or capitals allowed
