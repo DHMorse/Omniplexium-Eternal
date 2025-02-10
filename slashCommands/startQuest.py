@@ -4,6 +4,7 @@ import asyncio
 from adventureStoryTime import *
 
 async def startQuestFunc(interaction: discord.Interaction) -> None:
+    interaction.response.defer()
     hi = StoryMaker()
     var = await hi.startStory('You are a bear looking at the eclipse.', 169)
     await interaction.response.send_message(var)
