@@ -1,9 +1,9 @@
 # Omniplexium-Eternal: Admin Commands Guide
 
-![Python](https://img.shields.io/badge/Python-3.x-blue?style=flat&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.10.12-blue?style=flat&logo=python&logoColor=white)
+![SQLite3](https://img.shields.io/badge/SQLite-3.31.1-003B57?style=flat&logo=sqlite&logoColor=white)
 ![Discord](https://img.shields.io/badge/Discord-Blue?style=flat&logo=discord&logoColor=white)
-![SQLite3](https://img.shields.io/badge/SQLite-3.35-003B57?style=flat&logo=sqlite&logoColor=white)
-![Bash](https://img.shields.io/badge/Bash-4.4-4EAA25?style=flat&logo=gnu-bash&logoColor=white)
+![Bash](https://img.shields.io/badge/Bash-5.0.17-4EAA25?style=flat&logo=gnu-bash&logoColor=white)
 
 
 Welcome to the admin commands guide for Omniplexium-Eternal! Below you'll find detailed instructions on using commands to manage user stats, including resetting, setting values, and viewing stats. Required arguments are marked with an asterisk (*).
