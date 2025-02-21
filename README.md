@@ -1,7 +1,7 @@
 # Omniplexium-Eternal: Admin Commands Guide
 
 ![Python](https://img.shields.io/badge/Python-3.10.12-blue?style=flat&logo=python&logoColor=white)
-![Discord](https://img.shields.io/badge/Discord-7289DA?style=flat&logo=discord&logoColor=white)
+[![Discord](https://img.shields.io/badge/Discord-7289DA?style=flat&logo=discord&logoColor=white)](https://discord.gg/WTWm3smmzm)
 ![SQLite3](https://img.shields.io/badge/SQLite-3.31.1-003B57?style=flat&logo=sqlite&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-5.0.17-4EAA25?style=flat&logo=gnu-bash&logoColor=white)
 
