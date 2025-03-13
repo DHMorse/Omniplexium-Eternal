@@ -93,13 +93,6 @@ async def on_ready():
     await verifyFilePaths(bot)
     print(f'The file path verification took {round(time.time() - verifyFilePathsStartTime, 2)} seconds')
 
-    #activeQuestsDict = await checkActiveUserQuests(bot)
-    ##if activeQuestsDict != {}:
-    #    with sqlite3.connect(DATABASE_PATH) as conn:
-    #        cursor = conn.cursor()
-    #        cursor.execute("DROP TABLE activeQuests")
-    #        conn.commit()
-
     if not loginReminderTask.is_running():
         try:
             loginReminderTask.start()
