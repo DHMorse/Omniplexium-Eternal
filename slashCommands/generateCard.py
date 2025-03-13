@@ -22,25 +22,25 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
 
         # Update the user's items in the database
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
 
             # Fetch the current highest itemID
             cursor.execute("SELECT MAX(itemId) FROM cards")
-            result = cursor.fetchone()
-            currentItemId = result[0] + 1 if result[0] is not None else 1
+            result: tuple[int] | None = cursor.fetchone()
+            currentItemId: int = result[0] + 1 if result[0] is not None else 1
             
             # Save the card image
-            card_name = f"{currentItemId}.png"
+            card_name: str = f"{currentItemId}.png"
             
             if not os.path.exists(CARD_IMG_PFP_PATH):
                 os.makedirs(CARD_IMG_PFP_PATH)
-            cardPfpPath = f'{CARD_IMG_PFP_PATH}/{card_name}'
+            cardPfpPath: str = f'{CARD_IMG_PFP_PATH}/{card_name}'
 
-            cardImage = requests.get(cardData[1])
+            cardImage: requests.Response = requests.get(cardData[1])
             with open(cardPfpPath, 'wb') as card:
                 card.write(cardImage.content)
             
-            cardPath = f'{CARD_IMG_CARD_PATH}/{card_name}'
+            cardPath: str = f'{CARD_IMG_CARD_PATH}/{card_name}'
 
             cursor.execute(
                 "INSERT INTO cards (itemName, userId, cardId, description, health, imagePrompt, imageUrl, imagePfpPath, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
@@ -65,25 +65,25 @@ async def generateCardFunc(interaction: discord.Interaction, prompt: str) -> Non
                     )
             conn.commit()
 
-            card: Image = generateCardImageFromItemId(currentItemId)
+            card: Image.Image = generateCardImageFromItemId(currentItemId)
 
             card.save(cardPath)
 
-        file = discord.File(cardPath, filename="card.png")
+        file: discord.File = discord.File(cardPath, filename="card.png")
 
         # Edit the initial deferred response to include the embed with the image file
         await interaction.followup.send(file=file)
     except Exception as e:
         await logError(interaction, e, traceback.format_exc(), "generateCardFunc")
 
-slashCommandGenerateCard = app_commands.Command(
+slashCommandGenerateCard: app_commands.Command = app_commands.Command(
     name="generate-card", # no spaces or capitals allowed
     description="Generate a new Card based off a prompt!",
     callback=generateCardFunc,
 )
 
 # Example data for a card
-exampleData = {'name': 'The Stalwart Squire', 
+exampleData: dict[str, str | int | list[dict[str, str | int]]] = {'name': 'The Stalwart Squire', 
         'description': 'A short man with a determined expression, dressed in a simple tunic and wielding a sturdy wooden sword, ready to prove his worth in battle.', 
         'health': 50, 
         'attacks': [

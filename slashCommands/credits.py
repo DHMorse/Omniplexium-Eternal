@@ -6,7 +6,7 @@ from const import SERVER_ID, CREDITS_CHANNEL_ID
 async def creditsFunc(interaction: discord.Interaction) -> None:
     await interaction.response.send_message(f'https://discord.com/channels/{SERVER_ID}/{CREDITS_CHANNEL_ID}')
 
-slashCommandCredits = app_commands.Command(
+slashCommandCredits: app_commands.Command = app_commands.Command(
     name="credits", # no spaces or capitals allowed
     description="Get the credits of who built this wonderful game!",
     callback=creditsFunc,

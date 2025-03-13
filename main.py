@@ -19,12 +19,11 @@ from discord.ext import commands, tasks
 from PIL import Image
 import os
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import time
 import sqlite3
 import traceback
 import asyncio
-import random
 
 from secret_const import TOKEN
 
@@ -32,7 +31,7 @@ from const import CACHE_DIR_PFP, COLORS, DEFUALT_PROFILE_PIC, DATABASE_PATH
 from const import SERVER_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERROR_LOG_CHANNEL_ID, CENSORSHIP_CHANNEL_ID, LOG_CHANNEL_ID
 
 from helperFunctions.main import xpToLevel, updateXpAndCheckLevelUp, censorMessage, checkLoginRemindersAndSend, logModelError, logError, logWarning
-from helperFunctions.database import checkDatabase
+from helperFunctions.database import checkDatabase, verifyFilePaths
 from helperFunctions.verifyFilePaths import verifyFilePaths
 
 from adminCommands.set import set
@@ -81,17 +80,25 @@ class MyBot(commands.Bot):
 
         await self.tree.sync()  # Sync commands with Discord
 
-bot = MyBot()
+# Globals
+bot: commands.Bot = MyBot()
 
 @bot.event
 async def on_ready():
-    checkDatabaseStartTime = time.time()
+    checkDatabaseStartTime: float = time.time()
     await checkDatabase(bot)
     print(f'The database check took {round(time.time() - checkDatabaseStartTime, 2)} seconds')
 
-    verifyFilePathsStartTime = time.time()
+    verifyFilePathsStartTime: float = time.time()
     await verifyFilePaths(bot)
     print(f'The file path verification took {round(time.time() - verifyFilePathsStartTime, 2)} seconds')
+
+    #activeQuestsDict = await checkActiveUserQuests(bot)
+    ##if activeQuestsDict != {}:
+    #    with sqlite3.connect(DATABASE_PATH) as conn:
+    #        cursor = conn.cursor()
+    #        cursor.execute("DROP TABLE activeQuests")
+    #        conn.commit()
 
     if not loginReminderTask.is_running():
         try:
@@ -102,7 +109,7 @@ async def on_ready():
             print(f"{COLORS['red']}Login reminder task failed to start: {e}{COLORS['reset']}")
             await logError(bot, e, traceback.format_exc(), 'Login reminder task failed to start')
 
-    botTreeSyncStartTime = time.time()
+    botTreeSyncStartTime: float = time.time()
     await bot.tree.sync()
     print(f'Bot tree sync took {round(time.time() - botTreeSyncStartTime, 2)} seconds')
 
@@ -139,22 +146,20 @@ bot.add_command(login)
 
 ### Normal commands ###
 
-
-
 @bot.event
-async def on_message(message):
+async def on_message(message: discord.Message):
     if message.author.bot:
         return
 
-    userId = message.author.id
-    username = message.author.name
+    userId: int = message.author.id
+    username: str = message.author.name
 
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
             # Check if user exists in the database
             cursor.execute("SELECT * FROM users WHERE userId = ?", (userId,))
-            result = cursor.fetchone()
+            result: tuple = cursor.fetchone() # add a proper type hint later
             
             if not result:
                 cursor.execute(
@@ -167,7 +172,7 @@ async def on_message(message):
                 await updateXpAndCheckLevelUp(ctx=message, bot=bot, xp=1, add=True)
     except sqlite3.Error as e:
         print(f"Database error in on_message: {e}")
-        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+        channel: discord.TextChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
         await channel.send(f'''```ansi{COLORS['red']}Database error in on_message: ```{e}```{COLORS['reset']}```''')
 
     finally:
@@ -175,16 +180,16 @@ async def on_message(message):
         await bot.process_commands(message)
 
         async def tryCensorMessageWithModel(message: str) -> str:
-            censoredMessage = None
+            censoredMessage: str | None = None
             try:
                 try:
-                    censoredMessage = await asyncio.wait_for(censorMessage(message), timeout=1.0)
+                    censoredMessage: str = await asyncio.wait_for(censorMessage(message), timeout=1.0)
                 except asyncio.TimeoutError as e:
-                    messageId = await logModelError(
+                    messageId: int = await logModelError(
                                     bot, e, traceback.format_exc(), 
                                     f"""{username} sent a message: {message}\nWhich was not censored in time!""", 'on_message event'
                                     )
-                    channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                    channel: discord.TextChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
                     await channel.send(f"https://discord.com/channels/{SERVER_ID}/{MODEL_ERROR_LOG_CHANNEL_ID}/{messageId}")
 
                     await logWarning(
@@ -193,8 +198,8 @@ async def on_message(message):
                     #return await tryCensorMessageWithModel(message, model=BACKUP_CENSORSHIP_MODEL)
 
             except Exception as e:
-                messageId = await logModelError(bot, e, traceback.format_exc(), 'on_message event')
-                channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                messageId: int = await logModelError(bot, e, traceback.format_exc(), 'on_message event')
+                channel: discord.TextChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
                 await channel.send(f"https://discord.com/channels/{SERVER_ID}/{MODEL_ERROR_LOG_CHANNEL_ID}/{messageId}")
                 
                 await logWarning(
@@ -204,29 +209,29 @@ async def on_message(message):
             
             return 'false' if censoredMessage is None else censoredMessage
 
-        censoredMessage = 'false'
+        censoredMessage: str = 'false'
 
         if message.content is not None and message.content.strip() != '':
-            censoredMessage = await tryCensorMessageWithModel(message.content)
+            censoredMessage: str = await tryCensorMessageWithModel(message.content)
         
         if censoredMessage.strip() not in ['false', "'false'", '"false"', 'False', "'False'", '"False"'] and username != '404_5971':
-            channel = bot.get_channel(CENSORSHIP_CHANNEL_ID)
+            channel: discord.TextChannel = bot.get_channel(CENSORSHIP_CHANNEL_ID)
             await channel.send(f'`{username}` sent a message: ```{message.content}```Which was censored to: ```{censoredMessage}```')
             await message.delete()
             await message.channel.send(f'`{username}:` {censoredMessage}')
 
 @bot.event
 async def on_member_join(member: discord.Member):
-    memberId = member.id
-    memberName = member.name
+    memberId: int = member.id
+    memberName: str = member.name
     
     with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
+        cursor: sqlite3.Cursor = conn.cursor()
         # see if the user is in the data base
         cursor.execute("SELECT xp FROM users WHERE userId = ?", (memberId,))
-        result = cursor.fetchone()
+        result: tuple = cursor.fetchone() # add a proper type hint later
         if result:
-            xp = result[0]
+            xp: int = result[0]
             for i in range(xpToLevel(xp)):
                 await member.add_roles(discord.utils.get(member.guild.roles, name=f"Level {i + 1}"))
 
@@ -238,23 +243,23 @@ async def on_member_join(member: discord.Member):
             conn.commit()
 
     # Calculate account age
-    now = datetime.now(timezone.utc)
-    account_creation_date = member.created_at
-    account_age = now - account_creation_date
-    years = account_age.days // 365
-    months = (account_age.days % 365) // 30
-    days = (account_age.days % 365) % 30
+    now: datetime = datetime.now(timezone.utc)
+    account_creation_date: datetime = member.created_at
+    account_age: timedelta = now - account_creation_date
+    years: int = account_age.days // 365
+    months: int = (account_age.days % 365) // 30
+    days: int = (account_age.days % 365) % 30
 
-    accountAgeStatus = 'normal'
+    accountAgeStatus: str = 'normal'
     
     if years < 1:
         if months < 1:
             # account is brand new
-            accountAgeStatus = 'brand new'
+            accountAgeStatus: str = 'brand new'
         else:
             # account is older than a month
             # and is new, but proably not dangerous
-            accountAgeStatus = 'new'
+            accountAgeStatus: str = 'new'
         # account is older than a year old
 
     # test case for my alt
@@ -264,13 +269,13 @@ async def on_member_join(member: discord.Member):
     # Embed setup
     match accountAgeStatus:
         case 'normal':
-            discordColor = discord.Color.green()
+            discordColor: discord.Color = discord.Color.green()
         case 'new':
-            discordColor = discord.Color.yellow()
+            discordColor: discord.Color = discord.Color.yellow()
         case 'brand new':
-            discordColor = discord.Color.dark_orange()
+            discordColor: discord.Color = discord.Color.dark_orange()
 
-    embed = discord.Embed(
+    embed: discord.Embed = discord.Embed(
             title="Member Joined",
             description=f"**Member:** \n{member.name}\n\n"
                         f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
@@ -279,7 +284,7 @@ async def on_member_join(member: discord.Member):
         )
     embed.set_thumbnail(url=member.display_avatar.url)
 
-    channel = bot.get_channel(LOG_CHANNEL_ID)
+    channel: discord.TextChannel = bot.get_channel(LOG_CHANNEL_ID)
 
     # Send the embed to the server's system channel (or any specific channel)
     if channel:
@@ -288,14 +293,14 @@ async def on_member_join(member: discord.Member):
 @bot.event
 async def on_member_remove(member: discord.Member):
     # Calculate account age
-    now = datetime.now(timezone.utc)
-    account_creation_date = member.created_at
-    account_age = now - account_creation_date
-    years = account_age.days // 365
-    months = (account_age.days % 365) // 30
-    days = (account_age.days % 365) % 30
+    now: datetime = datetime.now(timezone.utc)
+    account_creation_date: datetime = member.created_at
+    account_age: timedelta = now - account_creation_date
+    years: int = account_age.days // 365
+    months: int = (account_age.days % 365) // 30
+    days: int = (account_age.days % 365) % 30
 
-    embed = discord.Embed(
+    embed: discord.Embed = discord.Embed(
             title="Member Left",
             description=f"**Member:** \n{member.name}\n\n"
                         f"**Account Age:** \n{years} Years, {months} Months, {days} Days\n",
@@ -304,7 +309,7 @@ async def on_member_remove(member: discord.Member):
         )
     embed.set_thumbnail(url=member.display_avatar.url)
 
-    channel = bot.get_channel(LOG_CHANNEL_ID)
+    channel: discord.TextChannel | None = bot.get_channel(LOG_CHANNEL_ID)
 
     # Send the embed to the server's system channel (or any specific channel)
     if channel:
@@ -318,21 +323,21 @@ async def on_user_update(before: discord.Member, after: discord.Member):
 
     # Check if the avatar has changed
     if before.avatar != after.avatar:
-        user = await bot.fetch_user(after.id)
+        user: discord.User | None = await bot.fetch_user(after.id)
         # Ensure the directory exists
-        profile_picture_dir = os.path.join(os.path.expanduser(CACHE_DIR_PFP))
+        profile_picture_dir: str = os.path.join(os.path.expanduser(CACHE_DIR_PFP))
 
         if not os.path.exists(profile_picture_dir):
             os.makedirs(profile_picture_dir)
 
-        profile_picture_path = os.path.join(profile_picture_dir, f"{after.id}.png")
+        profile_picture_path: str = os.path.join(profile_picture_dir, f"{after.id}.png")
 
         if user and user.avatar:
-            profile_picture_response = requests.get(user.avatar.url, stream=True)
+            profile_picture_response: requests.Response = requests.get(user.avatar.url, stream=True)
             profile_picture_response.raise_for_status()
-            profile_picture = Image.open(profile_picture_response.raw)
+            profile_picture: Image.Image = Image.open(profile_picture_response.raw)
         else:
-            profile_picture = Image.open(DEFUALT_PROFILE_PIC)
+            profile_picture: Image.Image = Image.open(DEFUALT_PROFILE_PIC)
 
             # Save profile picture to cache
         profile_picture.save(profile_picture_path)

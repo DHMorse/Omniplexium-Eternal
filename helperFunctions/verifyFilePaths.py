@@ -1,9 +1,9 @@
 import os
 from helperFunctions.main import logWarning
 from const import CACHE_PATH, FILE_PATHS, COLORS
+from discord.ext import commands
 
-
-async def verifyFilePaths(bot):
+async def verifyFilePaths(bot: commands.Bot):
     for filePath in FILE_PATHS:
         if not CACHE_PATH in filePath:
             if not os.path.exists(filePath) and not filePath.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.db')):

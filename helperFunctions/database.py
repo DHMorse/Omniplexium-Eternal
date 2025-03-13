@@ -1,15 +1,17 @@
 import os
 import sqlite3
 import traceback
+from typing import Any
+from discord.ext import commands
 
 from const import DATABASE_PATH, COLORS
 
 from helperFunctions.main import logError, logWarning
 
-async def createUsersTable(bot) -> None:
+async def createUsersTable(bot: commands.Bot) -> None:
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
 
             cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
@@ -22,6 +24,7 @@ async def createUsersTable(bot) -> None:
                 loginReminders BOOLEAN DEFAULT FALSE
             )
             ''')
+            conn.commit()
     
     except Exception as e:
         await logError(bot, e, traceback.format_exc(), "createUsersTable")
@@ -29,10 +32,10 @@ async def createUsersTable(bot) -> None:
     
     return None
 
-async def createLoginRewardsTable(bot) -> None:
+async def createLoginRewardsTable(bot: commands.Bot) -> None:
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
             
             cursor.execute('''
             CREATE TABLE IF NOT EXISTS loginRewards (
@@ -41,6 +44,7 @@ async def createLoginRewardsTable(bot) -> None:
                 amountOrCardId INTEGER NOT NULL -- int(11) is INTEGER in SQLite
             )
             ''')
+            conn.commit()
     
     except Exception as e:
         await logError(bot, e, traceback.format_exc(), "createLoginRewardsTable")
@@ -48,10 +52,10 @@ async def createLoginRewardsTable(bot) -> None:
     
     return None
 
-async def createCardTables(bot) -> None:
+async def createCardTables(bot: commands.Bot) -> None:
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
             
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS cards (
@@ -67,6 +71,7 @@ async def createCardTables(bot) -> None:
                     imagePath TEXT                                    -- Path to the image
                 )
             ''')
+            conn.commit()
 
     except Exception as e:
         await logError(bot, e, traceback.format_exc(), "createCardTables")
@@ -74,10 +79,10 @@ async def createCardTables(bot) -> None:
     
     return None
 
-async def createAttacksTable(bot) -> None:
+async def createAttacksTable(bot: commands.Bot) -> None:
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
 
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS attacks (
@@ -92,16 +97,18 @@ async def createAttacksTable(bot) -> None:
                     FOREIGN KEY (cardId) REFERENCES cards(itemId)     -- Reference to the 'cards' table
                 )
             ''')
+            conn.commit()
+
     except Exception as e:
         await logError(bot, e, traceback.format_exc(), "createAttacksTable")
         return None
     
     return None
 
-async def createPartyTable(bot) -> None:
+async def createPartyTable(bot: commands.Bot) -> None:
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
 
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS party (
@@ -120,8 +127,9 @@ async def createPartyTable(bot) -> None:
                     FOREIGN KEY (member4) REFERENCES cards(itemId),    -- Reference to the 'cards' table
                     FOREIGN KEY (member5) REFERENCES cards(itemId),    -- Reference to the 'cards' table
                     FOREIGN KEY (member6) REFERENCES cards(itemId)     -- Reference to the 'cards' table
-                    )
-                ''')
+                )
+            ''')
+            conn.commit()
     
     except Exception as e:
         await logError(bot, e, traceback.format_exc(), "createPartyTable")
@@ -129,38 +137,38 @@ async def createPartyTable(bot) -> None:
     
     return None
 
-async def makeLoginRewardsTable(bot) -> None:
+async def makeLoginRewardsTable(bot: commands.Bot) -> None:
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
-                cursor = conn.cursor()
-                
-                # Prepare data for insertion
-                rewards = []
-                xp_amount = 10
-                xp_increment = 20
+            cursor: sqlite3.Cursor = conn.cursor()
+            
+            # Prepare data for insertion
+            rewards: list[tuple[int, str, int]] = []
+            xp_amount: int = 10
+            xp_increment: int = 20
 
-                for level in range(1, 300 + 1): # this uses a default of 300 levels and should probably be changed
-                    if level == 10:
-                        rewards.append((level, "card", 6))
-                    elif level % 5 == 0:  # Money reward every 5 levels
-                        rewards.append((level, "money", level * 2))
-                        xp_increment += 10  # Increase XP increment every 5 levels
+            for level in range(1, 300 + 1): # this uses a default of 300 levels and should probably be changed
+                if level == 10:
+                    rewards.append((level, "card", 6))
+                elif level % 5 == 0:  # Money reward every 5 levels
+                    rewards.append((level, "money", level * 2))
+                    xp_increment += 10  # Increase XP increment every 5 levels
+                else:
+                    if level == 1:
+                        rewards.append((level, "xp", xp_amount))
                     else:
-                        if level == 1:
-                            rewards.append((level, "xp", xp_amount))
-                        else:
-                            xp_amount += xp_increment
-                            rewards.append((level, "xp", xp_amount))
-                
-                # Insert rewards into the database
-                cursor.executemany("""
-                    INSERT INTO loginRewards (level, rewardType, amountOrCardId)
-                    VALUES (?, ?, ?)
-                    ON CONFLICT(level) DO UPDATE SET
-                        rewardType=excluded.rewardType,
-                        amountOrCardId=excluded.amountOrCardId
-                """, rewards)
-                conn.commit()
+                        xp_amount += xp_increment
+                        rewards.append((level, "xp", xp_amount))
+            
+            # Insert rewards into the database
+            cursor.executemany("""
+                INSERT INTO loginRewards (level, rewardType, amountOrCardId)
+                VALUES (?, ?, ?)
+                ON CONFLICT(level) DO UPDATE SET
+                    rewardType=excluded.rewardType,
+                    amountOrCardId=excluded.amountOrCardId
+            """, rewards)
+            conn.commit()
     
     except Exception as e:
         await logError(bot, e, traceback.format_exc(), "makeLoginRewardsTable")
@@ -168,7 +176,33 @@ async def makeLoginRewardsTable(bot) -> None:
 
     return None
 
-async def createAllTables(bot) -> None:
+async def createActiveQuestsTable(bot: commands.Bot) -> None:
+    try:
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor: sqlite3.Cursor = conn.cursor()
+            
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS activeQuests (
+                userId BIGINT NOT NULL,
+                questId INTEGER NOT NULL PRIMARY KEY,
+                questName TEXT NOT NULL,
+                questDescription TEXT NOT NULL,
+                questType TEXT NOT NULL,
+                questStatus TEXT NOT NULL,
+                questProgress TEXT NOT NULL,
+                questReward TEXT NOT NULL,
+                questTime BIGINT NOT NULL
+            )
+            ''')
+            conn.commit()
+    
+    except Exception as e:
+        await logError(bot, e, traceback.format_exc(), "createActiveQuestsTable")
+        return None
+    
+    return None
+
+async def createAllTables(bot: commands.Bot) -> None:
     await createUsersTable(bot)
     await createLoginRewardsTable(bot)
     await createCardTables(bot)
@@ -176,11 +210,11 @@ async def createAllTables(bot) -> None:
     await createPartyTable(bot)
     await makeLoginRewardsTable(bot)
 
-async def checkDatabase(bot) -> None:
+async def checkDatabase(bot: commands.Bot) -> None:
     try:
         if not os.path.exists(DATABASE_PATH):
             with sqlite3.connect(DATABASE_PATH) as conn:
-                cursor = conn.cursor()
+                cursor: sqlite3.Cursor = conn.cursor()
                 print(f"{COLORS['red']}Database does not exist. Creating a new one...{COLORS['reset']}")
                 await logError(bot, None, None, "Database does not exist. Creating a new one...")
 
@@ -195,11 +229,11 @@ async def checkDatabase(bot) -> None:
     
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
             # Fetch all table names
             
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-            tables = cursor.fetchall()
+            tables: list[tuple[str]] = cursor.fetchall()
             
             if not tables:
                 print(f"{COLORS['red']}No tables found in the database.{COLORS['reset']}")
@@ -212,18 +246,18 @@ async def checkDatabase(bot) -> None:
                 
                 # Fetch table schema
                 cursor.execute(f"PRAGMA table_info({table_name});")
-                schema = cursor.fetchall()
+                schema: list[tuple[str, str, str, int]] = cursor.fetchall()
                 
                 if not schema:
                     print(f"{COLORS['yellow']}  Warning: Table '{table_name}' has no schema.{COLORS['reset']}")
                     await logWarning(bot, f"Table '{table_name}' has no schema.")
                     continue
                 
-                column_definitions = {col[1]: col for col in schema}  # {column_name: schema_row}
+                column_definitions: dict[str, tuple[str, str, str, int]] = {col[1]: col for col in schema}  # {column_name: schema_row}
                 
                 # Fetch all rows from the table
                 cursor.execute(f"SELECT * FROM {table_name};")
-                rows = cursor.fetchall()
+                rows: list[tuple[Any]] = cursor.fetchall()
                 
                 if not rows:
                     if table_name == 'loginRewards':
@@ -238,9 +272,9 @@ async def checkDatabase(bot) -> None:
                 
                 for row_idx, row in enumerate(rows):
                     for col_idx, value in enumerate(row):
-                        col_name = schema[col_idx][1]
-                        col_type = schema[col_idx][2]
-                        not_null = schema[col_idx][3]
+                        col_name: str = schema[col_idx][1]
+                        col_type: str = schema[col_idx][2]
+                        not_null: int = schema[col_idx][3]
                         
                         # Validate NOT NULL constraint
                         if not_null and value is None:
@@ -260,8 +294,31 @@ async def checkDatabase(bot) -> None:
         print(f"{COLORS['red']}Error while validating database: {e}{COLORS['reset']}")
         await logError(bot, e, traceback.format_exc(), "Error while validating database.")
 
+async def createActiveQuestsTable(bot: commands.Bot) -> None:
+    try:
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor: sqlite3.Cursor = conn.cursor()
+            
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS activeQuests (
+                userId BIGINT NOT NULL,
+                questId INTEGER NOT NULL PRIMARY KEY,
+                questName TEXT NOT NULL,
+                questDescription TEXT NOT NULL,
+                questType TEXT NOT NULL,
+                questStatus TEXT NOT NULL,
+                questProgress TEXT NOT NULL,
+                questReward TEXT NOT NULL,
+                questTime BIGINT NOT NULL
+            )
+            ''')
+            conn.commit()
+    
+    except Exception as e:
+        await logError(bot, e, traceback.format_exc(), "createActiveQuestsTable")
+        return None
 
-def validateType(value, expected_type):
+def validateType(value: Any, expected_type: str) -> bool:
     """
     Validate if a value matches the expected SQLite type.
     """

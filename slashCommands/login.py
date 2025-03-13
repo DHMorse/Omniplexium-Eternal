@@ -6,21 +6,21 @@ import time
 from const import DATABASE_PATH
 from helperFunctions.main import updateXpAndCheckLevelUp, copyCard
 
-async def loginFunc(interaction: discord.Interaction):
-    authorId = interaction.user.id
+async def loginFunc(interaction: discord.Interaction) -> None:
+    authorId: int = interaction.user.id
 
     with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
+        cursor: sqlite3.Cursor = conn.cursor()
 
         cursor.execute("SELECT lastLogin, daysLoggedInInARow FROM users WHERE userId = ?", (authorId,))
-        result = cursor.fetchone()
+        result: tuple[int, int] | None = cursor.fetchone()
         
         if result is not None:
-            lastLogin = result[0]
-            daysLoggedInInARow = result[1]
+            lastLogin: int = result[0]
+            daysLoggedInInARow: int = result[1]
         else:
-            lastLogin = None
-            daysLoggedInInARow = 0
+            lastLogin: int | None = None
+            daysLoggedInInARow: int = 0
         
         if lastLogin is None:
             await interaction.response.send_message("You have made your first daily login!")
@@ -43,12 +43,13 @@ async def loginFunc(interaction: discord.Interaction):
                 return
         
         cursor.execute("SELECT daysLoggedInInARow FROM users WHERE userId = ?", (authorId,))
-        result = cursor.fetchone()
-        daysLoggedInInARow = result[0]
+        result: tuple[int] | None = cursor.fetchone()
+        daysLoggedInInARow: int = result[0]
 
         cursor.execute("SELECT rewardType, amountOrCardId FROM loginRewards WHERE level = ?", (daysLoggedInInARow,))
-        result = cursor.fetchone()
-        type, amount = result
+        result: tuple[str, int] | None = cursor.fetchone()
+        type: str = result[0]
+        amount: int = result[1]
 
         match type:
             case "xp":
@@ -62,12 +63,12 @@ async def loginFunc(interaction: discord.Interaction):
                 copyCard(amount, authorId)
                 
                 cursor.execute("SELECT itemName FROM cards WHERE itemId = ?", (amount,))
-                cardName = cursor.fetchone()[0]
+                cardName: str = cursor.fetchone()[0]
                 
                 await interaction.channel.send(f"Congratulations! You have received {cardName} for logging in {daysLoggedInInARow} days in a row!")
 
 
-slashCommandLogin = app_commands.Command(
+slashCommandLogin: app_commands.Command = app_commands.Command(
     name="login",
     description="Complete your daily login.",
     callback=loginFunc,

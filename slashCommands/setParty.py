@@ -18,11 +18,11 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
             return None
         
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
             if member.isdigit():
-                member = int(member)
+                member: int = int(member)
                 cursor.execute("SELECT userId FROM cards WHERE itemId = ?", (member,))
-                memberData = cursor.fetchone()
+                memberData: tuple[int] | None = cursor.fetchone()
                 if memberData and memberData[0] != userId:
                     try:
                         await interaction.response.send_message(
@@ -36,10 +36,10 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                         )
                     return None
                 cursor.execute("SELECT itemId FROM cards WHERE itemId = ?", (member,))
-                memberData = cursor.fetchone()
+                memberData: tuple[int] | None = cursor.fetchone()
             else:
                 cursor.execute("SELECT userId FROM cards WHERE LOWER(itemName) = ?", (member.lower(),))
-                memberData = cursor.fetchone()
+                memberData: tuple[int] | None = cursor.fetchone()
                 if memberData and memberData[0] != userId:
                     try:
                         await interaction.response.send_message(
@@ -53,7 +53,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
                         )
                     return None
                 cursor.execute("SELECT itemId FROM cards WHERE LOWER(itemName) = ?", (member.lower(),))
-                memberData = cursor.fetchone()
+                memberData: tuple[int] | None = cursor.fetchone()
         
         if not memberData:
             try:
@@ -70,19 +70,19 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
 
         return memberData[0]
 
-    userId = interaction.user.id
+    userId: int = interaction.user.id
 
-    member1itemId: int = await checkMember(userId, member1)
+    member1itemId: int | None = await checkMember(userId, member1)
     if not member1itemId:
         return
-    member2itemId: int = await checkMember(userId, member2)
-    member3itemId: int = await checkMember(userId, member3)
-    member4itemId: int = await checkMember(userId, member4)
-    member5itemId: int = await checkMember(userId, member5)
-    member6itemId: int = await checkMember(userId, member6)
+    member2itemId: int | None = await checkMember(userId, member2)
+    member3itemId: int | None = await checkMember(userId, member3)
+    member4itemId: int | None = await checkMember(userId, member4)
+    member5itemId: int | None = await checkMember(userId, member5)
+    member6itemId: int | None = await checkMember(userId, member6)
     
     with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
+        cursor: sqlite3.Cursor = conn.cursor()
         cursor.execute("UPDATE party SET member1=?, member2=?, member3=?, member4=?, member5=?, member6=? WHERE userId=?", 
                         (member1itemId, member2itemId, member3itemId, member4itemId, member5itemId, member6itemId, interaction.user.id)
                     )
@@ -97,7 +97,7 @@ async def setPartyFunc(interaction: discord.Interaction, member1: str, member2: 
     except:
         await interaction.followup.send("Party members set successfully!")
 
-slashCommandSetParty = app_commands.Command(
+slashCommandSetParty: app_commands.Command = app_commands.Command(
     name="set-party", # no spaces or capitals allowed
     description="Set your party members in your party!",
     callback=setPartyFunc,

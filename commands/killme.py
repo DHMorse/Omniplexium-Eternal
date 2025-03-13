@@ -1,6 +1,5 @@
 from discord.ext import commands
-import discord
 
 @commands.command()
-async def killme(ctx) -> None:
+async def killme(ctx: commands.Context) -> None:
     await ctx.author.kick(reason="User killed themselves.")

@@ -10,32 +10,32 @@ from helperFunctions.main import xpToLevel
 
 async def leaderboardFunc(interaction: discord.Interaction, type: str = 'level') -> None:
     with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
+        cursor: sqlite3.Cursor = conn.cursor()
         # Determine the query based on the selected type
         if type == "money":
             cursor.execute("SELECT userId, username, money FROM users ORDER BY money DESC, xp DESC LIMIT 10")
-            leaderboard_data = cursor.fetchall()
+            leaderboard_data: list[tuple[int, str, int]] = cursor.fetchall()
         else:  # Default to "level"
             type = 'level' # handles edge case where the user types something other than 'money' or 'level'
             cursor.execute("SELECT userId, username, xp FROM users ORDER BY xp DESC, xp DESC LIMIT 10")
-            leaderboard_data = cursor.fetchall()
+            leaderboard_data: list[tuple[int, str, int]] = cursor.fetchall()
 
     # Create an image for the leaderboard
-    image_width = 600
-    image_height = 770
-    background_color = (54, 57, 62)  # Dark grey background
-    image = Image.new("RGB", (image_width, image_height), background_color)
+    image_width: int = 600
+    image_height: int = 770
+    background_color: tuple[int, int, int] = (54, 57, 62)  # Dark grey background
+    image: Image.Image = Image.new("RGB", (image_width, image_height), background_color)
 
     # Load font for text
-    font_size = 30
-    font = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", font_size)
+    font_size: int = 30
+    font: ImageFont.FreeTypeFont = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", font_size)
 
     # Initialize drawing context
-    draw = ImageDraw.Draw(image)
+    draw: ImageDraw.ImageDraw = ImageDraw.Draw(image)
 
     # Set up leaderboard rendering variables
-    count = 0
-    y_offset = 10
+    count: int = 0
+    y_offset: int = 10
     for user_id, username, value in leaderboard_data:
         if user_id == 1175890644191957013:
             continue
@@ -44,47 +44,45 @@ async def leaderboardFunc(interaction: discord.Interaction, type: str = 'level')
         count += 1
 
         # Ensure the directory exists
-        profile_picture_dir = os.path.join(os.path.expanduser(CACHE_DIR_PFP))
+        profile_picture_dir: str = os.path.join(os.path.expanduser(CACHE_DIR_PFP))
         if not os.path.exists(profile_picture_dir):
             os.makedirs(profile_picture_dir)
 
         # Check if profile picture is in cache
-        profile_picture_path = os.path.join(profile_picture_dir, f"{user_id}.png")
+        profile_picture_path: str = os.path.join(profile_picture_dir, f"{user_id}.png")
 
         if os.path.exists(profile_picture_path):
-            profile_picture = Image.open(profile_picture_path)
+            profile_picture: Image.Image = Image.open(profile_picture_path)
         else:
             if user and user.avatar:
-                profile_picture_response = requests.get(user.avatar.url, stream=True)
+                profile_picture_response: requests.Response = requests.get(user.avatar.url, stream=True)
                 profile_picture_response.raise_for_status()
-                profile_picture = Image.open(profile_picture_response.raw)
+                profile_picture: Image.Image = Image.open(profile_picture_response.raw)
             else:
-                profile_picture = Image.open(DEFUALT_PROFILE_PIC)
+                profile_picture: Image.Image = Image.open(DEFUALT_PROFILE_PIC)
 
             # Save profile picture to cache
             profile_picture.save(profile_picture_path)
 
         # Resize profile picture and draw on the image
-        profile_picture = profile_picture.resize((70, 70))
+        profile_picture: Image.Image = profile_picture.resize((70, 70))
         image.paste(profile_picture, (10, y_offset))
 
         # Determine color based on rank
         if count == 1:
-            rank_color = (255, 215, 0)  # Gold
+            rank_color: tuple[int, int, int] = (255, 215, 0)  # Gold
         elif count == 2:
-            rank_color = (192, 192, 192)  # Silver
+            rank_color: tuple[int, int, int] = (192, 192, 192)  # Silver
         elif count == 3:
-            rank_color = (205, 127, 50)  # Bronze
+            rank_color: tuple[int, int, int] = (205, 127, 50)  # Bronze
         else:
-            rank_color = (255, 255, 255)  # White
+            rank_color: tuple[int, int, int] = (255, 255, 255)  # White
 
 
-        # what the fuck is value?
-
-        value = xpToLevel(value) if type == "level" else value
+        value: int = xpToLevel(value) if type == "level" else value
 
         # Draw rank, username, and value (level or money)
-        display_value = f"Level {value}" if type == "level" else f"${value:,}"
+        display_value: str = f"Level {value}" if type == "level" else f"${value:,}"
         draw.text((100, y_offset + 10), f"•  #{count} • {username}", fill=rank_color, font=font)
         draw.text((390, y_offset + 10), display_value, fill=(255, 255, 255), font=font)  # Value in white
 
@@ -97,13 +95,13 @@ async def leaderboardFunc(interaction: discord.Interaction, type: str = 'level')
     image.save(LEADERBOARD_PIC)
 
     # Create an embed for the leaderboard
-    embed = discord.Embed(title=f"{type.capitalize()} Leaderboard", color=0x282b30)
+    embed: discord.Embed = discord.Embed(title=f"{type.capitalize()} Leaderboard", color=0x282b30)
     embed.set_image(url="attachment://leaderboard.png")
 
     # Send the embed with the leaderboard image
     await interaction.response.send_message(embed=embed, file=discord.File(LEADERBOARD_PIC))
 
-slashCommandLeaderboard = app_commands.Command(
+slashCommandLeaderboard: app_commands.Command = app_commands.Command(
     name="leaderboard", # no spaces or capitals allowed
     description="Display the leaderboard based on level or money.",
     callback=leaderboardFunc,

@@ -1,4 +1,5 @@
 from discord.ext import commands
+import discord
 import sqlite3
 import time
 
@@ -6,29 +7,39 @@ from const import DATABASE_PATH
 from helperFunctions.main import updateXpAndCheckLevelUp, copyCard
 
 @commands.command()
-async def login(ctx, day: float = None) -> None:
+async def login(ctx: commands.Context, day: float | None = None) -> None:
+    """
+    Command to handle daily user logins and provide rewards based on login streak.
+    
+    Args:
+        ctx: The command context
+        day: Optional float to override the login day (admin only)
+    
+    Returns:
+        None
+    """
     if not ctx.author.guild_permissions.administrator:
-        day = 0
+        day: float = 0
 
     if day is not None:
         # everything is a string
-        float(day)
+        day = float(day)
 
     if day is None:
-        day = 0
+        day: float = 0
 
     with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
+        cursor: sqlite3.Cursor = conn.cursor()
 
         cursor.execute("SELECT lastLogin, daysLoggedInInARow FROM users WHERE userId = ?", (ctx.author.id,))
-        result = cursor.fetchone()
+        result: tuple[float, int] | None = cursor.fetchone()
         
         if result is not None:
-            lastLogin = result[0]
-            daysLoggedInInARow = result[1]
+            lastLogin: float | None = result[0]
+            daysLoggedInInARow: int = result[1]
         else:
-            lastLogin = None
-            daysLoggedInInARow = 0
+            lastLogin: float | None = None
+            daysLoggedInInARow: int = 0
         
         if lastLogin is None:
             await ctx.send("You have made your first daily login!")
@@ -51,14 +62,18 @@ async def login(ctx, day: float = None) -> None:
                 return
         
         cursor.execute("SELECT daysLoggedInInARow FROM users WHERE userId = ?", (ctx.author.id,))
-        result = cursor.fetchone()
-        daysLoggedInInARow = result[0]
+        result: tuple[int] | None = cursor.fetchone()
+        daysLoggedInInARow: int = result[0]
 
         cursor.execute("SELECT rewardType, amountOrCardId FROM loginRewards WHERE level = ?", (daysLoggedInInARow,))
-        result = cursor.fetchone()
-        type, amount = result
+        result: tuple[str, int] | None = cursor.fetchone()
+        if result is None:
+            await ctx.send("No rewards for this login streak!")
+            return
+        rewardType: str = result[0]
+        amount: int = result[1]
 
-        match type:
+        match rewardType:
             case "xp":
                 await updateXpAndCheckLevelUp(ctx=ctx, bot=ctx.bot, xp=amount, add=True)
                 await ctx.send(f"Congratulations! You have received {amount} XP for logging in {daysLoggedInInARow} days in a row!")
@@ -70,6 +85,6 @@ async def login(ctx, day: float = None) -> None:
                 copyCard(amount, ctx.author.id)
                 
                 cursor.execute("SELECT itemName FROM cards WHERE itemId = ?", (amount,))
-                cardName = cursor.fetchone()[0]
+                cardName: str = cursor.fetchone()[0]
                 
                 await ctx.send(f"Congratulations! You have received {cardName} for logging in {daysLoggedInInARow} days in a row!")

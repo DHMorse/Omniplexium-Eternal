@@ -11,7 +11,7 @@ from const import DATABASE_PATH, LOG_CHANNEL_ID, ADMIN_LOG_CHANNEL_ID, MODEL_ERR
 client = OpenAI(api_key=OPENAI_KEY)
 
 async def censorMessage(message: str) -> str:
-    response = client.chat.completions.create(
+    response: OpenAI.Chat.Completions.ChatCompletion = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[
         {
@@ -50,15 +50,15 @@ async def censorMessage(message: str) -> str:
 
 def xpToLevel(xp: any) -> int:
     # Constants
-    TOTAL_LEVELS = 100
-    XP_LEVEL_10 = 100
-    XP_LEVEL_100 = 10e12  # 1 trillion
+    TOTAL_LEVELS: int = 100
+    XP_LEVEL_10: int = 100
+    XP_LEVEL_100: float = 10e12  # 1 trillion
 
     # Calculate the exponential growth factor
-    base = (XP_LEVEL_100 / XP_LEVEL_10) ** (1 / (TOTAL_LEVELS - 10))
+    base: float = (XP_LEVEL_100 / XP_LEVEL_10) ** (1 / (TOTAL_LEVELS - 10))
     
     # Ensure xp is treated as a int
-    xp = int(xp)
+    xp: int = int(xp)
 
     # Calculate the level using logarithmic transformation
     if xp <= XP_LEVEL_10:
@@ -68,19 +68,19 @@ def xpToLevel(xp: any) -> int:
         return TOTAL_LEVELS
 
     # Reverse-engineer the level based on the xp input
-    level = 10 + np.log(xp / XP_LEVEL_10) / np.log(base)
+    level: int = 10 + np.log(xp / XP_LEVEL_10) / np.log(base)
     return int(level)
 
 
 
 def levelToXp(level: int) -> int:
     # Constants
-    TOTAL_LEVELS = 100
-    XP_LEVEL_10 = 100
-    XP_LEVEL_100 = 10e12  # 1 trillion
+    TOTAL_LEVELS: int = 100
+    XP_LEVEL_10: int = 100
+    XP_LEVEL_100: float = 10e12  # 1 trillion
 
     # Calculate the exponential growth factor
-    base = (XP_LEVEL_100 / XP_LEVEL_10) ** (1 / (TOTAL_LEVELS - 10))
+    base: float = (XP_LEVEL_100 / XP_LEVEL_10) ** (1 / (TOTAL_LEVELS - 10))
     
     if level <= 10:
         # XP grows linearly for levels <= 10
@@ -90,17 +90,17 @@ def levelToXp(level: int) -> int:
         return int(XP_LEVEL_100)
 
     # Calculate XP required for the level
-    xp = XP_LEVEL_10 * (base ** (level - 10))
-    return int(xp)
+    xp: int = int(XP_LEVEL_10 * (base ** (level - 10)))
+    return xp
 
 
 
 async def checkLoginRemindersAndSend(bot) -> None:
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
             cursor.execute("SELECT userId, lastLogin FROM users WHERE loginReminders = TRUE")
-            users = cursor.fetchall()
+            users: list[tuple[int, int]] = cursor.fetchall()
             
             # I'm breaking one of my rules here and adding a print statement
             #print(users)
@@ -108,36 +108,38 @@ async def checkLoginRemindersAndSend(bot) -> None:
             #await channel.send(f"```ansi\n{COLORS['yellow']}{users}{COLORS['reset']}```")
 
             for user in users:
+                userId: int
+                lastLogin: int
                 userId, lastLogin = user
                 # Calculate time since last login
-                now = datetime.now()
-                last_login_time = datetime.fromtimestamp(lastLogin)
-                time_diff = now - last_login_time
+                now: datetime = datetime.now()
+                last_login_time: datetime = datetime.fromtimestamp(lastLogin)
+                time_diff: timedelta = now - last_login_time
 
                 # Check if it's been approximately 40 hours since last login
                 if timedelta(hours=40) <= time_diff <= timedelta(hours=41):
                     try:
-                        userObj = await bot.fetch_user(userId)
+                        userObj: discord.User = await bot.fetch_user(userId)
                         await userObj.send("Hey! You have 4 hours until you lose your login streak. Don't forget to login in!")
                     
                     except discord.errors.NotFound:
-                        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+                        channel: discord.TextChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
                         await channel.send(f"```ansi\n{COLORS['red']}User `{userId}` not found while checking login reminders.{COLORS['reset']}```")
                     
                     except discord.errors.Forbidden:
-                        channel = bot.get_channel(LOGIN_REMINDERS_CHANNEL_ID)
+                        channel: discord.TextChannel = bot.get_channel(LOGIN_REMINDERS_CHANNEL_ID)
                         await channel.send(f"{userObj.mention} You have 4 hours until you lose your login streak. Don't forget to login in!")
 
     except sqlite3.Error as e:
         print(f"Database error while checking login reminders: {e}")
 
-async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
+async def updateXpAndCheckLevelUp(ctx: discord.Message, bot: discord.Bot, xp: int, add: bool = True) -> None:
     # Input validation
     if isinstance(xp, float):
-        xp = int(xp)
+        xp: int = int(xp)
     elif isinstance(xp, str):
         try:
-            xp = int(xp)
+            xp: int = int(xp)
         except ValueError:
             raise ValueError("argument 'xp' must be an int, float, or a string that can be converted to an integer.")
 
@@ -146,50 +148,50 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
 
     # Get discord author
     try:
-        discordAuthor = ctx.author
+        discordAuthor: discord.Member = ctx.author
     except AttributeError:
-        discordAuthor = ctx.user
+        discordAuthor: discord.User = ctx.user
 
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
-            cursor = conn.cursor()
+            cursor: sqlite3.Cursor = conn.cursor()
 
             # Get current XP
             cursor.execute("SELECT xp FROM users WHERE userId = ?", (discordAuthor.id,))
-            database = cursor.fetchone()
+            database: tuple[int] = cursor.fetchone()
 
             if not database:
                 raise ValueError(f"User {discordAuthor.id} not found in database")
 
-            current_xp = database[0]
-            current_level = xpToLevel(current_xp)
+            currentXp: int = database[0]
+            currentLevel: int = xpToLevel(currentXp)
 
             # Update XP based on add flag
-            new_xp = current_xp + xp if add else current_xp - xp
-            cursor.execute("UPDATE users SET xp = ? WHERE userId = ?", (new_xp, discordAuthor.id))
+            newXp: int = currentXp + xp if add else currentXp - xp
+            cursor.execute("UPDATE users SET xp = ? WHERE userId = ?", (newXp, discordAuthor.id))
             conn.commit()
 
             # Calculate new level after XP update
-            newLevel = xpToLevel(new_xp)
+            newLevel: int = xpToLevel(newXp)
 
-            levelUp = current_level < newLevel
-            levelDown = current_level > newLevel
+            levelUp: bool = currentLevel < newLevel
+            levelDown: bool = currentLevel > newLevel
 
             if levelUp or levelDown:
                 # Get the appropriate channel
                 try:
-                    channel = bot.get_channel(LOG_CHANNEL_ID)
+                    channel: discord.TextChannel = bot.get_channel(LOG_CHANNEL_ID)
                 except AttributeError:
-                    channel = bot.client.get_channel(LOG_CHANNEL_ID)
+                    channel: discord.TextChannel = bot.client.get_channel(LOG_CHANNEL_ID)
 
                 # Determine if we should mention the user
-                doMention = (newLevel == 1 or newLevel > 9) if levelUp else True
+                doMention: bool = (newLevel == 1 or newLevel > 9) if levelUp else True
 
                 # Handle level up
                 if levelUp:
-                    for i in range(current_level, newLevel):
-                        now = datetime.now(timezone.utc)
-                        embed = discord.Embed(
+                    for i in range(currentLevel, newLevel):
+                        now: datetime = datetime.now(timezone.utc)
+                        embed: discord.Embed = discord.Embed(
                             title="Member Leveled Up",
                             description=f"**Member:** \n{discordAuthor}\n\n"
                                         f"**Account Level:** \n{i + 1}\n",
@@ -204,7 +206,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                         )
 
                         # Handle role assignment
-                        role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
+                        role: discord.Role = discord.utils.get(ctx.guild.roles, name=f"Level {i + 1}")
                         if role is None:
                             await logError(bot, ValueError(f"Role Level {i + 1} does not exist."), traceback.format_exc(), 
                                             f'Role Level {i + 1} does not exist.', ctx)
@@ -220,9 +222,9 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
 
                 # Handle level down
                 if levelDown:
-                    for i in range(current_level, newLevel, -1):
+                    for i in range(currentLevel, newLevel, -1):
                         now = datetime.now(timezone.utc)
-                        embed = discord.Embed(
+                        embed: discord.Embed = discord.Embed(
                             title="Member Leveled Down",
                             description=f"**Member:** \n{discordAuthor}\n\n"
                                         f"**Account Level:** \n{i - 1}\n",
@@ -237,7 +239,7 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
                         )
 
                         # Handle role removal
-                        role = discord.utils.get(ctx.guild.roles, name=f"Level {i}")
+                        role: discord.Role = discord.utils.get(ctx.guild.roles, name=f"Level {i}")
                         if role is None:
                             await logError(bot, ValueError(f"Role Level {i} does not exist."), traceback.format_exc(), 
                                             f'Role Level {i} does not exist.', ctx)
@@ -259,10 +261,10 @@ async def updateXpAndCheckLevelUp(ctx, bot, xp: int, add: bool = True) -> None:
 
 def copyCard(cardId: int, userId: int) -> None:
     with sqlite3.connect(DATABASE_PATH) as conn:
-        cursor = conn.cursor()
+        cursor: sqlite3.Cursor = conn.cursor()
 
         cursor.execute("SELECT itemName FROM cards WHERE itemId = ?", (cardId,))
-        cardName = cursor.fetchone()[0]
+        cardName: tuple[str] = cursor.fetchone()
 
         if cardName is None:
             raise ValueError(f"Card with ID {cardId} does not exist.")
@@ -272,18 +274,18 @@ def copyCard(cardId: int, userId: int) -> None:
 
         # get the current max itemId
         cursor.execute("SELECT MAX(itemId) FROM cards")
-        maxItemId = cursor.fetchone()[0]
+        maxItemId: tuple[int] = cursor.fetchone()
 
     return None
 
 async def logError(bot, error: Exception, traceback: traceback, errorMessage: str = '', ctx: discord.Message = None) -> None:
     try:
-        channel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
+        channel: discord.TextChannel = bot.get_channel(ADMIN_LOG_CHANNEL_ID)
     except AttributeError:
-        channel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
+        channel: discord.TextChannel = bot.client.get_channel(ADMIN_LOG_CHANNEL_ID)
     
-    now = datetime.now(timezone.utc)
-    embed = discord.Embed(
+    now: datetime = datetime.now(timezone.utc)
+    embed: discord.Embed = discord.Embed(
         title="Error Log",
         description=f"**Error Message:**\n```{errorMessage}```\n\n"
                     f"**Error:**\n```{error}```\n\n"
@@ -299,12 +301,12 @@ async def logError(bot, error: Exception, traceback: traceback, errorMessage: st
 
 async def logModelError(bot, error: Exception, traceback: traceback, errorMessage: str = '', ctx: discord.Message = None) -> int:
     try:
-        channel = bot.get_channel(MODEL_ERROR_LOG_CHANNEL_ID)
+        channel: discord.TextChannel = bot.get_channel(MODEL_ERROR_LOG_CHANNEL_ID)
     except AttributeError:
-        channel = bot.client.get_channel(MODEL_ERROR_LOG_CHANNEL_ID)
+        channel: discord.TextChannel = bot.client.get_channel(MODEL_ERROR_LOG_CHANNEL_ID)
     
-    now = datetime.now(timezone.utc)
-    embed = discord.Embed(
+    now: datetime = datetime.now(timezone.utc)
+    embed: discord.Embed = discord.Embed(
         title="Error Log",
         description=f"**Error Message:**\n```{errorMessage}```\n\n"
                     f"**Error:**\n```{error}```\n\n"
@@ -314,18 +316,18 @@ async def logModelError(bot, error: Exception, traceback: traceback, errorMessag
         timestamp=now
     )
 
-    sentMessage = await channel.send(embed=embed)
+    sentMessage: discord.Message = await channel.send(embed=embed)
 
     return sentMessage.id
 
 async def logWarning(bot, warning: str, ctx: discord.Message = None) -> None:
     try:
-        channel = bot.get_channel(WARNING_LOG_CHANNEL_ID)
+        channel: discord.TextChannel = bot.get_channel(WARNING_LOG_CHANNEL_ID)
     except AttributeError:
-        channel = bot.client.get_channel(WARNING_LOG_CHANNEL_ID)
+        channel: discord.TextChannel = bot.client.get_channel(WARNING_LOG_CHANNEL_ID)
     
-    now = datetime.now(timezone.utc)
-    embed = discord.Embed(
+    now: datetime = datetime.now(timezone.utc)
+    embed: discord.Embed = discord.Embed(
         title="Warning Log",
         description=f"**\nWarning:**\n```{warning}```\n\n"
                     f"**Context:**\n```{ctx}```",
